@@ -11,7 +11,9 @@
   operating docs, `blueprints/`, `docs/`, `.opencode/`,
   `packages/rename_core/` (v0.1.0, 22/22 tests, analyze clean),
   `tools/parity_probe.py` (GREEN), `app/` (vision_engine, 5/5 tests,
-  analyze clean, NEVER built — human builds in Android Studio).
+  analyze clean, NEVER built — human builds in Android Studio),
+  `packages/metadata_core/` (v0.1.0, 18/18 tests, analyze clean —
+  Phase 2 Slice 1, models/provenance/codec/goldens only).
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
@@ -47,3 +49,6 @@
 - D1 CLOSED (`com.visionengine`). D2 CLOSED/PASS (raw rename via
   user-picked folder validated; MediaStore deferred, rename_core frozen).
   D3/D4 deferred. D5 done (pushed; explicit-path discipline).
+  GQ1–GQ5 locked 2026-09-15 (SAF source, bounds thumbs, docs corrected,
+  Viewer visible when read-only exists, Moto G only). Phase 2 Slice 1
+  CLOSED; Slice 2 NOT authorized — STOPPED.

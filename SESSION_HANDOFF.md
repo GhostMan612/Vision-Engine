@@ -18,7 +18,18 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, Phase 2 research session)
+## Where we are (2026-09-15, Phase 2 Slice 1 CLOSED — STOPPED)
+
+- **Slice 1 DONE, change control holds.** `packages/metadata_core` v0.1.0
+  (models + provenance + fixture codec + 3 goldens, 18/18 tests, analyze
+  clean). GQ3 doc contradiction corrected (ARCHITECTURE ×2, blueprint
+  table, matrix K1 — docs only). No Viewer/UI/platform/extraction work
+  started. No Slice 2 — awaiting authorization.
+- **Gates this slice:** metadata_core analyze clean + 18/18; rename_core
+  analyze clean + 22/22; app analyze clean + 5/5. rename_core, app code,
+  probes, D2 behavior untouched.
+
+## Where we were (2026-09-15, Phase 2 research session)
 
 - **Phase 2 = Metadata viewer (read-only first) — MAP FROZEN FOR REVIEW,
   NOT IMPLEMENTED.** `blueprints/PHASE_2_RESEARCH_MAP.md` holds the
@@ -91,8 +102,8 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
 
 ## Next actions
 
-1. **Operator review:** `blueprints/PHASE_2_RESEARCH_MAP.md` — answer GQ1–GQ5,
-   then lock → authorize (or redirect) Phase 2. No code until authorized.
+1. **Operator:** authorize Phase 2 Slice 2 (adapter) or redirect. No code
+   until authorized — change control holds.
 2. D3/D4 stay deferred (no ffmpeg/tflite until G1–G3 + promotion ADR).
 3. Git discipline stands: explicit paths, gates-only messages, no force-push.
 

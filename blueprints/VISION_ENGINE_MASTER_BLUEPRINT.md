@@ -34,7 +34,7 @@ The Python script is executable truth. The Dart port MUST be behavior-identical:
 | Deterministic order | sort by name (`iterdir` sorted; plan sorted by `old_name`) | Sort all plans by source name |
 | Dry-run default | no `--execute` → change nothing; exit 2 if collisions/skips | Preview screen is default; Execute requires explicit confirm |
 | Manifest + undo | CSV (`original_name,new_name,original_path,new_path,status`); undo reverses in reverse order with not-found/already-exists skips | Same CSV schema (adds `content_uri` column on Android); Undo screen replays it |
-| Metadata-preserving | `os.rename` same-filesystem | SAF/MediaStore `DISPLAY_NAME` update (no re-encode, timestamps preserved where platform allows) |
+| Metadata-preserving | `os.rename` same-filesystem | Raw rename in the user-picked folder (D2-validated; no re-encode, no remux, bytes preserved) |
 | Recursive opt-in | `--recursive` via `rglob` | Folder-tree toggle, default OFF (top folder only) |
 | Verbose | `--verbose` lists every decision | Preview list shows every decision; collapsed summary otherwise |
 

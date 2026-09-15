@@ -28,11 +28,11 @@ pick folder (SAF, persisted URI)
                      (3) dst already claimed in batch → skip
   → PREVIEW (dry-run default; every decision listed; counts: scanned/to_rename/clean/dirs/collisions)
   → manifest write (CSV: original_name,new_name,original_path,new_path,content_uri,status)
-  → CONFIRM → execute (re-check dst at exec time — TOCTOU guard; MediaStore DISPLAY_NAME update; one serialized queue)
+  → CONFIRM → execute (re-check dst at exec time — TOCTOU guard; raw rename in the user-picked folder, D2-validated primary; one serialized queue)
   → report (renamed count, collision-skips, errors) → UNDO available from manifest (reverse order)
 ```
 
-Pure logic (`strip`, 3 collision classes, sort) lives in `rename_core` and is golden-tested against Python fixtures. Only the final `src→dst` commit lives in the adapter (MediaStore vs `File.rename` chosen by location: shared collection → MediaStore; app-private → `File.rename`).
+Pure logic (`strip`, 3 collision classes, sort) lives in `rename_core` and is golden-tested against Python fixtures. Only the final `src→dst` commit lives in the adapter: raw `File.rename` in the user-picked folder (D2-validated primary for app-created files on Moto G 2025). MediaStore is a deferred alternative platform integration, not the current path. Behavior against pre-existing third-party media is G5 territory — never assumed from D2.
 
 ## 3. Metadata flow (provenance travels)
 

@@ -18,7 +18,7 @@
 - [x] `flutter analyze` zero + `flutter test` green (22/22 pkg + 5/5 app)
 
 ## Phase 2 — Metadata viewer
-- [ ] `packages/metadata_core` models + provenance + fixtures
+- [x] `packages/metadata_core` models + provenance + fixtures (Slice 1, 2026-09-15: 18/18 tests, analyze clean — STOPPED here per change control)
 - [ ] Photo adapter (`exif` + ExifInterface fallback) + video bridge (MediaMetadataRetriever)
 - [ ] Viewer UI (grid → detail, orientation-correct, unknown-as-—, provenance chips)
 - [ ] Moto G smoke (operator-supplied shots, never committed)

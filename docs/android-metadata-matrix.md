@@ -22,8 +22,15 @@ EXIF edits (BP-03): in-place via ExifInterface; `deleteField`-style removal for 
 | Location | `METADATA_KEY_LOCATION` if present | Rare on stock camera; `—` is normal. |
 | Codec/container | `FFprobeKit` ONLY if ffmpeg ADR lands (BP-04); else mime + extension | Never guess codec from extension. |
 
-## Scoped-storage rename reality (K1)
+## Scoped-storage rename reality (K1, corrected by D2 2026-09-15)
 
-- Android 10+: raw `File.rename` on shared DCIM fails. Path: SAF persisted folder URI → MediaStore `DISPLAY_NAME` update → `createWriteRequest` consent (11+) → verify via re-query.
-- Timestamps: `DATE_TAKEN`/`DATE_ADDED` preserved by `DISPLAY_NAME` update (no re-encode); never promise mtime preservation on all OEMs — verify on Moto G and record.
+- D2 PROVED raw `File.rename` WORKS in a user-picked shared folder on Moto G
+  2025 (app-created probe files; 2/2 renamed, 2/2 undo, cleaned). SAF-pick +
+  raw rename is the validated primary path. MediaStore `DISPLAY_NAME` update
+  + `createWriteRequest` consent (11+) remains a deferred alternative, not
+  the current path.
+- SCOPE BOUNDARY: D2 does NOT prove rename of pre-existing third-party
+  (camera-created) media. That is G5 territory — never assume, only probe.
+- Timestamps: never promise mtime preservation on all OEMs — verify on
+  Moto G and record per case.
 - HDR/motion suffixes and burst tails are opaque remainder — never reformat.

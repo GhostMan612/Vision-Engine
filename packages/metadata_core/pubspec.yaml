@@ -1,0 +1,10 @@
+name: metadata_core
+description: "Vision Engine pure-Dart metadata models: provenance-tagged photo/video metadata, fixture codec, golden fixtures."
+version: 0.1.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dev_dependencies:
+  test: ^1.26.0
+  lints: ^6.1.0
