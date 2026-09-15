@@ -18,7 +18,23 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, exposure fix applied host-side — device rerun PENDING)
+## Where we are (2026-09-15, 2B FORMALLY CLOSED / PASS — awaiting 2C authorization)
+
+- **2B device validation GREEN:** human-pasted Moto G result
+  `01:06 +5: All tests passed!` Single lane `C:\android\flutter` /
+  Dart 3.13.3; APK build/install clean — the Invalid SDK hash episode is
+  conclusively resolved (clean + rebuild under one SDK).
+- **Validated chain (device-proven):** Android file → MetadataBridge →
+  ExifInterface/MediaMetadataRetriever → `vision_engine/metadata` channel
+  → MetadataAdapter → metadata_core → provenanced PhotoMeta/VideoMeta.
+- **Precision:** 2B closure ≠ G2 closure. G2 still needs the Viewer UI +
+  real-shot smoke. No code changes follow from this closure.
+- **2C candidate (NOT authorized):** SAF source → media discovery →
+  extraction → thumbnail pipeline → deterministic viewer data model, with
+  established exclusions intact. Awaiting explicit authorization; nothing
+  started.
+
+## Where we were (2026-09-15, exposure fix applied host-side — device rerun PENDING)
 
 - **Last device failure resolved (test-expectation artifact, not a bug):**
   ExifInterface renders RATIONAL tags as decimal strings, so the fixture's
@@ -174,9 +190,8 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
 
 ## Next actions
 
-1. **Operator:** run `docs/device-validation-2b.md` (`flutter test
-   integration_test` on Moto G) and paste results; then authorize the
-   Viewer slice or redirect. No code until authorized.
+1. **Operator:** authorize 2C (candidate scope above) or redirect. No code
+   until authorized — change control holds.
 2. D3/D4 stay deferred (no ffmpeg/tflite until G1–G3 + promotion ADR).
 3. Git discipline stands: explicit paths, gates-only messages, no force-push.
 

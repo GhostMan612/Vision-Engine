@@ -15,8 +15,11 @@
   `packages/metadata_core/` (v0.1.0, 19/19 tests, analyze clean —
   Phase 2 Slice 1, models/provenance/codec/goldens only),
   2B extraction layer (Kotlin `MetadataBridge` + channel +
-  `MetadataAdapter`, 18/18 host tests; device integration test authored,
-  human run pending; exifinterface 1.4.1; NO Viewer/UI).
+  `MetadataAdapter`, 18/18 host tests; exifinterface 1.4.1; NO Viewer/UI).
+  **2B FORMALLY CLOSED 2026-09-15:** Moto G device suite 5/5 PASS
+  (human-pasted `All tests passed!`), single-lane build clean — Invalid
+  SDK hash episode resolved. G2 still open (needs Viewer + real-shot
+  smoke).
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,

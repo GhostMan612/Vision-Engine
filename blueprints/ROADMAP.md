@@ -21,6 +21,7 @@
 - [x] `packages/metadata_core`: `PhotoMeta`/`VideoMeta` + provenance enum + fixture JSON (19/19 tests, analyze clean; no app code, no new deps)
 - [x] 2B extraction layer: Kotlin bridge + channel + `MetadataAdapter` (18/18 host tests); device integration test authored, human Moto G run pending; NO Viewer/UI started
 - [x] 2B triage 2026-09-15 (SOF fixture, orient-0 normalization, status-rule fix, duration truth) — host green, device rerun pending; no 2C
+- [x] 2B FORMALLY CLOSED 2026-09-15: Moto G device suite 5/5 PASS, single-lane build clean; G2 still open (Viewer + real-shot smoke)
 - [ ] Adapter: `exif` + ExifInterface fallback (photo); MediaMetadataRetriever bridge (video)
 - [ ] Viewer UI: grid → detail, orientation-corrected dims, unknown-as-`—`, provenance chips, GPS→strip shortcut (routes to Phase 3, no silent edit)
 - Gate: G2 (viewer shows synthetic EXIF/video fixtures correctly; analyzer zero; Moto G smoke on real device shots — user-supplied, never committed)
