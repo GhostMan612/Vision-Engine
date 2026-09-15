@@ -82,11 +82,19 @@ def build_jpeg() -> bytes:
     assert len(tiff) == gps_off
     tiff += gps + lat + lon
     app1 = b"Exif\x00\x00" + tiff
+    sof0 = (
+        b"\xff\xc0"
+        + struct.pack(">H", 17)
+        + bytes((8,))
+        + struct.pack(">HH", 4000, 3000)
+        + bytes((3, 1, 0x22, 0, 2, 0x11, 1, 3, 0x11, 1))
+    )
     return (
         b"\xff\xd8"
         + b"\xff\xe1"
         + struct.pack(">H", len(app1) + 2)
         + app1
+        + sof0
         + b"\xff\xd9"
     )
 
@@ -118,6 +126,22 @@ def _rational(tiff: bytes, entry_off: int, index: int) -> float:
 
 def verify_jpeg(blob: bytes) -> None:
     assert blob[:2] == b"\xff\xd8" and blob[-2:] == b"\xff\xd9"
+    pos = 2
+    seen = set()
+    sof_dims: tuple[int, int] | None = None
+    while pos < len(blob) - 1:
+        assert blob[pos] == 0xFF
+        marker = blob[pos + 1]
+        seen.add(marker)
+        if marker == 0xD9:
+            break
+        (seg_len,) = struct.unpack_from(">H", blob, pos + 2)
+        if marker == 0xC0:
+            (prec, height, width) = struct.unpack_from(">BHH", blob, pos + 4)
+            assert prec == 8
+            sof_dims = (width, height)
+        pos += 2 + seg_len
+    assert 0xE1 in seen and sof_dims == (3000, 4000)
     assert blob[2:4] == b"\xff\xe1"
     (seg_len,) = struct.unpack_from(">H", blob, 4)
     app1 = blob[6 : 4 + seg_len]

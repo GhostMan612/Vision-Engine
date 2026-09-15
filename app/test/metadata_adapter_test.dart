@@ -296,4 +296,47 @@ void main() {
       expect(MetadataAdapter.mimeOf('/t/a.mkv'), 'video/x-matroska');
     });
   });
+
+  group('status semantics', () {
+    test('orientation zero is unknown, never a declared value', () async {
+      script = (_) => <String, dynamic>{
+        'orientation': _node('0', 'exif'),
+        'widthRaw': _node('3000', 'exif'),
+        'heightRaw': _node('4000', 'exif'),
+      };
+      final MetadataAdapter adapter = MetadataAdapter();
+      final PhotoResult result =
+          await adapter.probePhoto('/t/IMG_a.jpg');
+      expect(result.meta.orientation.value, isNull);
+      expect(
+        result.meta.orientation.provenance,
+        Provenance.unknown,
+      );
+      expect(result.warnings.length, 1);
+      expect(result.meta.width, 3000);
+      expect(result.meta.height, 4000);
+    });
+
+    test('filesystem facts alone stay partial (photo)', () async {
+      script = (_) => <String, dynamic>{
+        'fileSizeBytes': _node(454, 'filesystem'),
+      };
+      final MetadataAdapter adapter = MetadataAdapter();
+      final PhotoResult result =
+          await adapter.probePhoto('/t/shot.png');
+      expect(result.status, ExtractStatus.partial);
+      expect(result.meta.fileSizeBytes.value, 454);
+    });
+
+    test('filesystem facts alone stay partial (video)', () async {
+      script = (_) => <String, dynamic>{
+        'fileSizeBytes': _node(150, 'filesystem'),
+      };
+      final MetadataAdapter adapter = MetadataAdapter();
+      final VideoResult result =
+          await adapter.probeVideo('/t/VID_a.mp4');
+      expect(result.status, ExtractStatus.partial);
+      expect(result.meta.fileSizeBytes.value, 150);
+    });
+  });
 }

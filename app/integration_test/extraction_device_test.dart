@@ -122,8 +122,10 @@ void main() {
         contains(node['provenance']),
       );
     }
-    if (result.meta.durationMs.value != null) {
-      expect(result.meta.durationMs.value, 8340);
-    }
+    expect(result.meta.durationMs.value, 0);
+    expect(
+      result.meta.durationMs.provenance,
+      Provenance.container,
+    );
   });
 }

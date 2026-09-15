@@ -222,6 +222,15 @@ class MetadataAdapter {
     _sanitizeInt(json, 'orientation', warnings);
     _sanitizeInt(json, 'widthRaw', warnings, allowZero: false);
     _sanitizeInt(json, 'heightRaw', warnings, allowZero: false);
+    final Object? orientationNode = json['orientation'];
+    if (orientationNode is Map<String, dynamic> &&
+        orientationNode['value'] == 0) {
+      warnings.add('orientation not legitimate: 0');
+      json['orientation'] = <String, dynamic>{
+        'value': null,
+        'provenance': 'unknown',
+      };
+    }
     json['mime'] = <String, dynamic>{
       'value': mime,
       'provenance': 'filesystem',
@@ -294,7 +303,6 @@ class MetadataAdapter {
       meta.exposureTime.isKnown,
       meta.widthRaw.isKnown,
       meta.heightRaw.isKnown,
-      meta.fileSizeBytes.isKnown,
     ];
     return known.any((bool k) => k)
         ? ExtractStatus.ok
@@ -311,7 +319,6 @@ class MetadataAdapter {
       meta.locationLatitude.isKnown,
       meta.locationLongitude.isKnown,
       meta.codec.isKnown,
-      meta.fileSizeBytes.isKnown,
     ];
     return known.any((bool k) => k)
         ? ExtractStatus.ok

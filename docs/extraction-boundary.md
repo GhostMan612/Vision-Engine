@@ -40,11 +40,19 @@ dimensions ≤ 0 map to unknown (never a real size).
 
 | Condition | Status |
 |---|---|
-| ≥1 field known | `ok` |
-| File read, nothing known | `partial` |
+| ≥1 EXIF/container field known (filesystem facts excluded) | `ok` |
+| File read, zero EXIF/container fields | `partial` |
 | Unknown extension (no channel call) | `unsupported` |
 | Missing/unreadable/corrupt (`UNREADABLE`) | `unreadable` |
 | Unexpected platform failure (`PLATFORM_FAIL`) | `unreadable` + coded warning |
+
+`ok` counts substantive fields only: `fileSizeBytes`/`mime` are
+filesystem facts, always known for existing files — counting them made
+`partial` unreachable (found on Moto G 2026-09-15: a 0-byte file scored
+`ok`). Orientation literal `0` maps to unknown: no camera writes it;
+ExifInterface surfaces `0` for an absent tag, so keeping it would invent
+metadata. Rotation `0` stays known (legitimate); duration `0` stays known
+(legitimate for empty media).
 
 `MissingPluginException` (unwired channel) propagates — a programming
 failure must stay loud. Retriever is released in `finally`, including
@@ -71,8 +79,10 @@ extension table for MIME; until then the table is the deterministic rule.
   unknown fields (Moto G is modern — G2 device covers the contract).
 - ExifInterface WRITES only JPEG/PNG/WebP — irrelevant here (read-only),
   but constrains Phase 3 HEIF/DNG edits (their problem, flagged early).
-- Trak-less/odd containers: duration may still parse (mvhd), dims stay
-  unknown; behavior is graceful by construction, exact values covered by
-  host payload tests + G2 real-shot smoke.
+- Trak-less/odd containers: duration reports platform `0` (mvhd duration
+  is NOT surfaced without tracks — verified on Moto G, do not expect
+  mvhd passthrough); dims stay unknown; behavior is graceful by
+  construction, exact values covered by host payload tests + G2 real-shot
+  smoke.
 - Android 14+ partial media access is G5/future scope; Phase 2 reads only
   already-granted paths.

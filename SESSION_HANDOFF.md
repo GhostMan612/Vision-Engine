@@ -18,7 +18,29 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, 2B build-blocker diagnosis — device run STILL PENDING)
+## Where we are (2026-09-15, 2B triage fix applied host-side — device rerun PENDING)
+
+- **Four device failures forensically classified, four minimal fixes
+  (no weakening, no 2C):**
+  (1) JPEG dims `"0"` → FIXTURE at fault (no SOF marker; real camera files
+  always carry one) — SOF0 3000×4000 added to the generator, device
+  assertions unchanged; (2) PNG orientation `0` → ADAPTER gap
+  (ExifInterface absent-tag default; no camera writes `0`) — literal `0`
+  now maps to unknown + warning, other values verbatim per core golden;
+  (3) corrupt-file status `ok` → status-rule bug (`fileSizeBytes` counted
+  toward `ok` made `partial` unreachable) — `ok` now counts EXIF/container
+  fields only; corrupt test passes unmodified; (4) duration `8340` → TEST
+  assumption artifact (retriever ignores mvhd without tracks; device truth
+  is platform-reported `0`/container) — assertion + boundary doc corrected
+  to verified truth. `metadata_core` untouched.
+- **Host gates green under the surviving single SDK**
+  (`C:\android\flutter`, Dart 3.13.3 — `C:\src\flutter` is gone from this
+  environment): metadata_core 19/19, rename_core 22/22, app 26/26 (23 + 3
+  new status-semantics tests), both analyzers clean.
+- **Next:** human reruns `flutter test integration_test` on Moto G and
+  pastes output. All five green → 2B can close. K15 banked.
+
+## Where we were (2026-09-15, 2B build-blocker diagnosis — device run STILL PENDING)
 
 - **Root cause PROVEN (not a code bug):** the 2B device run failed with
   `Can't load Kernel binary: Invalid SDK hash` in `objective_c`'s hook
