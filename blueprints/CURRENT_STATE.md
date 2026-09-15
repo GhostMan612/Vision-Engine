@@ -4,7 +4,9 @@
 
 ## Snapshot (2026-09-14, scaffold session)
 
-- **Repo:** `C:\vision engine\` — unversioned (D5 deferred). Contents:
+- **Repo:** `C:\vision engine\` — git `main` tracks
+  `github.com/GhostMan612/Vision-Engine` (init + push 2026-09-15:
+  `fc4317f` scaffold, `28d7205` README merge). Contents:
   `rename_camera_prefixes.py`, `rename_min.py`, `dcim/` (empty),
   operating docs, `blueprints/`, `docs/`, `.opencode/`,
   `packages/rename_core/` (v0.1.0, 22/22 tests, analyze clean),
@@ -44,4 +46,4 @@
   path_provider, shared_preferences, permission_handler, file_picker 12.3.0).
 - D1 CLOSED (`com.visionengine`). D2 CLOSED/PASS (raw rename via
   user-picked folder validated; MediaStore deferred, rename_core frozen).
-  D3/D4 deferred. D5 deferred (no git).
+  D3/D4 deferred. D5 done (pushed; explicit-path discipline).

@@ -86,7 +86,11 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
   validated path; MediaStore adapter deferred (not justified by evidence).
 - D3: `ffmpeg_kit_flutter` inclusion — ONLY for BP-04 slideshow/concat; never for tag writes (tagger law). Needs ADR + size-budget sign-off (~40MB/ABI).
 - D4: On-device bg-erase engine (TFLite U²-Net vs وا cloud) — deferred to BP-04; no dep until Phases 1–3 pass.
-- D5: Git init — DEFERRED by operator (no `.git`; decide later).
+- D5: DONE 2026-09-15 — repo initialized, 81 files committed by explicit
+  path (`fc4317f`), GitHub README merged (`28d7205`), pushed to
+  `https://github.com/GhostMan612/Vision-Engine` (`main` tracks
+  `origin/main`). Discipline from here: explicit paths only, gates-only
+  messages, no force-push.
 
 ## Toolchain notes (frozen)
 
