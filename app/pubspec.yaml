@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   rename_core:
     path: ../packages/rename_core
+  metadata_core:
+    path: ../packages/metadata_core
   path_provider: ^2.1.6
   shared_preferences: ^2.5.5
   permission_handler: ^13.0.2
@@ -43,6 +45,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -62,6 +66,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/fixtures/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

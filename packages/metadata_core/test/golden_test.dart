@@ -51,6 +51,17 @@ void main() {
       expect(videoMetaToJson(meta), _withoutExpected(golden));
     });
 
+    test('missing keys decode to unknown (channel-emitter contract)', () {
+      final PhotoMeta photo = photoMetaFromJson(<String, dynamic>{});
+      expect(photo.orientation.value, isNull);
+      expect(photo.orientation.provenance, Provenance.unknown);
+      expect(photo.width, isNull);
+      final VideoMeta video = videoMetaFromJson(<String, dynamic>{});
+      expect(video.durationMs.value, isNull);
+      expect(video.durationMs.provenance, Provenance.unknown);
+      expect(video.width, isNull);
+    });
+
     test('orientation and rotation vectors', () {
       final Map<String, dynamic> golden = _load('orientation_vectors');
       final Map<String, dynamic> photoBase =

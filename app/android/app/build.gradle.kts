@@ -56,3 +56,11 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // 2B extraction path (ADR-003): platform-canonical EXIF reader —
+    // JPEG/PNG/WebP/HEIC/DNG reads. Pinned 1.4.1 (verified Jetpack release
+    // 2025-04-23; needs compileSdk 34+, we pin 37; minSdk floor satisfied
+    // by our minSdk 26). No Dart EXIF package by design (single path).
+    implementation("androidx.exifinterface:exifinterface:1.4.1")
+}

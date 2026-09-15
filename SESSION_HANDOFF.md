@@ -18,7 +18,19 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, Phase 2 Slice 1 CLOSED — STOPPED)
+## Where we are (2026-09-15, Phase 2 Work Package 2B CLOSED host-side — STOPPED)
+
+- **2B DONE, change control holds.** Kotlin `MetadataBridge` + channel +
+  `MetadataAdapter` + 18/18 host tests + synthetic fixtures +
+  device integration test authored (human Moto G run pending) +
+  ADR-003 + boundary/runbook docs. Gates green (below). NO Viewer/UI/
+  enumeration/thumbnails/MediaStore/G5/DCIM/writes started.
+- **Gates 2B:** metadata_core analyze clean + 19/19; rename_core clean +
+  22/22; app analyze clean + 23/23. New dep: exifinterface 1.4.1
+  (native, justified ADR-003) + `integration_test` (SDK dev) +
+  `metadata_core` path dep. rename_core behavior untouched.
+
+## Where we were (2026-09-15, Phase 2 Slice 1 CLOSED — STOPPED)
 
 - **Slice 1 DONE, change control holds.** `packages/metadata_core` v0.1.0
   (models + provenance + fixture codec + 3 goldens, 18/18 tests, analyze
@@ -102,8 +114,9 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
 
 ## Next actions
 
-1. **Operator:** authorize Phase 2 Slice 2 (adapter) or redirect. No code
-   until authorized — change control holds.
+1. **Operator:** run `docs/device-validation-2b.md` (`flutter test
+   integration_test` on Moto G) and paste results; then authorize the
+   Viewer slice or redirect. No code until authorized.
 2. D3/D4 stay deferred (no ffmpeg/tflite until G1–G3 + promotion ADR).
 3. Git discipline stands: explicit paths, gates-only messages, no force-push.
 

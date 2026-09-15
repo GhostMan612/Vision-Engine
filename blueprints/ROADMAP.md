@@ -17,8 +17,9 @@
 - [x] `app/` rename preview screen (dry-run default) wired to `rename_core` on app-private dir first (no MediaStore yet)
 - Gate: G1 CLOSED (host). Device round-trip tracked under G5/D2.
 
-## Phase 2 — Metadata viewer (read-only first) [~] (Slice 1 done 2026-09-15, STOPPED per change control)
-- [x] `packages/metadata_core`: `PhotoMeta`/`VideoMeta` + provenance enum + fixture JSON (18/18 tests, analyze clean; no app code, no new deps)
+## Phase 2 — Metadata viewer (read-only first) [~] (Slices 1+2B done host-side 2026-09-15, STOPPED per change control)
+- [x] `packages/metadata_core`: `PhotoMeta`/`VideoMeta` + provenance enum + fixture JSON (19/19 tests, analyze clean; no app code, no new deps)
+- [x] 2B extraction layer: Kotlin bridge + channel + `MetadataAdapter` (18/18 host tests); device integration test authored, human Moto G run pending; NO Viewer/UI started
 - [ ] Adapter: `exif` + ExifInterface fallback (photo); MediaMetadataRetriever bridge (video)
 - [ ] Viewer UI: grid → detail, orientation-corrected dims, unknown-as-`—`, provenance chips, GPS→strip shortcut (routes to Phase 3, no silent edit)
 - Gate: G2 (viewer shows synthetic EXIF/video fixtures correctly; analyzer zero; Moto G smoke on real device shots — user-supplied, never committed)

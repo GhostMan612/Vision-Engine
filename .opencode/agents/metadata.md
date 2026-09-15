@@ -15,8 +15,12 @@ tools:
 ## Domain
 `packages/metadata_core/` + `app/lib/adapters/metadata_adapter.dart` + `app/lib/features/viewer/`.
 
-## Core rules (from RULES.md + BP-02)
-- Photo: `exif` pkg → native `ExifInterface` fallback (HEIF/DNG). Video: `MediaMetadataRetriever` bridge.
+## Core rules (from RULES.md + BP-02 + ADR-003)
+- Single native path: Kotlin `MetadataBridge` (ExifInterface photo +
+  MediaMetadataRetriever video) → `vision_engine/metadata` channel →
+  Dart `MetadataAdapter` decodes via `metadata_core` codec. No Dart `exif`
+  package by design; no MediaStore; no writes.
+- Orientation/rotation extracted raw; `metadata_core` owns corrected dims.
 - Orientation/rotation applied before dims. Missing = `—`, never invented, never mtime-as-EXIF.
 - Provenance chip per field (`exif|container|filesystem|unknown`). GPS row links to BP-03 strip (no inline edits).
 - Offline-first: viewer works airplane-mode on granted URIs.

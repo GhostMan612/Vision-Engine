@@ -12,8 +12,11 @@
   `packages/rename_core/` (v0.1.0, 22/22 tests, analyze clean),
   `tools/parity_probe.py` (GREEN), `app/` (vision_engine, 5/5 tests,
   analyze clean, NEVER built — human builds in Android Studio),
-  `packages/metadata_core/` (v0.1.0, 18/18 tests, analyze clean —
-  Phase 2 Slice 1, models/provenance/codec/goldens only).
+  `packages/metadata_core/` (v0.1.0, 19/19 tests, analyze clean —
+  Phase 2 Slice 1, models/provenance/codec/goldens only),
+  2B extraction layer (Kotlin `MetadataBridge` + channel +
+  `MetadataAdapter`, 18/18 host tests; device integration test authored,
+  human run pending; exifinterface 1.4.1; NO Viewer/UI).
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
@@ -40,6 +43,7 @@
 | K10 | Dart | `List.join(',')` has no spaces; `List.toString()` does — never compare a join against a toString-shaped literal. Compare element-wise. | Closed — `storage_probe.dart` |
 | K11 | Deps | file_picker 12 removed `FilePicker.platform` — use static `FilePicker.getDirectoryPath`. | Closed — `probe_screen.dart` |
 | K12 | Build | `permission_handler_android` requires compileSdk 37 (template pins 36 → `compileDebugJavaWithJavac` fails). Pin 37 with justification comment; toolchain bumps stay in dedicated sessions (ADR-002). | Closed 2026-09-15 — device-proven debug build |
+| K13 | Tests | Plain `test()` using MethodChannel mocks needs `TestWidgetsFlutterBinding.ensureInitialized()` first line in `main()` or every test errors with binding-not-initialized. | Closed — `metadata_adapter_test.dart` |
 
 ## Decisions log (pointer — full text in `decisions/`)
 
@@ -50,5 +54,8 @@
   user-picked folder validated; MediaStore deferred, rename_core frozen).
   D3/D4 deferred. D5 done (pushed; explicit-path discipline).
   GQ1–GQ5 locked 2026-09-15 (SAF source, bounds thumbs, docs corrected,
-  Viewer visible when read-only exists, Moto G only). Phase 2 Slice 1
-  CLOSED; Slice 2 NOT authorized — STOPPED.
+  Viewer visible when read-only exists, Moto G only). Phase 2 Slices 1+2B
+  CLOSED host-side; device 2B run + Viewer slice NOT authorized — STOPPED.
+- ADR-003 ACCEPTED 2026-09-15 (single native extraction path, no Dart
+  exif pkg, exifinterface 1.4.1 pin, §24 build leg delegated to operator
+  per RULES supremacy).
