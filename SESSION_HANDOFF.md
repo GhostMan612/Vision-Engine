@@ -18,12 +18,30 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-14, scaffold session)
+## Where we are (2026-09-15, Phase 2 research session)
+
+- **Phase 2 = Metadata viewer (read-only first) — MAP FROZEN FOR REVIEW,
+  NOT IMPLEMENTED.** `blueprints/PHASE_2_RESEARCH_MAP.md` holds the
+  A/B/C report + 24-point execution map + 5 open questions (GQ1–GQ5).
+  Awaiting operator review → lock → authorize. No production code touched.
+- **Git:** already initialized last turn; verified in-sync (`main` ==
+  `origin/main` == `01fa466`, clean tree). Nothing to re-init; this
+  session commits only the map doc + this handoff.
+- **Archaeology verdict:** Phase 2's meaning is unanimous across ROADMAP,
+  BP-02, CHECKPOINTS G2, CHECKLIST, AGENTS, handoff (read-only metadata
+  viewer). One real tension found: ARCHITECTURE §rename prescribes
+  MediaStore for shared collections, but D2 + operator directive froze
+  SAF-pick + raw rename — reword queued for next authorized task (D1 in
+  the map doc), NOT edited here. Minor: the Python script's internal
+  "Phase 1/Phase 2" (plan/execute) is unrelated to project phases.
+- **D2 scope honesty (new precision):** D2 proved rename of APP-CREATED
+  files in shared storage. Third-party (camera-created) file rename is
+  NOT proven — G5/DCIM territory, still deferred, never probed.
 
 - **Phase 0 CLOSED, Phase 1 CLOSED (host side).** `packages/rename_core`
   (pure Dart port) + `tools/parity_probe.py` + `app/` shell
-  (`com.visionengine`, minSdk 26, template compileSdk 36) scaffolded, gates
-  green. No git yet (D5 deferred by operator). No writes outside
+  (`com.visionengine`, minSdk 26, compileSdk 37 pinned) scaffolded, gates
+  green. Git initialized + pushed (D5 done). No writes outside
   `C:\vision engine` (+ build cache); hub settings untouched.
 - **D1 DECIDED:** `com.visionengine` (namespace + applicationId; MainActivity
   moved to `com.visionengine`, stale `vision_engine` subpackage deleted).
@@ -73,11 +91,10 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
 
 ## Next actions
 
-1. **CLOSED:** D2 device probe — PASS/WORKS (see above).
-2. **Next authorized work only:** operator will task the next phase (Phase 2
-   viewer is the roadmap candidate). No feature work until tasked.
-3. D3/D4 stay deferred (no ffmpeg/tflite until G1–G3 + promotion ADR).
-4. D5 (git init) whenever the operator says so — explicit-path discipline.
+1. **Operator review:** `blueprints/PHASE_2_RESEARCH_MAP.md` — answer GQ1–GQ5,
+   then lock → authorize (or redirect) Phase 2. No code until authorized.
+2. D3/D4 stay deferred (no ffmpeg/tflite until G1–G3 + promotion ADR).
+3. Git discipline stands: explicit paths, gates-only messages, no force-push.
 
 ## Open decisions (deferred, do NOT implement yet)
 
@@ -95,5 +112,6 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
 ## Toolchain notes (frozen)
 
 - `C:\venv-hub\venv` Python 3.14.6 is the ONLY interpreter for harness scripts. No TF wheels on 3.14 — ML prototyping gets its own `.venv-tf` (Python 3.12) inside the project lane if ever needed (Recovery pattern).
-- Flutter 3.47 / Dart 3.13 / `compileSdk 36 / minSdk 26` planned; AGP/Gradle pins deferred to scaffold ADR (mirror tagger `build.gradle` + Atlas ceiling notes).
+- Flutter 3.47 / Dart 3.13 / `compileSdk 37` (pinned, device-proven) /
+  `minSdk 26` / `targetSdk 36` (Flutter-pinned) / AGP 9.1.0 / Gradle 9.3.1.
 - PS 5.1 mojibake ban in force for all source edits.
