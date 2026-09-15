@@ -44,6 +44,7 @@
 | K11 | Deps | file_picker 12 removed `FilePicker.platform` — use static `FilePicker.getDirectoryPath`. | Closed — `probe_screen.dart` |
 | K12 | Build | `permission_handler_android` requires compileSdk 37 (template pins 36 → `compileDebugJavaWithJavac` fails). Pin 37 with justification comment; toolchain bumps stay in dedicated sessions (ADR-002). | Closed 2026-09-15 — device-proven debug build |
 | K13 | Tests | Plain `test()` using MethodChannel mocks needs `TestWidgetsFlutterBinding.ensureInitialized()` first line in `main()` or every test errors with binding-not-initialized. | Closed — `metadata_adapter_test.dart` |
+| K14 | Toolchain | TWO Flutter installs share this project dir + pub cache: `C:\src\flutter` (Dart 3.13.0, agent lane) vs `C:\android\flutter` (Dart 3.13.3, human build lane). Native-assets `hook.dill` binaries are Dart-SDK-specific: reusing a 3.13.0-built `objective_c` hook under 3.13.3 fails with "Can't load Kernel binary: Invalid SDK hash". Fix is environmental: `flutter clean` + rebuild under ONE SDK before switching lanes. Never "fix" by touching `objective_c` (legitimate transitive via `path_provider_foundation`) or app source. | Open process rule — 2B blocker diagnosis 2026-09-15 |
 
 ## Decisions log (pointer — full text in `decisions/`)
 

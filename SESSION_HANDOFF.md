@@ -18,7 +18,32 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, Phase 2 Work Package 2B CLOSED host-side — STOPPED)
+## Where we are (2026-09-15, 2B build-blocker diagnosis — device run STILL PENDING)
+
+- **Root cause PROVEN (not a code bug):** the 2B device run failed with
+  `Can't load Kernel binary: Invalid SDK hash` in `objective_c`'s hook
+  because this machine has TWO Flutter SDKs sharing the project —
+  `C:\src\flutter` (Dart 3.13.0, agent lane) vs `C:\android\flutter`
+  (Dart 3.13.3, human build lane) — and the 3.13.0-built `hook.dill`
+  (byte-identical across all three cache dirs, incl. the failed 9/15 run's
+  own stderr) was reused under 3.13.3. `objective_c` 9.6.0 is a legitimate
+  transitive dep (`path_provider_foundation`); no repo change required.
+- **My lane re-verified green:** `flutter test` 23/23 under Dart 3.13.0
+  after the failure (further proof the tree is sound).
+- **Remediation = environmental, human-executed:** `flutter clean` + `pub
+  get` + rebuild under `C:\android\flutter`, then the existing
+  `docs/device-validation-2b.md` run. Exact commands handed over; I did
+  NOT touch `.dart_tool` (would symmetrically break my lane) and did NOT
+  run any host build (RULES §1.5 wins over the work-package §11/§24 build
+  leg — same supremacy call as ADR-003).
+- **SDK XML v4 warning:** unrelated benign skew (cmdline-tools vs Studio
+  metadata); platform install completed, failure came later at Dart kernel
+  load. Left alone.
+- Standing recommendation (operator decision, NOT executed): standardize
+  on ONE Flutter SDK for both lanes, or always `flutter clean` when
+  switching SDKs. Recorded as K14.
+
+## Where we were (2026-09-15, Phase 2 Work Package 2B CLOSED host-side — STOPPED)
 
 - **2B DONE, change control holds.** Kotlin `MetadataBridge` + channel +
   `MetadataAdapter` + 18/18 host tests + synthetic fixtures +
