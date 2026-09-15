@@ -1,0 +1,18 @@
+{
+  "prefixes": ["IMG_", "VID_"],
+  "caseSensitive": true,
+  "recursive": false,
+  "entries": [
+    {"path": "/t/VID_z.mp4", "name": "VID_z.mp4"},
+    {"path": "/t/IMG_m.jpg", "name": "IMG_m.jpg"},
+    {"path": "/t/IMG_a.jpg", "name": "IMG_a.jpg"}
+  ],
+  "existing": ["/t/VID_z.mp4", "/t/IMG_m.jpg", "/t/IMG_a.jpg"],
+  "expectedPlanned": [
+    ["/t/IMG_a.jpg", "/t/a.jpg"],
+    ["/t/IMG_m.jpg", "/t/m.jpg"],
+    ["/t/VID_z.mp4", "/t/z.mp4"]
+  ],
+  "expectedCollisions": [],
+  "expectedCounts": {"scanned": 3, "planned": 3, "skippedNoPrefix": 0, "skippedIsDir": 0, "skippedEmptyResult": 0, "collisions": 0}
+}

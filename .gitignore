@@ -1,0 +1,20 @@
+# Vision Engine — gitignore (media + secrets never enter history)
+dcim/*
+!dcim/.gitkeep
+__pycache__/
+*.pyc
+*.csv
+*.log
+renames*.csv
+.opencode/node_modules/
+build/
+.dart_tool/
+.idea/
+*.iml
+local.properties
+*.keystore
+*.jks
+.env
+google-services.json
+# Internal Dart packages resolve via path deps; only the app lock is tracked.
+packages/rename_core/pubspec.lock

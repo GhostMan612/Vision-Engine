@@ -1,0 +1,23 @@
+{
+  "prefixes": ["IMG_", "VID_"],
+  "caseSensitive": true,
+  "recursive": false,
+  "entries": [
+    {"path": "/t/img_lower.jpg", "name": "img_lower.jpg"},
+    {"path": "/t/vid_lower.mp4", "name": "vid_lower.mp4"},
+    {"path": "/t/IMG_upper.jpg", "name": "IMG_upper.jpg"},
+    {"path": "/t/VID_UPPER.MP4", "name": "VID_UPPER.MP4"}
+  ],
+  "existing": [
+    "/t/img_lower.jpg",
+    "/t/vid_lower.mp4",
+    "/t/IMG_upper.jpg",
+    "/t/VID_UPPER.MP4"
+  ],
+  "expectedPlanned": [
+    ["/t/IMG_upper.jpg", "/t/upper.jpg"],
+    ["/t/VID_UPPER.MP4", "/t/UPPER.MP4"]
+  ],
+  "expectedCollisions": [],
+  "expectedCounts": {"scanned": 4, "planned": 2, "skippedNoPrefix": 2, "skippedIsDir": 0, "skippedEmptyResult": 0, "collisions": 0}
+}
