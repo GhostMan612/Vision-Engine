@@ -18,7 +18,20 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, 2B triage fix applied host-side — device rerun PENDING)
+## Where we are (2026-09-15, exposure fix applied host-side — device rerun PENDING)
+
+- **Last device failure resolved (test-expectation artifact, not a bug):**
+  ExifInterface renders RATIONAL tags as decimal strings, so the fixture's
+  `1/120` correctly arrives as `'0.008333333333333333'` (IEEE-deterministic).
+  Frozen contract (`MetaField<String>`, verbatim codec) requires no rational
+  form — assertion corrected to the exact canonical string + provenance
+  check. No native/core/fixture change, no approximation, no 2C. (K16.)
+- **Host gates green:** metadata_core 19/19, rename_core 22/22, app 26/26,
+  both analyzers clean.
+- **Next:** human reruns `flutter test integration_test` on Moto G. Five
+  green → 2B can close.
+
+## Where we were (2026-09-15, 2B triage fix applied host-side — device rerun PENDING)
 
 - **Four device failures forensically classified, four minimal fixes
   (no weakening, no 2C):**

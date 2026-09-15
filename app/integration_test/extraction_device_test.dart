@@ -55,7 +55,8 @@ void main() {
     expect(meta.make.value, 'SYNTHETIC');
     expect(meta.model.value, 'SAMPLE CAM');
     expect(meta.orientation.value, 6);
-    expect(meta.exposureTime.value, '1/120');
+    expect(meta.exposureTime.value, '0.008333333333333333');
+    expect(meta.exposureTime.provenance, Provenance.exif);
     expect(meta.widthRaw.value, 3000);
     expect(meta.heightRaw.value, 4000);
     expect(meta.width, 4000);

@@ -84,5 +84,9 @@ extension table for MIME; until then the table is the deterministic rule.
   mvhd passthrough); dims stay unknown; behavior is graceful by
   construction, exact values covered by host payload tests + G2 real-shot
   smoke.
+- ExifInterface `getAttribute` renders RATIONAL tags as decimal strings
+  (`1/120` → `0.008333333333333333`); the core exposure contract is
+  opaque-String-verbatim, so assertions pin the platform-canonical decimal
+  exactly (IEEE-deterministic, no approximation, no reconstruction).
 - Android 14+ partial media access is G5/future scope; Phase 2 reads only
   already-granted paths.
