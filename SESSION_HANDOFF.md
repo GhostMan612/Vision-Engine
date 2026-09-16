@@ -18,7 +18,16 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, migration blueprint delivered — NO code, NO 2D)
+## Where we are (2026-09-15, MP0 reference freeze — awaiting MP1 kickoff)
+
+- **Reference locked:** tag `flutter-final` (this commit) + baseline doc
+  + 137-file SHA-256 manifest (self-verified green) + checker.
+  Gates re-executed for the freeze: 22/22 + 20/20 + 17/17 + 44/44 host
+  tests, all analyzers clean. 2C device rerun still outstanding (not
+  claimed). NO native code started; NO 2D.
+- **Next:** MP1 kickoff authorization or redirect.
+
+## Where we were (2026-09-15, migration blueprint delivered — NO code, NO 2D)
 
 - **GQ8 answered NO → native Kotlin + Compose is the migration target.**
   `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` (inventory A–P,

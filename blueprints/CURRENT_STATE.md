@@ -28,6 +28,9 @@
   reference. Migration blueprint
   (`blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md`) + ADR-005 written;
   NO implementation started; 2D stays locked until kickoff.
+- MP0 REFERENCE FREEZE 2026-09-15: tag `flutter-final` (see handoff);
+  `FLUTTER_REFERENCE_BASELINE.md` + manifest (137 files hashed) +
+  `tools/verify_reference.py` (self-check green). Reference code frozen.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
