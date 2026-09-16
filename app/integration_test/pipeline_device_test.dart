@@ -11,6 +11,7 @@ import 'package:media_library/media_library.dart';
 import 'package:metadata_core/metadata_core.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vision_engine/library/library_pipeline.dart';
+import 'package:vision_engine/library/thumb_store.dart';
 
 Future<File> _stageBytes(
   List<int> bytes,

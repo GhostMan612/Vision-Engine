@@ -31,8 +31,14 @@ Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `
   long zone/binding/Skia misdiagnosis is banked as K17/K18 so it never
   repeats. Skia decode verified separately (256x384 orientation-applied;
   small sources upscale to target — pinned as verified truth).
-- **Still to do in this package:** device suite run (human), ADR-004 +
-  boundary/runbook/agent/tracking docs, full gates, audit, commit, STOP.
+- **Still to do in this package:** human device-suite rerun
+  (`flutter test integration_test`); all green → 2C can close.
+  ADR-004 + boundary/runbook/agent/tracking docs are committed.
+- **Fix-forward 2026-09-15:** device lane reported missing `ThumbFetch`
+  import in `pipeline_device_test.dart` (5 errors; `flutter test` never
+  compiles `integration_test/`, and my analyze ran before the file
+  existed — banked as K19). One-line import fix, analyzer clean, suite
+  green (EXIT:0); awaiting human rerun.
 
 ## Where we were (2026-09-15, 2B FORMALLY CLOSED / PASS — awaiting 2C authorization)
 

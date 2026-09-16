@@ -55,6 +55,7 @@
 | K16 | Platform form | ExifInterface `getAttribute` renders RATIONAL tags as decimal strings (`1/120` → `0.008333333333333333`, IEEE-deterministic). Core exposure contract is opaque-String-verbatim, so the canonical form is the decimal: device assertions pin it exactly, no rational reconstruction, no approximation. | Closed — exposure fix, host green, device rerun pending |
 | K17 | Futures | `Future.whenComplete` awaits a returned Future: a cleanup closure returning `map.remove(key)` (the future itself) self-deadlocks forever with zero diagnostics. Use block bodies for cleanup actions. Proven by m15/m18 isolation after a long zone/binding misdiagnosis. | Closed — 2C `ThumbStore._dedupe` fix |
 | K18 | Tests | `await x!` on `tester.runAsync` yields contradictory analyzer diagnostics; always parenthesize `(await tester.runAsync(...))!` (proven by experiment). Related: flutter_test `test()` runs real-async fine — `testWidgets`+`runAsync` is ONLY for widget-pumping tests; pure-logic tests with real IO/engine futures must stay plain `test()`, never convert preemptively. | Closed — 2C host suites |
+| K19 | Gates | `flutter test` compiles `test/` only — `integration_test/` breakage is invisible to it. The analyzer DOES cover `integration_test/`, but only if it runs AFTER those files exist. Always re-run `flutter analyze` as the last gate after adding/changing integration files. | Closed — missed `ThumbFetch` import caught on device lane |
 
 ## Decisions log (pointer — full text in `decisions/`)
 
