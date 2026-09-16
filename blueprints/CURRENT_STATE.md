@@ -23,6 +23,11 @@
 - 2C IN PROGRESS 2026-09-15 (authorized): `packages/media_library`
   (models/ordering/cache, 17/17) + lister + `ThumbStore` + pipeline +
   device suite authored; `getVideoFrame` bridge; ADR-004. NO Viewer UI.
+- PLATFORM DECISION 2026-09-15: GQ8=NO (Android-only forever) →
+  native Kotlin + Compose is the target; Flutter `main` is the frozen
+  reference. Migration blueprint
+  (`blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md`) + ADR-005 written;
+  NO implementation started; 2D stays locked until kickoff.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
@@ -71,3 +76,5 @@
 - ADR-003 ACCEPTED 2026-09-15 (single native extraction path, no Dart
   exif pkg, exifinterface 1.4.1 pin, §24 build leg delegated to operator
   per RULES supremacy).
+- ADR-005 PROPOSED 2026-09-15 (GQ8=NO → native Kotlin + Compose target,
+  Flutter frozen reference, MP0–MP9 sequence; awaits kickoff).

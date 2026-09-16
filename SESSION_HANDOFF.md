@@ -18,21 +18,22 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, platform study delivered — NO code, NO 2D)
+## Where we are (2026-09-15, migration blueprint delivered — NO code, NO 2D)
 
-- **Native-vs-Flutter question is now a frozen study, not a hallway
-  debate:** `blueprints/PLATFORM_STUDY_FLUTTER_VS_NATIVE.md` maps the full
-  inventory, what ports cleanly (goldens reusable as JUnit vectors), what
-  must be rewritten, honest 4–6 week solo estimate, and what each stack
-  gains/loses. Qualifier stated plainly: native's real wins are
-  complexity surface + SAF-first design + toolchain singularity — NOT raw
-  throughput (decoding is already native in both stacks).
-- **Blocking decision (GQ8 — operator must answer):** is iOS EVER a
-  requirement? YES/MAYBE → stay Flutter; NO forever → go native after
-  the 2C device gate. 2D stays unauthorized until the platform locks.
-- **Still pending from before:** human 2C device rerun (`flutter test
-  integration_test`); all green → 2C closes → platform verdict → 2D in
-  the chosen stack.
+- **GQ8 answered NO → native Kotlin + Compose is the migration target.**
+  `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` (inventory A–P,
+  responsibility matrix, Compose-vs-Views verdict, DocumentsContract-
+  direct SAF call, threading/test-migration plans, MP0–MP9 sequence,
+  freeze + retirement strategy, R-01–R-08) + ADR-005 written. Stated
+  plainly inside: native wins on complexity surface + SAF-first +
+  toolchain singularity, NOT throughput; 4–6 week solo estimate stands.
+- **Honesty guardrails kept:** 2C device rerun still outstanding (NOT
+  claimed as validated); no implementation started; 2D stays locked
+  until a migration kickoff (MP0) is explicitly authorized.
+- **Next:** human 2C device rerun → then MP0 kickoff decision or
+  redirect.
+
+## Where we were (2026-09-15, platform study delivered — NO code, NO 2D)
 
 ## Where we were (2026-09-15, 2C authorized — implementation in progress, NO Viewer UI)
 
