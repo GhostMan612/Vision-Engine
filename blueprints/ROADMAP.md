@@ -22,7 +22,8 @@
 > Platform track (GQ8=NO): native Kotlin + Compose is the migration
 > target — see `NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` + ADR-005. No
 > implementation started; 2D stays locked until kickoff. MP0 reference
-> freeze done (`flutter-final` tag + baseline + manifest).
+> freeze done (`flutter-final` tag + baseline + manifest). MP1 native
+> foundation done (core/android/app build green, APK assembles).
 - [x] `packages/metadata_core`: `PhotoMeta`/`VideoMeta` + provenance enum + fixture JSON (19/19 tests, analyze clean; no app code, no new deps)
 - [x] 2B extraction layer: Kotlin bridge + channel + `MetadataAdapter` (18/18 host tests); device integration test authored, human Moto G run pending; NO Viewer/UI started
 - [x] 2B triage 2026-09-15 (SOF fixture, orient-0 normalization, status-rule fix, duration truth) — host green, device rerun pending; no 2C

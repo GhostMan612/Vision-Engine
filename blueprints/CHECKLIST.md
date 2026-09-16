@@ -23,6 +23,9 @@
   only — no implementation, no 2D
 - [x] MP0 reference freeze (2026-09-15): `flutter-final` tag + baseline
   doc + 137-file digest manifest + verifier green; reference frozen
+- [x] MP1 native foundation (2026-09-15): core 2/2, android lib compiles,
+  app APK assembles, app unit 2/2 (Robolectric Compose launch); zero
+  permissions; no Viewer, no MP2
 - [x] `packages/metadata_core` models + provenance + fixtures (Slice 1, 2026-09-15: 18/18 tests, analyze clean — STOPPED here per change control)
 - [x] Extraction layer 2B (2026-09-15): Kotlin `MetadataBridge` + `vision_engine/metadata` channel + Dart `MetadataAdapter` (status/provenance decode, MIME table, ISO-6709); 18/18 adapter host tests; synthetic fixtures + device integration test authored (human run pending); exifinterface 1.4.1 pinned (ADR-003)
 - [x] 2B triage (2026-09-15): 4 device failures classified (fixture SOF, orient-0, status rule, duration assert) — host green (26/26 app), device rerun pending

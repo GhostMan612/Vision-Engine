@@ -31,6 +31,12 @@
 - MP0 REFERENCE FREEZE 2026-09-15: tag `flutter-final` (see handoff);
   `FLUTTER_REFERENCE_BASELINE.md` + manifest (137 files hashed) +
   `tools/verify_reference.py` (self-check green). Reference code frozen.
+- MP1 NATIVE FOUNDATION 2026-09-15: `native/` (vision-core + android +
+  app) builds green on frozen toolchain (AGP 9.1.0, Gradle 9.3.1, JBR 25):
+  core 2/2, android lib compiles, app APK assembles (8.79 MB), app unit
+  2/2 incl. Robolectric Compose launch. Deps: Compose BOM 2024.09.00,
+  activity-compose 1.10.1, lifecycle 2.8.7, junit 4.13.2, Robolectric
+  4.17. Manifest: zero permissions. NO Viewer, NO MP2.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,

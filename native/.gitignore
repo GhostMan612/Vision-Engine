@@ -1,0 +1,15 @@
+# Vision Engine native track — build outputs and local state only.
+# gradlew / gradlew.bat / gradle-wrapper.jar are TRACKED intentionally
+# (the wrapper is this project's canonical build entry).
+build/
+.gradle/
+local.properties
+*.iml
+.idea/
+captures/
+.cxx/
+*.keystore
+*.jks
+key.properties
+google-services.json
+.env

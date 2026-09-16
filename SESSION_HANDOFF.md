@@ -18,7 +18,23 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP0 reference freeze — awaiting MP1 kickoff)
+## Where we are (2026-09-15, MP1 native foundation COMPLETE — STOPPED)
+
+- **MP1 done, all gates green here:** `:vision-core:test` 2/2 (boundary
+  contract incl. executable forbidden-import rule), `:vision-android`
+  compiles + test task executes, `:vision-app:assembleDebug` APK 8.79 MB,
+  `:vision-app:testDebugUnitTest` 2/2 (plain ViewModel + Robolectric
+  Compose launch). Manifest: zero permissions. Deps audited (no network/
+  analytics; app→android→core edges only).
+- **Two evidence-pinned deviations (versions unchanged):** AGP 9.1
+  built-in Kotlin (explicit kotlin.android plugin declaration fails —
+  dropped); Robolectric-on-JDK25 needs test JVM flags (native-access +
+  two add-opens). Both recorded in `native/README.md`.
+- **Flutter reference untouched** (`flutter-final` still points at
+  `aae04f9`; no Flutter file modified). NO MP2, NO Viewer, NO 2D.
+- **Next:** MP2 domain port authorization or redirect.
+
+## Where we were (2026-09-15, MP0 reference freeze — awaiting MP1 kickoff)
 
 - **Reference locked:** tag `flutter-final` (this commit) + baseline doc
   + 137-file SHA-256 manifest (self-verified green) + checker.
