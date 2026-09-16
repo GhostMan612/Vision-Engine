@@ -1,0 +1,15 @@
+name: media_library
+description: "Vision Engine pure-Dart media pipeline: SAF-ready sources, deterministic discovery, media records, bounded thumbnail cache."
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  metadata_core:
+    path: ../metadata_core
+
+dev_dependencies:
+  test: ^1.26.0
+  lints: ^6.1.0

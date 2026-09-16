@@ -22,6 +22,7 @@
 - [x] Extraction layer 2B (2026-09-15): Kotlin `MetadataBridge` + `vision_engine/metadata` channel + Dart `MetadataAdapter` (status/provenance decode, MIME table, ISO-6709); 18/18 adapter host tests; synthetic fixtures + device integration test authored (human run pending); exifinterface 1.4.1 pinned (ADR-003)
 - [x] 2B triage (2026-09-15): 4 device failures classified (fixture SOF, orient-0, status rule, duration assert) — host green (26/26 app), device rerun pending
 - [x] 2B device validation CLOSED 2026-09-15: Moto G 5/5 PASS (human-pasted), single-lane build clean
+- [ ] 2C pipeline (authorized 2026-09-15): media_library + lister + thumbs + orchestrator + device suite (in progress)
 - [ ] Viewer UI (grid → detail, orientation-correct, unknown-as-—, provenance chips)
 - [ ] Moto G smoke (operator-supplied shots, never committed)
 

@@ -4,8 +4,10 @@
 // ============================================================
 package com.visionengine
 
+import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import androidx.exifinterface.media.ExifInterface
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 object MetadataBridge {
@@ -119,5 +121,57 @@ object MetadataBridge {
 
     private fun fsField(value: Any): Map<String, Any?> {
         return mapOf("value" to value, "provenance" to "filesystem")
+    }
+
+    fun getVideoFrame(path: String, positionUs: Long): Map<String, Any?> {
+        val file = File(path)
+        if (!file.isFile) {
+            throw IllegalArgumentException("UNREADABLE: not a file: $path")
+        }
+        val retriever = MediaMetadataRetriever()
+        try {
+            try {
+                retriever.setDataSource(path)
+            } catch (e: Exception) {
+                throw IllegalArgumentException("UNREADABLE: ${e.message}")
+            }
+            val frame = retriever.getFrameAtTime(
+                positionUs,
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+            ) ?: throw IllegalArgumentException("UNAVAILABLE: no frame")
+            val scale = minOf(512f / frame.width, 512f / frame.height, 1f)
+            val target = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    frame,
+                    (frame.width * scale).toInt(),
+                    (frame.height * scale).toInt(),
+                    true,
+                )
+            } else {
+                frame
+            }
+            if (target !== frame) {
+                frame.recycle()
+            }
+            val out = ByteArrayOutputStream()
+            try {
+                if (!target.compress(Bitmap.CompressFormat.JPEG, 85, out)) {
+                    throw IllegalArgumentException("UNAVAILABLE: encode failed")
+                }
+                return mapOf(
+                    "bytes" to out.toByteArray(),
+                    "width" to target.width,
+                    "height" to target.height,
+                )
+            } finally {
+                target.recycle()
+            }
+        } finally {
+            try {
+                retriever.release()
+            } catch (e: Exception) {
+                android.util.Log.w("VisionEngine", "retriever release: ${e.message}")
+            }
+        }
     }
 }

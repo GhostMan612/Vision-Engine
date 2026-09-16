@@ -20,6 +20,9 @@
   (human-pasted `All tests passed!`), single-lane build clean — Invalid
   SDK hash episode resolved. G2 still open (needs Viewer + real-shot
   smoke).
+- 2C IN PROGRESS 2026-09-15 (authorized): `packages/media_library`
+  (models/ordering/cache, 17/17) + lister + `ThumbStore` + pipeline +
+  device suite authored; `getVideoFrame` bridge; ADR-004. NO Viewer UI.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
@@ -50,6 +53,8 @@
 | K14 | Toolchain | TWO Flutter installs shared this project dir + pub cache (`C:\src\flutter` Dart 3.13.0 vs `C:\android\flutter` Dart 3.13.3): stale `hook.dill` reuse failed with "Invalid SDK hash". Fixed environmentally (`flutter clean` + rebuild under one SDK). NOTE 2026-09-15: `C:\src\flutter` no longer present in this environment — single-SDK (`C:\android\flutter`, Dart 3.13.3) going forward; all suites re-verified green under it. | Closed |
 | K15 | Device truth | ExifInterface surfaces absent dimensions/orientation as `"0"` (not null): SOF-less JPEGs yield dims `"0"` (real camera files always carry SOF — fixture was at fault, fixed with SOF0); orientation `0` means absent (no camera writes it) → adapter maps to unknown, rotation/duration `0` stay known (legitimate). Retriever ignores mvhd duration without tracks (trackless file reports `0`, not 8340). Status `ok` counts EXIF/container fields only, else `partial` is unreachable. | Closed — 2B triage fix, host green, device rerun pending |
 | K16 | Platform form | ExifInterface `getAttribute` renders RATIONAL tags as decimal strings (`1/120` → `0.008333333333333333`, IEEE-deterministic). Core exposure contract is opaque-String-verbatim, so the canonical form is the decimal: device assertions pin it exactly, no rational reconstruction, no approximation. | Closed — exposure fix, host green, device rerun pending |
+| K17 | Futures | `Future.whenComplete` awaits a returned Future: a cleanup closure returning `map.remove(key)` (the future itself) self-deadlocks forever with zero diagnostics. Use block bodies for cleanup actions. Proven by m15/m18 isolation after a long zone/binding misdiagnosis. | Closed — 2C `ThumbStore._dedupe` fix |
+| K18 | Tests | `await x!` on `tester.runAsync` yields contradictory analyzer diagnostics; always parenthesize `(await tester.runAsync(...))!` (proven by experiment). Related: flutter_test `test()` runs real-async fine — `testWidgets`+`runAsync` is ONLY for widget-pumping tests; pure-logic tests with real IO/engine futures must stay plain `test()`, never convert preemptively. | Closed — 2C host suites |
 
 ## Decisions log (pointer — full text in `decisions/`)
 

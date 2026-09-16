@@ -24,6 +24,10 @@ class MainActivity : FlutterActivity() {
                 val payload = when (call.method) {
                     "probePhoto" -> MetadataBridge.probePhoto(path)
                     "probeVideo" -> MetadataBridge.probeVideo(path)
+                    "getVideoFrame" -> MetadataBridge.getVideoFrame(
+                        path,
+                        (call.argument<Number>("positionUs")?.toLong()) ?: 0L,
+                    )
                     else -> return@setMethodCallHandler result.notImplemented()
                 }
                 result.success(payload)

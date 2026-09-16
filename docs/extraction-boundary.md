@@ -90,3 +90,25 @@ extension table for MIME; until then the table is the deterministic rule.
   exactly (IEEE-deterministic, no approximation, no reconstruction).
 - Android 14+ partial media access is G5/future scope; Phase 2 reads only
   already-granted paths.
+
+## 2C additions (pipeline + thumbnails, read-only)
+
+- Discovery: top-level listing of the user-picked folder only (no
+  recursion); files classified by the adapter MIME table; unknown types
+  become `unsupported` records (never silently dropped); ordering key is
+  `(displayName.toLowerCase(), displayName, id)`; duplicates collapse by
+  source id, first wins.
+- Records: `MediaRecord` composes `PhotoMeta`/`VideoMeta` + source +
+  status + warnings + thumbnail state; JSON-serializable; no Android or
+  Flutter types cross the boundary.
+- Photo thumbs: Flutter codec `targetWidth` decode (EXIF orientation
+  applied by the platform decoder — verified 256x384 on the
+  orientation-6 fixture); sources over 64 MB skip deterministically.
+- Video thumbs: `getVideoFrame` (first frame, ≤512px side, JPEG-85);
+  trackless/undecodable video yields `unavailable`, records intact.
+- Cache: FNV key over (source id, size, mtime, dimension); LRU bounded
+  at 100 entries / 32 MB; in-flight dedupe shares concurrent fetches;
+  cache failure never destroys metadata/discovery results.
+- Probing is sequential per page (deterministic; concurrency only on
+  measured need). Orchestration lives in `LibraryPipeline`; nothing here
+  is Viewer UI.

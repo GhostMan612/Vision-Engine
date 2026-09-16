@@ -6,9 +6,26 @@ import 'package:flutter/services.dart';
 import 'package:metadata_core/metadata_core.dart';
 import 'package:rename_core/rename_core.dart' show basenameOf;
 
+export 'package:metadata_core/metadata_core.dart' show ExtractStatus;
+
 enum MediaKind { photo, video }
 
-enum ExtractStatus { ok, partial, unsupported, unreadable }
+class FrameFetch {
+  const FrameFetch.ready(this.bytes, this.width, this.height)
+      : reason = null;
+
+  const FrameFetch.unavailable(this.reason)
+      : bytes = null,
+        width = null,
+        height = null;
+
+  final Uint8List? bytes;
+  final int? width;
+  final int? height;
+  final String? reason;
+
+  bool get isReady => bytes != null;
+}
 
 class PhotoResult {
   const PhotoResult({
@@ -161,6 +178,31 @@ class MetadataAdapter {
       status: _videoStatus(decoded.meta),
       warnings: decoded.warnings,
     );
+  }
+
+  Future<FrameFetch> getVideoFrame(String path,
+      {int positionUs = 0}) async {
+    try {
+      final Map<Object?, Object?>? raw =
+          await _channel.invokeMapMethod<String, Object?>(
+        'getVideoFrame',
+        <String, Object?>{'path': path, 'positionUs': positionUs},
+      );
+      final Object? bytes = raw?['bytes'];
+      final Object? width = raw?['width'];
+      final Object? height = raw?['height'];
+      if (bytes is Uint8List &&
+          width is int &&
+          height is int &&
+          bytes.isNotEmpty &&
+          width > 0 &&
+          height > 0) {
+        return FrameFetch.ready(bytes, width, height);
+      }
+      return const FrameFetch.unavailable('malformed reply');
+    } on PlatformException catch (e) {
+      return FrameFetch.unavailable('${e.code}: ${e.message}');
+    }
   }
 
   static void _sanitizeInt(

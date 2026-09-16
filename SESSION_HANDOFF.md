@@ -18,7 +18,23 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, 2B FORMALLY CLOSED / PASS — awaiting 2C authorization)
+## Where we are (2026-09-15, 2C authorized — implementation in progress, NO Viewer UI)
+
+- **2C scope (authorized, bounded):** SAF source → discovery → records →
+  extraction (existing 2B bridge) → thumbnails → viewer-ready data model.
+  `media_library` pure package green (17/17); `ExtractStatus` moved to
+  core with zero breakage; lister + `ThumbStore` + pipeline written.
+- **Hard-won root cause this session:** every 2C host-test hang traced to
+  `whenComplete(() => map.remove(key))` — the cleanup closure returns the
+  future itself, which `whenComplete` then awaits forever (silent
+  deadlock, proven by m15/m18 isolation). One-line block-body fix. The
+  long zone/binding/Skia misdiagnosis is banked as K17/K18 so it never
+  repeats. Skia decode verified separately (256x384 orientation-applied;
+  small sources upscale to target — pinned as verified truth).
+- **Still to do in this package:** device suite run (human), ADR-004 +
+  boundary/runbook/agent/tracking docs, full gates, audit, commit, STOP.
+
+## Where we were (2026-09-15, 2B FORMALLY CLOSED / PASS — awaiting 2C authorization)
 
 - **2B device validation GREEN:** human-pasted Moto G result
   `01:06 +5: All tests passed!` Single lane `C:\android\flutter` /

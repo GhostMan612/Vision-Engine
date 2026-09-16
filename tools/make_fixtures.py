@@ -226,6 +226,101 @@ def _box(typ: bytes, payload: bytes) -> bytes:
     return struct.pack(">I", 8 + len(payload)) + typ + payload
 
 
+def build_thumb_jpeg() -> bytes:
+    make = b"THUMB\x00"
+    ifd0_size = 2 + 12 * 2 + 4
+    make_off = 8 + ifd0_size
+    ifd0 = struct.pack("<H", 2)
+    ifd0 += _entry(0x010F, 2, len(make), struct.pack("<I", make_off))
+    ifd0 += _entry(0x0112, 3, 1, struct.pack("<HH", 6, 0))
+    ifd0 += struct.pack("<I", 0)
+    tiff = b"II" + struct.pack("<HI", 42, 8) + ifd0 + bytes(make)
+    app1 = b"Exif\x00\x00" + tiff
+    dqt = b"\xff\xdb" + struct.pack(">H", 67) + bytes((0,)) + bytes(64 * [8])
+    sof0 = (
+        b"\xff\xc0"
+        + struct.pack(">H", 11)
+        + bytes((8,))
+        + struct.pack(">HH", 16, 24)
+        + bytes((1, 1, 0x11, 0))
+    )
+    dht_payload = (
+        bytes((0,))
+        + bytes((1,) + 15 * (0,))
+        + bytes((0,))
+        + bytes((0x10,))
+        + bytes((0, 0, 0, 1) + 12 * (0,))
+        + bytes((0x00,))
+    )
+    dht = b"\xff\xc4" + struct.pack(">H", len(dht_payload) + 2) + dht_payload
+    sos = (
+        b"\xff\xda"
+        + struct.pack(">H", 8)
+        + bytes((1, 1, 0x00, 0x00, 0x3F, 0x00))
+    )
+    bits = ""
+    scan = bytearray()
+    for _ in range(6):
+        bits += "0" + "0000"
+    bits += "1" * ((8 - len(bits) % 8) % 8)
+    for i in range(0, len(bits), 8):
+        byte = int(bits[i : i + 8], 2)
+        scan.append(byte)
+        if byte == 0xFF:
+            scan.append(0x00)
+    return (
+        b"\xff\xd8"
+        + b"\xff\xe1"
+        + struct.pack(">H", len(app1) + 2)
+        + app1
+        + dqt
+        + sof0
+        + dht
+        + sos
+        + bytes(scan)
+        + b"\xff\xd9"
+    )
+
+
+def verify_thumb_jpeg(blob: bytes) -> None:
+    assert blob[:2] == b"\xff\xd8" and blob[-2:] == b"\xff\xd9"
+    pos, seen, sof_dims = 2, set(), None
+    while pos < len(blob) - 1:
+        assert blob[pos] == 0xFF
+        marker = blob[pos + 1]
+        seen.add(marker)
+        if marker == 0xD9:
+            break
+        if marker == 0xDA:
+            assert pos + 2 < len(blob)
+            (seg_len,) = struct.unpack_from(">H", blob, pos + 2)
+            pos += 2 + seg_len
+            assert blob[pos] != 0xFF or blob[pos + 1] == 0x00
+            while not (
+                blob[pos] == 0xFF
+                and pos + 1 < len(blob)
+                and blob[pos + 1] != 0x00
+                and blob[pos + 1] != 0xFF
+            ):
+                pos += 1
+            continue
+        (seg_len,) = struct.unpack_from(">H", blob, pos + 2)
+        if marker == 0xC0:
+            (prec, height, width) = struct.unpack_from(">BHH", blob, pos + 4)
+            assert (prec, height, width) == (8, 16, 24)
+            sof_dims = (width, height)
+        if marker == 0xE1:
+            app1 = blob[pos + 4 : pos + 2 + seg_len]
+            assert app1[:6] == b"Exif\x00\x00"
+            tiff = app1[6:]
+            tags = _ifd_map(tiff, 8)
+            (orient,) = struct.unpack_from("<H", tiff, tags[0x0112] + 8)
+            assert orient == 6
+        pos += 2 + seg_len
+    assert {0xE1, 0xDB, 0xC0, 0xC4, 0xDA, 0xD9} <= seen
+    assert sof_dims == (24, 16)
+
+
 def build_mp4() -> bytes:
     ftyp = _box(b"ftyp", b"isom" + struct.pack(">I", 0) + b"isom")
     mvhd = struct.pack(">I", 0)
@@ -259,13 +354,19 @@ def verify_mp4(blob: bytes) -> None:
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     jpeg, png, mp4 = build_jpeg(), build_png(), build_mp4()
+    thumb = build_thumb_jpeg()
     verify_jpeg(jpeg)
     verify_png(png)
     verify_mp4(mp4)
+    verify_thumb_jpeg(thumb)
     (OUT / "ve_exif.jpg").write_bytes(jpeg)
     (OUT / "ve_plain.png").write_bytes(png)
     (OUT / "ve_minimal.mp4").write_bytes(mp4)
-    print(f"fixtures: jpg={len(jpeg)}B png={len(png)}B mp4={len(mp4)}B -> {OUT}")
+    (OUT / "ve_thumb.jpg").write_bytes(thumb)
+    print(
+        f"fixtures: jpg={len(jpeg)}B png={len(png)}B "
+        f"mp4={len(mp4)}B thumb={len(thumb)}B -> {OUT}"
+    )
     return 0
 
 

@@ -23,6 +23,17 @@ Map<String, dynamic> _withoutExpected(Map<String, dynamic> golden) {
 
 void main() {
   group('golden fixtures', () {
+    test('missing keys decode to unknown (channel-emitter contract)', () {
+      final PhotoMeta photo = photoMetaFromJson(<String, dynamic>{});
+      expect(photo.orientation.value, isNull);
+      expect(photo.orientation.provenance, Provenance.unknown);
+      expect(photo.width, isNull);
+      final VideoMeta video = videoMetaFromJson(<String, dynamic>{});
+      expect(video.durationMs.value, isNull);
+      expect(video.durationMs.provenance, Provenance.unknown);
+      expect(video.width, isNull);
+    });
+
     test('photo_exif decodes with provenance and corrected dims', () {
       final Map<String, dynamic> golden = _load('photo_exif');
       final PhotoMeta meta =

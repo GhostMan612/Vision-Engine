@@ -38,6 +38,8 @@ dependencies:
     path: ../packages/rename_core
   metadata_core:
     path: ../packages/metadata_core
+  media_library:
+    path: ../packages/media_library
   path_provider: ^2.1.6
   shared_preferences: ^2.5.5
   permission_handler: ^13.0.2

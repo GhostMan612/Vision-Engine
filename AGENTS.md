@@ -20,8 +20,10 @@ C:\vision engine\
 ├── blueprints/                 # MASTER_BLUEPRINT (frozen v1.0) + ROADMAP + CURRENT_STATE + CHECKLIST + CHECKPOINTS + ARCHITECTURE + blueprint-sections/BP-*.md + decisions/
 ├── .opencode/agents|commands/  # renamer / metadata / media-ops agents + verify/probe/analyze commands
 ├── docs/                       # android-metadata-matrix, device-probe-moto-g (D2 runbook)
-├── app/                        # Flutter Android app: com.visionengine, minSdk 26, Rename/Probe/Settings tabs
+├── app/                        # Flutter Android app: com.visionengine, minSdk 26, Rename/Probe/Settings tabs; lib/adapters (rename, metadata, storage probe) + lib/library (lister, thumbs, pipeline)
 ├── packages/rename_core/       # pure-Dart engine: strip + buildPlan + manifest codec (no Flutter imports)
+├── packages/metadata_core/     # pure-Dart models: PhotoMeta/VideoMeta + provenance + fixture codec + ExtractStatus
+├── packages/media_library/     # pure-Dart pipeline: sources, deterministic discovery, records, bounded thumb cache
 └── tools/parity_probe.py       # Python↔Dart parity + SHA-256 byte proof (hub Python, settings untouched)
 ```
 
