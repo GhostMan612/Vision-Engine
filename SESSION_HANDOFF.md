@@ -18,7 +18,23 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, 2C authorized — implementation in progress, NO Viewer UI)
+## Where we are (2026-09-15, platform study delivered — NO code, NO 2D)
+
+- **Native-vs-Flutter question is now a frozen study, not a hallway
+  debate:** `blueprints/PLATFORM_STUDY_FLUTTER_VS_NATIVE.md` maps the full
+  inventory, what ports cleanly (goldens reusable as JUnit vectors), what
+  must be rewritten, honest 4–6 week solo estimate, and what each stack
+  gains/loses. Qualifier stated plainly: native's real wins are
+  complexity surface + SAF-first design + toolchain singularity — NOT raw
+  throughput (decoding is already native in both stacks).
+- **Blocking decision (GQ8 — operator must answer):** is iOS EVER a
+  requirement? YES/MAYBE → stay Flutter; NO forever → go native after
+  the 2C device gate. 2D stays unauthorized until the platform locks.
+- **Still pending from before:** human 2C device rerun (`flutter test
+  integration_test`); all green → 2C closes → platform verdict → 2D in
+  the chosen stack.
+
+## Where we were (2026-09-15, 2C authorized — implementation in progress, NO Viewer UI)
 
 - **2C scope (authorized, bounded):** SAF source → discovery → records →
   extraction (existing 2B bridge) → thumbnails → viewer-ready data model.
