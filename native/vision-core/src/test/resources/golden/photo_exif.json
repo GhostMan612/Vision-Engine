@@ -1,0 +1,15 @@
+{
+  "datetimeOriginal": {"value": "2026:09:14 11:05:23", "provenance": "exif"},
+  "gpsLatitude": {"value": 44.9778, "provenance": "exif"},
+  "gpsLongitude": {"value": -93.2650, "provenance": "exif"},
+  "orientation": {"value": 6, "provenance": "exif"},
+  "make": {"value": "SYNTHETIC", "provenance": "exif"},
+  "model": {"value": "SAMPLE CAMERA A", "provenance": "exif"},
+  "exposureTime": {"value": "1/120", "provenance": "exif"},
+  "widthRaw": {"value": 3000, "provenance": "exif"},
+  "heightRaw": {"value": 4000, "provenance": "exif"},
+  "fileSizeBytes": {"value": 2450011, "provenance": "filesystem"},
+  "mime": {"value": "image/jpeg", "provenance": "filesystem"},
+  "expectedWidth": 4000,
+  "expectedHeight": 3000
+}

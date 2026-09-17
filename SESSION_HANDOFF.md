@@ -18,7 +18,21 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP1 native foundation COMPLETE — STOPPED)
+## Where we are (2026-09-15, MP2 domain port COMPLETE — STOPPED)
+
+- **MP2 done, 48/48 JVM tests:** vision-core holds the full metadata/media
+  domain (models, codec, status rules, ordering, FNV, LRU) with golden
+  replay of all 9 Flutter fixtures + Dart-byte-identical FNV vectors +
+  edge suite. Long used for int fields (Dart int is 64-bit — no
+  narrowing); hand-rolled test-only JSON parser (zero new deps);
+  boundary test intact. Caught+repaired en route: a scripted edit that
+  truncated two files (K20 — restored byte-exact, verified).
+- **Gates:** native core 48/48, android compiles, app assembles,
+  Flutter suites 103/103 green, analyzers clean. Flutter tree untouched
+  except tracking docs. NO MP3, NO Viewer, NO 2D.
+- **Next:** MP3 SAF authorization or redirect.
+
+## Where we were (2026-09-15, MP1 native foundation COMPLETE — STOPPED)
 
 - **MP1 done, all gates green here:** `:vision-core:test` 2/2 (boundary
   contract incl. executable forbidden-import rule), `:vision-android`

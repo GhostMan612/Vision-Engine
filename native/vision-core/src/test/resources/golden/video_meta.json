@@ -1,0 +1,14 @@
+{
+  "durationMs": {"value": 8340, "provenance": "container"},
+  "widthRaw": {"value": 1920, "provenance": "container"},
+  "heightRaw": {"value": 1080, "provenance": "container"},
+  "rotation": {"value": 90, "provenance": "container"},
+  "creationTime": {"value": "2026-09-14T11:05:23.000", "provenance": "container"},
+  "locationLatitude": {"value": null, "provenance": "unknown"},
+  "locationLongitude": {"value": null, "provenance": "unknown"},
+  "codec": {"value": "avc1", "provenance": "container"},
+  "fileSizeBytes": {"value": 11800211, "provenance": "filesystem"},
+  "mime": {"value": "video/mp4", "provenance": "filesystem"},
+  "expectedWidth": 1080,
+  "expectedHeight": 1920
+}

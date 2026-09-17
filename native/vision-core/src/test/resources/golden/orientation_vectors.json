@@ -1,0 +1,47 @@
+{
+  "photoBase": {
+    "datetimeOriginal": {"value": null, "provenance": "unknown"},
+    "gpsLatitude": {"value": null, "provenance": "unknown"},
+    "gpsLongitude": {"value": null, "provenance": "unknown"},
+    "orientation": {"value": null, "provenance": "unknown"},
+    "make": {"value": null, "provenance": "unknown"},
+    "model": {"value": null, "provenance": "unknown"},
+    "exposureTime": {"value": null, "provenance": "unknown"},
+    "widthRaw": {"value": 3000, "provenance": "exif"},
+    "heightRaw": {"value": 4000, "provenance": "exif"},
+    "fileSizeBytes": {"value": null, "provenance": "unknown"},
+    "mime": {"value": null, "provenance": "unknown"}
+  },
+  "photoVectors": [
+    {"orientation": 1, "width": 3000, "height": 4000},
+    {"orientation": 2, "width": 3000, "height": 4000},
+    {"orientation": 3, "width": 3000, "height": 4000},
+    {"orientation": 4, "width": 3000, "height": 4000},
+    {"orientation": 5, "width": 4000, "height": 3000},
+    {"orientation": 6, "width": 4000, "height": 3000},
+    {"orientation": 7, "width": 4000, "height": 3000},
+    {"orientation": 8, "width": 4000, "height": 3000},
+    {"orientation": null, "width": 3000, "height": 4000},
+    {"orientation": 0, "width": 3000, "height": 4000},
+    {"orientation": 9, "width": 3000, "height": 4000}
+  ],
+  "videoBase": {
+    "durationMs": {"value": null, "provenance": "unknown"},
+    "widthRaw": {"value": 1920, "provenance": "container"},
+    "heightRaw": {"value": 1080, "provenance": "container"},
+    "rotation": {"value": null, "provenance": "unknown"},
+    "creationTime": {"value": null, "provenance": "unknown"},
+    "locationLatitude": {"value": null, "provenance": "unknown"},
+    "locationLongitude": {"value": null, "provenance": "unknown"},
+    "codec": {"value": null, "provenance": "unknown"},
+    "fileSizeBytes": {"value": null, "provenance": "unknown"},
+    "mime": {"value": null, "provenance": "unknown"}
+  },
+  "videoVectors": [
+    {"rotation": 0, "width": 1920, "height": 1080},
+    {"rotation": 90, "width": 1080, "height": 1920},
+    {"rotation": 180, "width": 1920, "height": 1080},
+    {"rotation": 270, "width": 1080, "height": 1920},
+    {"rotation": null, "width": 1920, "height": 1080}
+  ]
+}

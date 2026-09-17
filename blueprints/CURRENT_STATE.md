@@ -37,6 +37,11 @@
   2/2 incl. Robolectric Compose launch. Deps: Compose BOM 2024.09.00,
   activity-compose 1.10.1, lifecycle 2.8.7, junit 4.13.2, Robolectric
   4.17. Manifest: zero permissions. NO Viewer, NO MP2.
+- MP2 DOMAIN PORT 2026-09-15: vision-core holds metadata/media domain
+  (48/48 JVM tests incl. golden replay of all 9 Flutter fixtures +
+  Dart-byte-identical FNV vectors); Long used for int fields (Dart int
+  is 64-bit — 4 GB+ file sizes survive); hand-rolled test-only JSON
+  parser (zero new deps); boundary test intact. NO MP3, NO Viewer.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
@@ -70,6 +75,7 @@
 | K17 | Futures | `Future.whenComplete` awaits a returned Future: a cleanup closure returning `map.remove(key)` (the future itself) self-deadlocks forever with zero diagnostics. Use block bodies for cleanup actions. Proven by m15/m18 isolation after a long zone/binding misdiagnosis. | Closed — 2C `ThumbStore._dedupe` fix |
 | K18 | Tests | `await x!` on `tester.runAsync` yields contradictory analyzer diagnostics; always parenthesize `(await tester.runAsync(...))!` (proven by experiment). Related: flutter_test `test()` runs real-async fine — `testWidgets`+`runAsync` is ONLY for widget-pumping tests; pure-logic tests with real IO/engine futures must stay plain `test()`, never convert preemptively. | Closed — 2C host suites |
 | K19 | Gates | `flutter test` compiles `test/` only — `integration_test/` breakage is invisible to it. The analyzer DOES cover `integration_test/`, but only if it runs AFTER those files exist. Always re-run `flutter analyze` as the last gate after adding/changing integration files. | Closed — missed `ThumbFetch` import caught on device lane |
+| K20 | Tooling | Never open the same file for read+write in one Python expression (`open(p,'w').write(open(p).read())` truncates before reading — silently empties the file). Read fully, close, then write; verify byte counts after every scripted touch. | Closed — caught by post-touch grep, files restored byte-exact |
 
 ## Decisions log (pointer — full text in `decisions/`)
 

@@ -11,6 +11,11 @@
 - `vision-core` — pure JVM domain contracts. NO `android.*`,
   `androidx.*`, Compose, or Flutter imports (enforced by
   `ModuleBoundaryTest`, which fails the build on violation).
+  MP2 content: Provenance, MetaField, PhotoMeta/VideoMeta (corrected
+  dims), ExtractStatus, MediaKind, MediaSource, ThumbInfo, MediaRecord,
+  ordering/dedupe/paging, FNV keys (byte-compatible with Dart),
+  LRU cache policy, status rules, Map codec — all golden-replayed
+  against the Flutter fixtures.
 - `vision-android` — Android platform layer home (empty in MP1 by
   design; SAF/Exif/retriever land here in later packages).
 - `vision-app` — Compose application: `MainActivity` + `AppRoot` +
