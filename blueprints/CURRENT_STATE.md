@@ -42,6 +42,10 @@
   Dart-byte-identical FNV vectors); Long used for int fields (Dart int
   is 64-bit — 4 GB+ file sizes survive); hand-rolled test-only JSON
   parser (zero new deps); boundary test intact. NO MP3, NO Viewer.
+- MP3 SAF DISCOVERY 2026-09-15: `SafDiscovery` (DocumentsContract-direct
+  single query, top-level only) + core `MimeTypes` (Turkish-proof) +
+  17/17 Robolectric fake-provider tests; junit+robolectric test-scoped
+  in android module (same pinned versions). NO MP4, NO Viewer.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,

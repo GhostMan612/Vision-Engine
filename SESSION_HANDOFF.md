@@ -18,7 +18,25 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP2 domain port COMPLETE — STOPPED)
+## Where we are (2026-09-15, MP3 SAF discovery COMPLETE host-side — STOPPED)
+
+- **MP3 done:** `SafDiscovery` (DocumentsContract-direct single query,
+  top-level only, dirs skipped/counted, virtual→unsupported, null-safe
+  rows, cursor-safe) + core `MimeTypes` (provider-first, extension
+  fallback, Turkish-proof, avif stays unsupported) + 17/17 Robolectric
+  fake-provider tests (enumeration, classification, ordering, dedupe,
+  errors, single-query/read-only proof). Core now 55/55.
+- **Deviations from first sketch (evidence-pinned):** MockContentResolver
+  absent from the unit-test classpath + `openDocument` non-overridable →
+  lambda-seam design (single platform call = structural read-only proof);
+  MatrixCursor `getString` stringifies (verified in AOSP source) → wrong-
+  type test uses garbage SIZE instead. Test-scoped junit/robolectric
+  added to android module (same pinned versions, no new versions).
+- **Gates:** core 55/55, android 17/17, app assemble + prior app tests
+  unaffected (app untouched). Flutter tree untouched. NO MP4, NO Viewer.
+- **Next:** MP4 metadata extraction authorization or redirect.
+
+## Where we were (2026-09-15, MP2 domain port COMPLETE — STOPPED)
 
 - **MP2 done, 48/48 JVM tests:** vision-core holds the full metadata/media
   domain (models, codec, status rules, ordering, FNV, LRU) with golden

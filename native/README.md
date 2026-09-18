@@ -72,3 +72,25 @@ $env:ANDROID_HOME = "C:\android\sdk"
 4. No network/telemetry/analytics dependencies (lockfile audit).
 5. No MediaStore, database, service, or Viewer until their authorized
    work package.
+
+## SAF discovery (MP3 — `vision-android`)
+
+- Entry: `SafDiscovery(resolver-usage)` — production wires
+  `SafDiscovery.withResolver(contentResolver)`; tests inject scripted
+  query lambdas. The seam exposes exactly one platform call (single
+  child query), so read-only behavior is structural, not promised.
+- One `DocumentsContract` child query per discovery with the narrow
+  projection (ID, display name, MIME, size, modified, flags);
+  DocumentsContract-direct, never DocumentFile tree traversal.
+- Top-level children only; directories skipped + counted; virtual
+  documents become `unsupported` records with warnings; null display
+  names fall back to document IDs; per-row failures skip + count, never
+  kill discovery; cursors closed via `use {}`.
+- Identity = document URI string (authority-scoped, stable per
+  DocumentsContract); ordering/dedupe reuse `vision-core`
+  (`planDiscovery`); MIME classification lives in core (`MimeTypes`,
+  locale-proofed) with provider-MIME-first, extension fallback.
+- Robolectric suite scripts a fake provider (MatrixCursor rows, nulls,
+  throws, missing columns, two authorities): 17 tests pin enumeration,
+  classification, ordering, dedupe, errors, and single-query/read-only
+  behavior. No device, no real filesystem, no network.
