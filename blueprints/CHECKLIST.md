@@ -32,6 +32,8 @@
 - [x] MP3 SAF discovery (2026-09-15): SafDiscovery + MimeTypes + 17/17
   Robolectric tests; test-scoped junit/robolectric reuse pinned versions;
   NO MP4, NO Viewer, NO permissions
+- [x] MP4 extraction (2026-09-15): readers + extractor + 15/15 JVM tests;
+  instrumented device suite authored (human run pending); NO MP5, NO Viewer
 - [x] `packages/metadata_core` models + provenance + fixtures (Slice 1, 2026-09-15: 18/18 tests, analyze clean — STOPPED here per change control)
 - [x] Extraction layer 2B (2026-09-15): Kotlin `MetadataBridge` + `vision_engine/metadata` channel + Dart `MetadataAdapter` (status/provenance decode, MIME table, ISO-6709); 18/18 adapter host tests; synthetic fixtures + device integration test authored (human run pending); exifinterface 1.4.1 pinned (ADR-003)
 - [x] 2B triage (2026-09-15): 4 device failures classified (fixture SOF, orient-0, status rule, duration assert) — host green (26/26 app), device rerun pending

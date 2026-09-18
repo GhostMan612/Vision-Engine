@@ -46,6 +46,11 @@
   single query, top-level only) + core `MimeTypes` (Turkish-proof) +
   17/17 Robolectric fake-provider tests; junit+robolectric test-scoped
   in android module (same pinned versions). NO MP4, NO Viewer.
+- MP4 EXTRACTION 2026-09-15: `ExifReader`/`VideoReader` mapping +
+  `AndroidMetadataExtractor` (file/URI, guarded lifecycle) + 15 JVM
+  tests + instrumented device suite authored (human run pending);
+  exifinterface dep declared in native module (same 1.4.1 pin);
+  test-only androidx.test artifacts (cached versions). NO MP5, NO Viewer.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,

@@ -18,7 +18,21 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP3 SAF discovery COMPLETE host-side — STOPPED)
+## Where we are (2026-09-15, MP4 extraction COMPLETE host-side — STOPPED)
+
+- **MP4 done:** `ExifReader` (11 fields, verbatim + GPS decimals +
+  orientation/dims normalization) + `VideoReader` (scriptable map seam,
+  ISO-6709, verbatim date/codec) + `AndroidMetadataExtractor`
+  (file/URI variants, FD opened late + closed after extraction,
+  retriever released in `finally`). 15/15 JVM tests (real fixtures,
+  scripted retriever incl. rotation-0 default discovery, edge suite) +
+  instrumented device suite authored (human run pending).
+- **Gates:** android 32/32 (15 new + 17 discovery), core untouched.
+  Flutter tree untouched. NO MP5, NO Viewer, NO permissions/network.
+- **Next:** human device run (`docs/device-validation-mp4.md`), then MP5
+  authorization or redirect.
+
+## Where we were (2026-09-15, MP3 SAF discovery COMPLETE host-side — STOPPED)
 
 - **MP3 done:** `SafDiscovery` (DocumentsContract-direct single query,
   top-level only, dirs skipped/counted, virtual→unsupported, null-safe

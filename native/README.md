@@ -73,6 +73,19 @@ $env:ANDROID_HOME = "C:\android\sdk"
 5. No MediaStore, database, service, or Viewer until their authorized
    work package.
 
+## MP4 extraction (`vision-android/meta`, read-only, local-only)
+- `ExifReader`: ExifInterface → `PhotoMeta` (11 fields, verbatim
+  strings, GPS decimals, orientation/dimension normalization, size/mime
+  injected with filesystem provenance). `VideoReader`: retriever string
+  map → `VideoMeta` (ms duration, ISO-6709 split, verbatim date/codec).
+  Status via core rules; per-field warnings; missing → unknown.
+- `AndroidMetadataExtractor`: file-path + content-URI variants (FD
+  opened late, closed after extraction; retriever released in `finally`
+  on all paths). No writes, no network, no geocoding.
+- Proven on JVM (real fixture files + scripted retriever shadows) and
+  on device (`ExtractorDeviceTest`, human-run per
+   `docs/device-validation-mp4.md`).
+
 ## SAF discovery (MP3 — `vision-android`)
 
 - Entry: `SafDiscovery(resolver-usage)` — production wires
