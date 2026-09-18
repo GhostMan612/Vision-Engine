@@ -107,3 +107,21 @@ $env:ANDROID_HOME = "C:\android\sdk"
   throws, missing columns, two authorities): 17 tests pin enumeration,
   classification, ordering, dedupe, errors, and single-query/read-only
   behavior. No device, no real filesystem, no network.
+
+## MP5 thumbnails (`vision-android/thumbs`, read-only, local-only)
+
+- `PhotoThumbs.decodeThumbnail(bytes, orientation)`: bounds decode →
+  power-of-2 sampling (longest side ≤1024) → explicit Matrix rotation
+  (3/6/8 + flips/transposes; BitmapFactory ignores EXIF, so this is the
+  sole orientation authority) → exact width-256 scale → JPEG-85. Sources
+  over 64 MB skip; any decode failure returns null, never throws.
+  Verified: orientation-6 yields 256x384; small sources upscale to
+  target-256 (decoder behavior, pinned).
+- `VideoFrames.grabFrame(path)`: first-frame `getFrameAtTime` + scale to
+  ≤512px side + JPEG-85; retriever released in `finally`; trackless or
+  missing files yield null. No ffmpeg, no remux, no writes.
+- Cache policy/keys live in `vision-core` (FNV byte-compatible, LRU
+  100/32 MB); MP5 wires decode→put→get (proven by round-trip tests).
+- Proven on JVM (Robolectric real-decodes fixtures; scripted retriever
+  frames) and on device (`ThumbsDeviceTest`, agent-run per
+  `docs/device-validation-mp5.md`).

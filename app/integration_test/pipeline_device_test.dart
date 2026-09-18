@@ -79,15 +79,15 @@ void main() {
     final List<MediaSource> sources = await pipeline.discover(work);
     expect(
       sources.map((MediaSource s) => s.displayName),
-      <String>['IMG_t.jpg', 'VID_m.mp4', 'note.txt', 'shot.png'],
+      <String>['IMG_t.jpg', 'note.txt', 'shot.png', 'VID_m.mp4'],
     );
     expect(
       sources.map((MediaSource s) => s.kind),
       <MediaKind>[
         MediaKind.photo,
-        MediaKind.video,
         MediaKind.unsupported,
         MediaKind.photo,
+        MediaKind.video,
       ],
     );
     final List<MediaRecord> records = await pipeline.loadPage(
@@ -99,10 +99,10 @@ void main() {
     expect(records[0].photo?.orientation.value, 6);
     expect(records[0].photo?.width, 16);
     expect(records[0].photo?.height, 24);
-    expect(records[1].video?.durationMs.value, 0);
-    expect(records[2].status, ExtractStatus.unsupported);
-    expect(records[3].status, ExtractStatus.partial);
-    expect(records[3].photo?.orientation.value, isNull);
+    expect(records[3].video?.durationMs.value, 0);
+    expect(records[1].status, ExtractStatus.unsupported);
+    expect(records[2].status, ExtractStatus.partial);
+    expect(records[2].photo?.orientation.value, isNull);
     final ThumbFetch thumb = await pipeline.thumbnailFor(records[0]);
     expect(thumb.info.status, ThumbStatus.ready);
     expect(thumb.info.width, 256);
@@ -110,15 +110,15 @@ void main() {
     final ThumbFetch again = await pipeline.thumbnailFor(records[0]);
     expect(again.bytes, thumb.bytes);
     expect(pipeline.thumbs.cache.hits, greaterThanOrEqualTo(1));
-    final ThumbFetch png = await pipeline.thumbnailFor(records[3]);
+    final ThumbFetch png = await pipeline.thumbnailFor(records[2]);
     expect(png.info.status, ThumbStatus.ready);
     expect(png.info.width, 256);
     expect(png.info.height, 256);
-    final ThumbFetch video = await pipeline.thumbnailFor(records[1]);
+    final ThumbFetch video = await pipeline.thumbnailFor(records[3]);
     expect(video.info.status, ThumbStatus.unavailable);
     expect(video.bytes, isNull);
-    expect(records[1].video?.durationMs.value, 0);
-    final ThumbFetch text = await pipeline.thumbnailFor(records[2]);
+    expect(records[3].video?.durationMs.value, 0);
+    final ThumbFetch text = await pipeline.thumbnailFor(records[1]);
     expect(text.info.status, ThumbStatus.unavailable);
     expect(_snapshot(work), before);
     work.deleteSync(recursive: true);

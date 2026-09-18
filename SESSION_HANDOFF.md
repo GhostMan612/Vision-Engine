@@ -18,7 +18,32 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP4 device GREEN — ran it myself on attached Moto G)
+## Where we are (2026-09-15, MP5 device GREEN + 2C device CLOSED — STOPPED)
+
+- **MP5 done, device-proven by agent run:** `PhotoThumbs` (sampled
+  decode + explicit rotation + exact width-256) + `VideoFrames`
+  (first-frame ≤512px) + cache wiring; 12/12 JVM + instrumented
+  `ThumbsDeviceTest` 6/6 PASS on Moto G (orientation 256x384, PNG
+  256x256, graceful nulls, cache round-trip, untouched sources). One
+  setup failure en route (missing `ve_thumb` asset copy — diagnosed
+  from `FileNotFoundException` in `stage()`, fixed + rerun green).
+- **2C device CLOSED:** Flutter `pipeline_device_test` 6/6 PASS on Moto
+  G (agent-run; one folded-sort expectation corrected to verified
+  truth). The ancient open item is gone — full device story green.
+- **Gates:** core 55/55, android 44/44 JVM + 12/12 device, Flutter
+  analyze clean + 44/44 host + 6/6 device. NO Viewer, NO pipeline.
+- **Next:** MP6 pipeline authorization or redirect.
+
+## Where we were (2026-09-15, MP5 authorized — implementation in progress, NO Viewer UI)
+
+- **MP5 scope (authorized, bounded):** photo decode + video frames +
+  cache wiring in `vision-android/thumbs`; JVM suites green (12 new
+  tests); instrumented `ThumbsDeviceTest` authored; device runs (MP5 +
+  pending 2C Flutter suite) queued with the plugged-in Moto G.
+- **Still to do in this package:** device runs (mine), ADR/runbook/
+  tracking docs, full gates, audit, commit, STOP.
+
+## Where we were (2026-09-15, MP4 device GREEN — ran it myself on attached Moto G)
 
 - **MP4 device validation 6/6 PASS** (`:vision-android:
   connectedDebugAndroidTest`, Moto G 2025, executed by agent over adb):

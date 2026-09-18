@@ -51,6 +51,15 @@
   tests + **device suite 6/6 PASS on Moto G (agent-run over adb)**;
   exifinterface dep declared in native module (same 1.4.1 pin);
   test-only androidx.test artifacts (cached versions). NO MP5, NO Viewer.
+- MP5 THUMBNAILS 2026-09-15: `PhotoThumbs` (sampled decode + explicit
+  Matrix rotation + exact width-256 + JPEG-85) + `VideoFrames`
+  (first-frame ≤512px, guarded lifecycle) + cache wiring; 12/12 JVM
+  tests; instrumented `ThumbsDeviceTest` 6/6 PASS on Moto G (agent-run);
+  missing-asset setup failure diagnosed + fixed same session. NO Viewer,
+  NO pipeline.
+- 2C DEVICE CLOSED 2026-09-15: Flutter `pipeline_device_test` 6/6 PASS
+  on Moto G (agent-run; folded-sort expectation corrected to verified
+  truth). Full Flutter device story now green alongside native suites.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
   (2026-09-15): RAW_RENAME WORKS on shared `Pictures/VE_TEST` (2/2 renamed,
   2/2 undo, cleaned, COMPLETE ×2 runs); photos/videos granted,
