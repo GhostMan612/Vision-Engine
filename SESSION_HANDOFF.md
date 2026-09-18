@@ -18,7 +18,18 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP4 extraction COMPLETE host-side — STOPPED)
+## Where we are (2026-09-15, MP4 device GREEN — ran it myself on attached Moto G)
+
+- **MP4 device validation 6/6 PASS** (`:vision-android:
+  connectedDebugAndroidTest`, Moto G 2025, executed by agent over adb):
+  exact EXIF (incl. decimal exposure + GPS + corrected dims), PNG
+  unknowns, missing/corrupt grace, minimal-container shape, byte-identical
+  sources. Read-only, app-private temp, self-cleaned. No DCIM contact.
+- **Next:** MP5 thumbnails authorization or redirect. (Open offer: run
+  the 2C Flutter `pipeline_device_test` on this device too if tasked —
+  out of this turn's scope, not freelanced.)
+
+## Where we were (2026-09-15, MP4 extraction COMPLETE host-side — STOPPED)
 
 - **MP4 done:** `ExifReader` (11 fields, verbatim + GPS decimals +
   orientation/dims normalization) + `VideoReader` (scriptable map seam,

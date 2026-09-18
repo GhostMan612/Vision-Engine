@@ -26,8 +26,7 @@
 > foundation done (core/android/app build green, APK assembles). MP2
 > domain port done (48/48 golden replay, no new deps). MP3 SAF discovery
 > done (core 55/55 + 17/17 Robolectric, no MP4). MP4 extraction done
-> host-side (32/32 incl. scripted retriever; device suite authored,
-> human run pending).
+> (32/32 JVM + device suite 6/6 PASS on Moto G, agent-run).
 - [x] `packages/metadata_core`: `PhotoMeta`/`VideoMeta` + provenance enum + fixture JSON (19/19 tests, analyze clean; no app code, no new deps)
 - [x] 2B extraction layer: Kotlin bridge + channel + `MetadataAdapter` (18/18 host tests); device integration test authored, human Moto G run pending; NO Viewer/UI started
 - [x] 2B triage 2026-09-15 (SOF fixture, orient-0 normalization, status-rule fix, duration truth) — host green, device rerun pending; no 2C

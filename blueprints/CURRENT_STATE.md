@@ -47,8 +47,8 @@
   17/17 Robolectric fake-provider tests; junit+robolectric test-scoped
   in android module (same pinned versions). NO MP4, NO Viewer.
 - MP4 EXTRACTION 2026-09-15: `ExifReader`/`VideoReader` mapping +
-  `AndroidMetadataExtractor` (file/URI, guarded lifecycle) + 15 JVM
-  tests + instrumented device suite authored (human run pending);
+  `AndroidMetadataExtractor` (file/URI, guarded lifecycle) + 15/15 JVM
+  tests + **device suite 6/6 PASS on Moto G (agent-run over adb)**;
   exifinterface dep declared in native module (same 1.4.1 pin);
   test-only androidx.test artifacts (cached versions). NO MP5, NO Viewer.
 - **Gates:** G0 CLOSED, G1 CLOSED (host). D2 CLOSED/PASS on Moto G 2025
