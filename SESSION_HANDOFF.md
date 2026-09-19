@@ -18,7 +18,24 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP5 device GREEN + 2C device CLOSED — STOPPED)
+## Where we are (2026-09-15, MP6 host-complete — DEVICE RUN BLOCKED, STOPPED)
+
+- **MP6 implemented:** `MediaPipeline` (sequential loadPage with sort
+  positions + thumbnailFor over MP4/MP5 layers; URI-less degradation;
+  guarded reads; cache-hits surfaced) + 7/7 JVM tests (records, paging,
+  thumbs incl. cache hits, missing/URI-less sources, untouched
+  snapshots) + instrumented `PipelineDeviceTest` authored AND compiled.
+- **Device run BLOCKED, not failed:** Moto G stopped appearing on adb
+  mid-session (`adb devices` empty; a kill-server recovery could not
+  execute — executor process-spawn instability at the time). Rerun is a
+  single command in `docs/device-validation-mp6.md`; zero code changes
+  needed. Nothing is claimed for the device leg.
+- **Gates:** core 55/55, android 51/51 JVM (44 prior + 7 pipeline),
+  app assemble green, Flutter suites green (below). NO Viewer, NO MP7.
+- **Next:** device reappears → run device suite → MP7 authorization or
+  redirect.
+
+## Where we were (2026-09-15, MP5 device GREEN + 2C device CLOSED — STOPPED)
 
 - **MP5 done, device-proven by agent run:** `PhotoThumbs` (sampled
   decode + explicit rotation + exact width-256) + `VideoFrames`

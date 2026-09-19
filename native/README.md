@@ -125,3 +125,22 @@ $env:ANDROID_HOME = "C:\android\sdk"
 - Proven on JVM (Robolectric real-decodes fixtures; scripted retriever
   frames) and on device (`ThumbsDeviceTest`, agent-run per
   `docs/device-validation-mp5.md`).
+
+## MP6 pipeline (`vision-android/pipeline`, read-only, local-only)
+
+- `MediaPipeline(resolver)`: `loadPage` slices the caller-supplied
+  ordered sources and probes each SEQUENTIALLY (deterministic; no
+  coroutines yet — concurrency only on measured need) into
+  `MediaRecord`s via the MP4 extractor; `thumbnailFor` fetches
+  photo/video thumbs through the bounded `ThumbnailCache`, never
+  touching unsupported records' probe path.
+- URI-less (file-backed) and URI-shaped (documentUri-only, no local
+  path) sources degrade deterministically to `unreadable` records +
+  `unavailable` thumbs — no probe attempted, no crash.
+- File reads are guarded (`unavailable` on vanished files); decode and
+  frame calls are guarded (`failed`/`unavailable`); cache failure never
+  destroys records. Untouched-bytes proof is a test concern (hash
+  snapshots), not a pipeline promise.
+- Proven on JVM (7 pipeline tests: records, paging, thumbs incl. cache
+  hits, missing/URI-less sources, untouched snapshots) and on device
+  (`PipelineDeviceTest`, runbook `docs/device-validation-mp6.md`).

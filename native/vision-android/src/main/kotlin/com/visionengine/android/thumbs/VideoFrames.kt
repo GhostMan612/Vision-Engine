@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileDescriptor
 
 data class VideoFrame(
     val bytes: ByteArray,
@@ -51,59 +52,93 @@ object VideoFrames {
             } catch (e: Exception) {
                 return null
             }
-            val frame = retriever.getFrameAtTime(
-                positionUs,
-                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-            ) ?: return null
+            return frameToJpeg(retriever, positionUs, maxSide)
+        } finally {
+            releaseQuietly(retriever)
+        }
+    }
+
+    fun grabFrameDescriptor(
+        descriptor: FileDescriptor,
+        positionUs: Long = 0L,
+        maxSide: Int = 512,
+    ): VideoFrame? {
+        val retriever = MediaMetadataRetriever()
+        try {
             try {
-                val scale = minOf(
-                    maxSide.toFloat() / frame.width,
-                    maxSide.toFloat() / frame.height,
-                    1f,
-                )
-                val target = if (scale < 1f) {
-                    Bitmap.createScaledBitmap(
-                        frame,
-                        (frame.width * scale).toInt(),
-                        (frame.height * scale).toInt(),
-                        true,
-                    )
-                } else {
-                    frame
-                }
-                if (target !== frame) {
-                    frame.recycle()
-                }
-                val out = ByteArrayOutputStream()
-                try {
-                    if (!target.compress(
-                            Bitmap.CompressFormat.JPEG,
-                            85,
-                            out,
-                        )
-                    ) {
-                        target.recycle()
-                        return null
-                    }
-                    val encoded = out.toByteArray()
-                    val result = VideoFrame(encoded, target.width, target.height)
-                    target.recycle()
-                    return result
-                } finally {
-                    out.close()
-                }
+                retriever.setDataSource(descriptor)
             } catch (e: Exception) {
                 return null
             }
+            return frameToJpeg(retriever, positionUs, maxSide)
         } finally {
-            try {
-                retriever.release()
-            } catch (e: Exception) {
-                android.util.Log.w(
-                    "VisionEngine",
-                    "retriever release: ${e.message}",
+            releaseQuietly(retriever)
+        }
+    }
+
+    private fun frameToJpeg(
+        retriever: MediaMetadataRetriever,
+        positionUs: Long,
+        maxSide: Int,
+    ): VideoFrame? {
+        val frame = try {
+            retriever.getFrameAtTime(
+                positionUs,
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+            )
+        } catch (e: Exception) {
+            null
+        } ?: return null
+        try {
+            val scale = minOf(
+                maxSide.toFloat() / frame.width,
+                maxSide.toFloat() / frame.height,
+                1f,
+            )
+            val target = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    frame,
+                    (frame.width * scale).toInt(),
+                    (frame.height * scale).toInt(),
+                    true,
                 )
+            } else {
+                frame
             }
+            if (target !== frame) {
+                frame.recycle()
+            }
+            val out = ByteArrayOutputStream()
+            try {
+                if (!target.compress(
+                        Bitmap.CompressFormat.JPEG,
+                        85,
+                        out,
+                    )
+                ) {
+                    target.recycle()
+                    return null
+                }
+                val encoded = out.toByteArray()
+                val result = VideoFrame(encoded, target.width, target.height)
+                target.recycle()
+                return result
+            } finally {
+                out.close()
+            }
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
+    private fun releaseQuietly(retriever: MediaMetadataRetriever) {
+        try {
+            retriever.release()
+        } catch (e: Exception) {
+            android.util.Log.w(
+                "VisionEngine",
+                "retriever release: ${e.message}",
+            )
         }
     }
 }

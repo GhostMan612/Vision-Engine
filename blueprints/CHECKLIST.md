@@ -32,6 +32,9 @@
 - [x] MP3 SAF discovery (2026-09-15): SafDiscovery + MimeTypes + 17/17
   Robolectric tests; test-scoped junit/robolectric reuse pinned versions;
   NO MP4, NO Viewer, NO permissions
+- [ ] MP6 pipeline (authorized 2026-09-15): MediaPipeline + 7/7 JVM tests
+  + instrumented device suite authored+compiled; device run BLOCKED (no
+  device on adb — rerun per runbook); NO Viewer, NO MP7
 - [x] MP4 extraction (2026-09-15): readers + extractor + 15/15 JVM tests;
   instrumented device suite 6/6 PASS on Moto G (agent-run); NO MP5, NO Viewer
 - [x] MP5 thumbnails (2026-09-15): PhotoThumbs + VideoFrames + cache

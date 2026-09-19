@@ -46,6 +46,11 @@
   single query, top-level only) + core `MimeTypes` (Turkish-proof) +
   17/17 Robolectric fake-provider tests; junit+robolectric test-scoped
   in android module (same pinned versions). NO MP4, NO Viewer.
+- MP6 PIPELINE 2026-09-15: `MediaPipeline` (sequential loadPage +
+  thumbnailFor over MP4/MP5 layers, URI-less degradation, guarded reads)
+  + 7/7 JVM tests; instrumented `PipelineDeviceTest` authored+compiled,
+  DEVICE RUN BLOCKED (Moto G not visible to adb at session time — rerun
+  per `docs/device-validation-mp6.md`). NO Viewer, NO MP7.
 - MP4 EXTRACTION 2026-09-15: `ExifReader`/`VideoReader` mapping +
   `AndroidMetadataExtractor` (file/URI, guarded lifecycle) + 15/15 JVM
   tests + **device suite 6/6 PASS on Moto G (agent-run over adb)**;
