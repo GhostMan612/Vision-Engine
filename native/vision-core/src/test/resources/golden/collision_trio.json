@@ -1,0 +1,32 @@
+{
+  "prefixes": ["IMG_", "VID_"],
+  "caseSensitive": true,
+  "recursive": false,
+  "entries": [
+    {"path": "/t/IMG_A.jpg", "name": "IMG_A.jpg"},
+    {"path": "/t/A.jpg", "name": "A.jpg"},
+    {"path": "/t/IMG_B.jpg", "name": "IMG_B.jpg"},
+    {"path": "/t/VID_B.jpg", "name": "VID_B.jpg"},
+    {"path": "/t/IMG_C.jpg", "name": "IMG_C.jpg"},
+    {"path": "/t/C.jpg", "name": "C.jpg"},
+    {"path": "/t/IMG_D.jpg", "name": "IMG_D.jpg"}
+  ],
+  "existing": [
+    "/t/IMG_A.jpg",
+    "/t/A.jpg",
+    "/t/IMG_B.jpg",
+    "/t/VID_B.jpg",
+    "/t/IMG_C.jpg",
+    "/t/C.jpg",
+    "/t/IMG_D.jpg",
+    "/t/D.jpg"
+  ],
+  "expectedPlanned": [["/t/IMG_B.jpg", "/t/B.jpg"]],
+  "expectedCollisions": [
+    "IMG_A.jpg -> A.jpg (target exists)",
+    "IMG_C.jpg -> C.jpg (target exists)",
+    "IMG_D.jpg -> D.jpg (target exists)",
+    "VID_B.jpg -> B.jpg (duplicate target in batch)"
+  ],
+  "expectedCounts": {"scanned": 7, "planned": 1, "skippedNoPrefix": 2, "skippedIsDir": 0, "skippedEmptyResult": 0, "collisions": 4}
+}
