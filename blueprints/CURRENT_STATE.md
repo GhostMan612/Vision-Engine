@@ -4,6 +4,18 @@
 
 ## Snapshot (2026-09-14, scaffold session)
 
+- **Standalone v1 spec (2026-11-15):** Glenn decided Vision
+  standalone first (finish the renamer + viewer before lending the
+  engine to Tagger/IndiOSINT). Spec lives in
+  `blueprints/standalone-v1/` — S1 MP6 device re-run → S2 native
+  rename port → S3 SAF picker/grants → S4 Renamer screen → S5 MP7
+  Viewer → S6 MP8 parity + MP9 Flutter retirement, plus
+  RECOMMENDATIONS (REC-01–REC-11, risks R-01–R-11) and a master
+  CHECKLIST. PR #1 (`5f78388`, Python fixes, 18 tests) and PR #2
+  (`d103ef6`, CI fixes) are merged on main. The MP6 device run is
+  still the outstanding Glenn-side item (S1); no native rename,
+  viewer, or folder picker exists yet.
+
 - **Repo:** `C:\vision engine\` — git `main` tracks
   `github.com/GhostMan612/Vision-Engine` (init + push 2026-09-15:
   `fc4317f` scaffold, `28d7205` README merge). Contents:

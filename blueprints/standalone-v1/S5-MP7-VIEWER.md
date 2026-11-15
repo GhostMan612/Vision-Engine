@@ -1,0 +1,330 @@
+# S5 — MP7 Viewer: Compose grid → detail (spec only)
+
+> Status: SPEC ONLY — authorizes NOTHING to build. Drafted 2026-11-15
+> against main `d103ef6` for the Vision-Engine standalone v1 spec PR.
+> Sibling slices: S1 MP6 device re-run, S2 native rename port, S3 SAF
+> picker + persisted grants, S4 Renamer screen, S6 MP8 parity + MP9
+> Flutter retirement.
+>
+> Fact discipline (per
+> `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` §0): FACT =
+> verified in repo/docs; REPO EVIDENCE = file:line or gate result;
+> RECOMMENDATION = judgment; INFERENCE = strong but unverified;
+> OPEN QUESTION = needs a decision or a device. Assumptions are never
+> presented as facts.
+
+## 1. Goal
+
+Build the first native Viewer in `vision-app`: a read-only Compose
+grid → detail screen over the folders a user has already picked, showing
+honest, provenance-tagged metadata for device-camera photos and videos.
+This slice closes the G2 gate (with the real-shot smoke) and is the first
+screen a human actually looks at — everything before it (MP0–MP6) is
+plumbing with no UI.
+
+- FACT: the Viewer is unwritten in both stacks. The migration blueprint
+  states "the Viewer is unwritten in both stacks (why now is cheapest)"
+  and lists it as MP7, "Native Viewer (== 2D-native): Compose grid/detail
+  per G2 contract."
+- REPO EVIDENCE: `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md:1`
+  (§1 P) and §11 (MP7); `blueprints/ROADMAP.md` Phase 2 ("Viewer UI still
+  out of scope", G2 gate text); `blueprints/blueprint-sections/BP-02-metadata-viewer.md`
+  (G2 contract).
+- FACT: `vision-app` today is a placeholder shell — two `Text` lines,
+  zero permissions, no screens.
+- REPO EVIDENCE: `native/vision-app/src/main/kotlin/com/visionengine/app/AppRoot.kt`
+  (40 lines; `AppRoot` renders `state.appName` and "Native foundation
+  ready" / "Starting").
+
+## 2. Non-goals
+
+- Any edit of any kind: no date-shift, no GPS-strip, no orientation-fix,
+  no crop/resize/compress. Those are Phase 3 (BP-03) and G3, not this slice.
+- No rename from the Viewer. Renaming is S4's screen; the Viewer is
+  read-only and must not gain a rename affordance as a side effect.
+- No slideshow, no share, no video playback beyond a still frame.
+  (BP-02: "No edits, no share, no slideshow.")
+- No MediaStore enumeration. SAF-first stands; the Viewer reads only
+  folders the user picked through S3.
+- No network, no geocoder, no map. GPS is displayed as coordinates only,
+  and only if the file carries them.
+
+## 3. Inputs (exact files — read before building)
+
+### 3.1 Contracts this slice must not re-decide
+
+| File | What it pins |
+|---|---|
+| `blueprints/blueprint-sections/BP-02-metadata-viewer.md` | G2 contract: grid → detail, orientation-corrected dims with raw-tag badge, missing = `—`, provenance chip per row, GPS row → "Strip…" routing to BP-03 (never edits inline). |
+| `blueprints/CHECKPOINTS.md` §G2 | Gate text: fixtures render with correct orientation-corrected dims, `—` for missing, provenance chips accurate; no invented values (grep: no silent mtime-as-EXIF substitution); analyzer zero + host tests green; Moto G smoke pasted by human. |
+| `blueprints/ROADMAP.md` Phase 2 | Viewer UI still out of scope as of the last ROADMAP update; G2 gate text (synthetic fixtures + Moto G smoke on real device shots — user-supplied, never committed). |
+| `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` §4, §7–§9 | Compose `LazyVerticalGrid` recommendation; 11 photo + 10 video fields; 256px thumbs, orientation-applied; sequential probing default; bounded cache. |
+| `blueprints/CURRENT_STATE.md` K4, K5 | K4: EXIF orientation lies about W×H — correct before display. K5: HEIF/DNG EXIF coverage differs Dart-`exif` vs native ExifInterface — fallback required (open). |
+
+### 3.2 Native layers this slice builds on (already landed, MP4–MP6)
+
+| File | What it provides |
+|---|---|
+| `native/vision-core/src/main/kotlin/com/visionengine/core/PhotoMeta.kt` (42 lines) | 11 fields as `MetaField<T>`; corrected `width`/`height` swap raw dims when `orientation in 5..8` (`orientationSwapsAxes`, lines 7–8, 23–40). |
+| `native/vision-core/src/main/kotlin/com/visionengine/core/VideoMeta.kt` (41 lines) | 10 fields; corrected dims swap on rotation 90/270. |
+| `native/vision-core/src/main/kotlin/com/visionengine/core/Provenance.kt` | `enum class Provenance { exif, container, filesystem, unknown }` (lines 7–12). |
+| `native/vision-core/src/main/kotlin/com/visionengine/core/Cache.kt` | LRU bounds: `maxEntries = 100`, `maxBytes = 32 MB` (lines 39–40). |
+| `native/vision-android/src/main/kotlin/com/visionengine/android/meta/ExifReader.kt` (146 lines) | FD-backed `ExifInterface` reads: orientation, raw W×H, datetime original, make/model, exposure, GPS. |
+| `native/vision-android/src/main/kotlin/com/visionengine/android/meta/VideoReader.kt` (131 lines) | Retriever reads: duration, dims, rotation, creation time, location, codec. |
+| `native/vision-android/src/main/kotlin/com/visionengine/android/thumbs/PhotoThumbs.kt` (157 lines) | Sampled decode, target width 256 (line 68), 64 MB source cap (line 69), JPEG-85 encode (line 116), explicit rotation. |
+| `native/vision-android/src/main/kotlin/com/visionengine/android/thumbs/VideoFrames.kt` (144 lines) | First frame, `maxSide = 512` (lines 42, 64), JPEG-85 (line 115). |
+| `native/vision-android/src/main/kotlin/com/visionengine/android/pipeline/MediaPipeline.kt` (233 lines) | `loadPage` (line 57) — sequential `for` loop over the page (line 64); thumbnail + extraction over MP4/MP5 layers. |
+
+### 3.3 Reference baseline (do not modify)
+
+- Tag `flutter-final` → commit `aae04f9`; `blueprints/FLUTTER_REFERENCE_BASELINE.md`
+  + `blueprints/FLUTTER_REFERENCE_MANIFEST.json` + `tools/verify_reference.py`
+  (52 lines; exit 0 = intact). The Flutter Viewer never existed, so there
+  is no Flutter Viewer behavior to match — the contract is BP-02 + G2,
+  not a port of an existing screen.
+
+## 4. Step-by-step work
+
+### Step 1 — ViewModel + state (thin, over `MediaPipeline`)
+
+1. Add a `ViewerViewModel` (or extend the existing `MainViewModel` only
+   if the diff stays smaller — RECOMMENDATION: new file, the placeholder
+   `MainViewModel` is foundation scaffolding, not Viewer state) that
+   exposes a `StateFlow` of: folder (from S3's persisted grant),
+   current page of `MediaRecord`s, per-record probe state
+   (loading / probed / failed), and per-record thumb state.
+2. Paging reuses `MediaPipeline.loadPage` unchanged. No new paging
+   mechanism in this slice (Paging 3 is an open question, §9 Q2).
+3. Leaving the screen cancels in-flight thumbs/probes via the existing
+   coroutine scope; completed records persist in the cache
+   (migration blueprint §9 — already the pipeline's behavior).
+
+### Step 2 — Grid screen
+
+1. `LazyVerticalGrid` (migration blueprint §4 RECOMMENDATION: Compose
+   `LazyVerticalGrid` + per-item async thumb loading matches the record
+   model directly; Views would need RecyclerView + ViewHolder + adapter
+   diffing for the same screen).
+2. Each cell: 256px thumb (orientation-applied — the thumb layer already
+   applies rotation; the grid must NOT re-rotate), file name, kind badge
+   (photo/video), and a failure placeholder when the thumb state is
+   `failed`/`unavailable` (never a blank cell that looks like a missing
+   file, never a crash).
+3. Grid shows records in the pipeline's folded-name order; the sort must
+   not be re-implemented in the UI.
+4. Empty states (each distinct, each tested):
+   - No folder picked yet → prompt to pick (routes to S3), no fake content.
+   - Folder picked, zero supported media → "No photos or videos here"
+     with the folder name, not an error.
+   - Folder picked, all files unsupported → count of skipped files, with
+     the reason the pipeline already recorded (unsupported-as-record).
+   - Permission lost (`SecurityException`) → re-request flow, state
+     preserved (migration blueprint §6).
+   - Probe failure on a record → that cell shows the failure state; the
+     grid keeps rendering the rest (per-document try/catch is the
+     pipeline's contract, not a UI invention).
+
+### Step 3 — Detail screen
+
+1. Tap a cell → detail screen for that record: full-width thumb (reuse
+   the cached 256px thumb; do NOT decode a second full-resolution
+   bitmap in this slice — see §9 Q4), file name, and the full field
+   table.
+2. Photo field table (11 fields, migration blueprint §7): datetime
+   original, GPS latitude, GPS longitude, orientation (raw tag value
+   shown alongside the corrected dims — the "raw-tag badge" from BP-02),
+   make, model, exposure time, width (corrected), height (corrected),
+   file size, MIME type.
+3. Video field table (10 fields): duration (ms, displayed in a
+   human-readable form — display formatting only, the stored value stays
+   ms), width (corrected), height (corrected), rotation, creation time,
+   location latitude, location longitude, codec, file size, MIME type.
+4. Display rules (G2 contract, BP-02):
+   - Orientation-corrected dims always; raw dims shown only as the badge.
+     FACT: `PhotoMeta.width`/`height` already swap on orientation 5–8
+     (`PhotoMeta.kt:23–40`); the UI must display those getters, never
+     `widthRaw`/`heightRaw`, as the headline dims.
+   - Unknown/missing = `—` for every field. No invented values: no
+     mtime-as-EXIF substitution, no filename-derived date, no "0" shown
+     as a real value. (G2 grep gate: "no silent mtime-as-EXIF
+     substitution.")
+   - One provenance chip per row, from `Provenance` (`exif` / `container`
+     / `filesystem` / `unknown`) — the chip text is the enum name, nothing
+     fancier.
+   - GPS row carries a "Strip…" button that routes to Phase 3 (BP-03)
+     with NO silent edit: in this slice the button is either disabled
+     with a "Phase 3" label, or opens a placeholder that states GPS
+     stripping is not implemented yet. RECOMMENDATION: disabled button
+     with label — a routing target that does not exist yet must not look
+     tappable. (See §9 Q1.)
+5. Video detail shows the first frame as the still image (from
+   `VideoFrames`); no playback control in this slice. A visibly
+   trackless/unavailable frame shows the `unavailable` state, not a
+   black rectangle that looks like a broken video.
+
+### Step 4 — Cache behavior (bounded, already ported — wire, don't rebuild)
+
+1. Grid thumb loading goes through the existing FNV-keyed LRU
+   (100 entries / 32 MB, `Cache.kt:39–40`). The Viewer adds NO second
+   cache and NO disk cache in this slice.
+2. In-flight dedupe: scrolling fast over the same record must not spawn
+   duplicate decodes (the pipeline's dedupe semantics — migration
+   blueprint §1 N — already exist; the Viewer must call the pipeline,
+   not decode directly).
+3. Cache eviction while scrolling is expected and must not blank
+   already-rendered cells in a way that looks like data loss; evicted
+   thumbs re-decode on demand.
+4. RECOMMENDATION: cap concurrent in-flight thumb decodes to the
+   pipeline's existing sequential default. Bounded concurrency via
+   `limitedParallelism` is explicitly YAGNI in migration blueprint §9
+   and stays that way until a measured need exists.
+
+### Step 5 — Sequential probing default
+
+1. FACT: `MediaPipeline.loadPage` probes sequentially (plain `for` loop,
+   `MediaPipeline.kt:64`). The Viewer keeps that default.
+2. A page must render progressively (records appear as probed) rather
+   than blocking on the whole page — the grid shows loading states per
+   cell, not a full-screen spinner past first paint.
+3. INFERENCE: sequential probing on a large DCIM folder will feel slow on
+   first open. That is the accepted contract for v1 (migration blueprint
+   §9); do not "fix" it inside this slice with concurrency. Record the
+   measured first-page time on the Moto G smoke as evidence for a future
+   decision, don't decide one here.
+
+## 5. Acceptance criteria
+
+- [ ] Grid renders from a picked folder via `MediaPipeline.loadPage`; no
+      direct SAF queries or decodes from UI code.
+- [ ] Detail shows all 11 photo fields / all 10 video fields from
+      `PhotoMeta` / `VideoMeta`, with corrected dims as headline and raw
+      values only as the badge.
+- [ ] Every missing field renders `—`; no field invents a value (grep
+      gate passes: no mtime-as-EXIF substitution anywhere in the Viewer).
+- [ ] Every row carries a provenance chip matching the record's
+      `Provenance` enum value.
+- [ ] GPS "Strip…" button never edits: disabled with a Phase 3 label
+      (or placeholder stating not implemented) — no write path exists in
+      this slice.
+- [ ] Empty / no-folder / all-unsupported / permission-lost / per-record
+      failure states each render distinctly and are covered by tests.
+- [ ] Thumbs are 256px, orientation-applied, JPEG-85 cached under the
+      existing FNV LRU (100 / 32 MB); no second cache, no disk cache.
+- [ ] Sequential probing default preserved; leaving the screen cancels
+      in-flight work; completed records persist in cache.
+- [ ] `flutter analyze`-equivalent native gates green (see §6); no new
+      dependencies (see §7).
+- [ ] G2 checklist items in `blueprints/CHECKPOINTS.md` §G2 check off
+      except the human Moto G smoke, which is recorded as device evidence
+      (§8), not claimed from host runs.
+
+## 6. Gates (must all pass before the slice is called done)
+
+1. Host: `gradle :vision-app:testDebugUnitTest` (or the repo's pinned
+   equivalent) green, including new Compose UI tests (see §7).
+2. Analyzer/lint: the project's lint gate clean on all new files
+   (ktlint per migration blueprint §12; "No issues found" discipline
+   carried from the Flutter lane).
+3. `tools/verify_reference.py` exit 0 — the reference tree is untouched
+   (the Viewer adds files under `native/`; it must not touch `app/`,
+   `packages/`, or the manifest).
+4. No-new-dependency gate: `git diff` on the Gradle files shows no
+   added artifact; Coil is NOT adopted in this slice (migration
+   blueprint §8: revisit ONLY for crossfade/AsyncImage ergonomics at
+   Viewer time — that revisit is §9 Q3, not a decision made here).
+5. Manifest grep gate: no `INTERNET` permission added (migration blueprint
+   §13); no new permission of any kind in this slice.
+6. G2 gate in `blueprints/CHECKPOINTS.md` — all items except the device
+   smoke, which needs §8 evidence.
+
+## 7. Test plan
+
+### Host (JVM / Robolectric / Compose UI tests)
+
+- Compose UI tests from record fixtures (migration blueprint §10:
+  "Compose UI tests assert grid/detail states from the same record
+  fixtures"): build `PhotoMeta`/`VideoMeta` records from the committed
+  synthetic fixtures (`tools/make_fixtures.py` outputs — `ve_exif.jpg`
+  324B with orientation 6, `ve_plain.png`, `ve_minimal.mp4`, `ve_thumb.jpg`;
+  FLUTTER_REFERENCE_BASELINE.md §9) and assert:
+  - grid shows the record's name + kind + thumb state;
+  - detail shows corrected dims (orientation-6 fixture: 3000×4000 raw
+    displays as 4000×3000 corrected) with the raw-tag badge;
+  - unknown fields render `—` (e.g. `ve_plain.png` has no EXIF);
+  - provenance chips match the fixture's provenance;
+  - GPS "Strip…" button is disabled / non-editing;
+  - each empty/error state renders its distinct copy.
+- ViewModel tests: page loading, cancellation on leaving the screen,
+  permission-loss state, per-record failure isolation (one bad record
+  does not fail the page).
+- Cache tests: scrolling the same record twice hits the cache (no second
+  decode); eviction re-decodes on demand.
+- FACT: fixture coverage for the orientation rule already exists in
+  `vision-core` (`DimensionsTest.kt`); the Viewer tests assert the UI
+  *displays* the corrected values, they do not re-prove the swap rule.
+
+### Device (Moto G — human/agent run, see §8)
+
+- Instrumented Compose UI tests on the Moto G against staged synthetic
+  fixtures (same bytes as host), plus the smoke below.
+- No new device-only logic may appear without a host test proving the
+  same branch first (migration blueprint §14 R-05 split).
+
+## 8. Device evidence required (Moto G 2025)
+
+The following must be pasted/recorded before G2 can close. Nothing here
+may be claimed from a host run or an emulator.
+
+1. MP6 device re-run (S1) green first — the Viewer builds on the
+   pipeline; a red MP6 invalidates this slice's device evidence.
+2. Viewer instrumented suite green on the Moto G (grid + detail +
+   empty states over staged synthetic fixtures).
+3. Real-shot smoke (G2 gate text): the operator opens the Viewer over
+   real device-camera shots and pastes the observed result — corrected
+   dims sane, `—` where expected, provenance chips accurate. FACT: the
+   shots are user-supplied and never committed (ROADMAP.md Phase 2 gate;
+   BP-02 verification; AGENTS.md rule 4: synthetic data only in
+   code/tests/fixtures).
+4. First-page load time on a real folder (recorded as a number, for the
+   future concurrency decision — not a pass/fail in this slice).
+5. Airplane-mode run: Viewer fully functional offline (BP-02 reference
+   lineage: Recovery offline-first; migration blueprint §13 dynamic gate).
+
+## 9. Risks
+
+| ID | Risk | Likelihood / Impact | Mitigation in this slice |
+|---|---|---|---|
+| R-V1 | Thumb OOM on huge/odd files | MEDIUM / HIGH (migration blueprint §14 R-03) | 64 MB source cap + bounds-first decode already in `PhotoThumbs`; Viewer adds no full-res decode. Validate with hostile fixtures on device. |
+| R-V2 | Orientation displayed wrong (K4 regression at the UI layer) | MEDIUM / HIGH | UI displays `PhotoMeta.width`/`height` getters only; UI tests pin the orientation-6 fixture's corrected dims. |
+| R-V3 | Sequential probing feels slow on large folders | HIGH / LOW-MEDIUM | Accepted contract for v1; measure and record first-page time (§8 item 4) instead of adding concurrency here. |
+| R-V4 | HEIF/DNG files show mostly `—` (K5 open) | MEDIUM / MEDIUM | Honest `—` is the correct v1 behavior; do NOT invent a fallback inside the Viewer. K5 fallback is a separate decision (§10 Q2). |
+| R-V5 | Compose/Kotlin/AGP coupling breaks the build at slice time | MEDIUM / MEDIUM (migration blueprint §14 R-04) | Pinned BOM lane; no upgrades mid-slice. Fallback is Views per §4 (kept warm, not built). |
+| R-V6 | Scope creep: "while you're here, add slideshow/share" | LOW / HIGH (migration blueprint §14 R-07) | Non-goals in §2 are explicit; any such request is a new slice with its own ADR, not a Viewer change. |
+
+## 10. Open questions (for Glenn — do NOT decide in this PR)
+
+- **Q1 — GPS "Strip…" button form:** disabled-with-label vs. a
+  placeholder screen stating Phase 3 is not implemented? (RECOMMENDATION
+  in §4 Step 3 is disabled-with-label; Glenn's call.)
+- **Q2 — K5 HEIF/DNG fallback:** when a file's EXIF coverage differs
+  between the Dart `exif` path and native `ExifInterface`, what is the
+  v1 fallback — honest `—`, a second native probe, or a documented
+  per-format quarantine note? (K5 is open in CURRENT_STATE.md; the Viewer
+  must not invent an answer.)
+- **Q3 — Coil revisit trigger:** migration blueprint §8 says revisit Coil
+  ONLY for crossfade/AsyncImage ergonomics at Viewer time. Does Glenn
+  want that revisit now (with its key/contract trade-offs: default keys
+  omit mtime, disk cache overlaps ours), or does the hand-rolled loader
+  stay for v1?
+- **Q4 — Detail full-resolution image:** should the detail screen decode
+  a larger image than the cached 256px thumb, or is the 256px thumb the
+  detail image for v1? (A larger decode changes memory bounds — R-V1 —
+  and must not be decided inside this slice's implementation.)
+- **Q5 — Page size for the grid:** the pipeline pages records; what page
+  size does the Viewer request? (Manual paging is the default per ADR-005
+  non-decisions; Paging 3 is a separate question for MP1 kickoff, not
+  this slice.)
+- **Q6 — Video detail beyond a still frame:** is a mute preview / scrub
+  in scope for a later Viewer slice, or is the still frame the permanent
+  v1 video detail? (Out of this slice either way; the answer shapes the
+  detail screen's layout, not its v1 content.)

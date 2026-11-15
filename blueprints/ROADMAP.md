@@ -39,6 +39,20 @@
 - [ ] Viewer UI: grid → detail, orientation-corrected dims, unknown-as-`—`, provenance chips, GPS→strip shortcut (routes to Phase 3, no silent edit)
 - Gate: G2 (viewer shows synthetic EXIF/video fixtures correctly; analyzer zero; Moto G smoke on real device shots — user-supplied, never committed)
 
+## Standalone v1 — spec (2026-11-15)
+
+> Decision 2026-11-14: Vision standalone FIRST — finish the renamer +
+> viewer before lending the engine to Tagger/IndiOSINT. Full spec in
+> `blueprints/standalone-v1/` (README + S1–S6 + RECOMMENDATIONS +
+> CHECKLIST), drafted against main `d103ef6` after PR #1 (Python
+> fixes, 18 tests) and PR #2 (CI fixes) merged. Order: S1 MP6 device
+> re-run → S2 native rename port → S3 SAF picker/grants → S4 Renamer
+> screen → S5 MP7 Viewer → S6 MP8 parity + MP9 Flutter retirement.
+> Phase 3 edits, rename templates, and the advanced lane stay out
+> of v1. Open decisions D1–D12 are listed in
+> `blueprints/standalone-v1/README.md` §5 — none settled in the
+> spec PR.
+
 ## Phase 3 — Simple manipulation (explicit + verified) [ ]
 - [ ] EXIF date-shift, GPS-strip, orientation-fix (in-place, write→read-back)
 - [ ] Crop / resize / compress (copy-default `*_edit`; replace only on opt-in; quality picker)
