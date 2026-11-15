@@ -1,4 +1,8 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# Vision-Engine Python CI: lint + test the host-side Python truth.
+# The Python here is stdlib-only (rename scripts + tools + tests), so there
+# is no requirements.txt to install and nothing to publish to PyPI — the old
+# stock template ran bare `pytest` with zero test files (exit 5) and this
+# repo's second workflow tried to build a package that does not exist.
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: Python application
@@ -19,15 +23,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.14"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -36,4 +39,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        python -m py_compile rename_camera_prefixes.py rename_min.py tools/*.py
+        pytest -q tests/
