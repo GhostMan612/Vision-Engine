@@ -20,7 +20,7 @@ Safety guarantees (archival-grade)
 3. Never overwrites: if the stripped name already exists, that file is SKIPPED.
 4. Never touches file contents, timestamps, or attributes — uses os.rename() only,
    which on the same filesystem preserves all metadata.
-5. Two-phase operation: PLAN first (scan + validate all 213 files), EXECUTE second.
+5. Two-phase operation: PLAN first (scan + validate), EXECUTE second.
 6. Dry-run is the DEFAULT. Nothing changes unless you pass --execute.
 7. Sorted, deterministic order. Directories/symlinks are never renamed.
 8. Writes a CSV manifest of every rename so you can audit or UNDO later.
@@ -51,7 +51,8 @@ python rename_camera_prefixes.py "C:\\photos\\camera" --execute --recursive
 
 Exit codes
 ----------
-0 = success (or dry-run success), 1 = usage error, 2 = collisions/errors blocked execution.
+0 = success, 1 = usage error, 2 = collisions, skips, or errors (dry-run and
+execute alike — a partial run is not silent success).
 """
 
 from __future__ import annotations
@@ -62,7 +63,6 @@ import logging
 import os
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -97,8 +97,10 @@ class RenameReport:
     skipped_no_prefix: int = 0
     skipped_is_dir: int = 0
     skipped_empty_result: int = 0
+    skipped_symlink: int = 0
     skipped_collision: List[str] = field(default_factory=list)
     renamed: int = 0
+    renamed_ops: List[RenameOp] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
 
     @property
@@ -161,11 +163,18 @@ def build_plan(
     candidates: List[Tuple[Path, str]] = []
     for entry in entries:
         report.scanned += 1
+        if entry.is_symlink():
+            # Symlink (to a file, a dir, or broken) — never renamed, even
+            # when it points at a regular file. The docstring promises
+            # symlinks are never renamed; is_file() alone would let a
+            # symlink-to-file through.
+            report.skipped_symlink += 1
+            continue
         if entry.is_dir():
             report.skipped_is_dir += 1
             continue
         if not entry.is_file():
-            # Symlink / fifo / socket etc. — never touch.
+            # Fifo / socket etc. — never touch.
             report.skipped_no_prefix += 1
             continue
         stripped = strip_leading_prefix(entry.name, prefixes, case_sensitive)
@@ -203,9 +212,39 @@ def build_plan(
     return report
 
 
+def _execution_order(ops: List[RenameOp]) -> Tuple[List[RenameOp], List[RenameOp]]:
+    """Order renames so chains resolve instead of half-failing.
+
+    An op whose destination is another op's source runs AFTER that op:
+    VID_a.jpg -> a.jpg must execute before IMG_VID_a.jpg -> VID_a.jpg,
+    or the second rename hits the "target exists" guard and is skipped.
+    Stripped names are strictly shorter than sources, so no cycles can
+    exist; anything left over is reported as a cycle rather than hung on.
+    """
+    pending = list(ops)
+    ordered: List[RenameOp] = []
+    while pending:
+        sources = {op.src for op in pending}
+        ready = sorted(
+            (op for op in pending if op.dst not in sources),
+            key=lambda op: op.old_name,
+        )
+        if not ready:
+            break
+        ordered.extend(ready)
+        for op in ready:
+            pending.remove(op)
+    return ordered, pending
+
+
 def execute_plan(report: RenameReport, logger: logging.Logger) -> RenameReport:
     """Phase 2: execute a previously validated plan. Uses os.rename (metadata-preserving)."""
-    for op in report.planned:
+    ordered, cyclic = _execution_order(report.planned)
+    for op in cyclic:
+        msg = f"ERROR: rename cycle, skipped: {op.old_name} -> {op.new_name}"
+        logger.error(msg)
+        report.errors.append(msg)
+    for op in ordered:
         try:
             # Final guard at execution time (TOCTOU protection): re-check target.
             if op.dst.exists():
@@ -216,6 +255,7 @@ def execute_plan(report: RenameReport, logger: logging.Logger) -> RenameReport:
             os.rename(op.src, op.dst)  # same-filesystem: preserves content + timestamps
             logger.info(f"RENAMED: {op.old_name} -> {op.new_name}")
             report.renamed += 1
+            report.renamed_ops.append(op)
         except OSError as exc:
             msg = f"ERROR: {op.old_name} -> {op.new_name}: {exc}"
             logger.error(msg)
@@ -223,18 +263,31 @@ def execute_plan(report: RenameReport, logger: logging.Logger) -> RenameReport:
     return report
 
 
-def write_manifest(report: RenameReport, manifest_path: Path) -> None:
-    """Write CSV audit log of planned/executed renames (for review or --undo)."""
+def write_manifest(report: RenameReport, manifest_path: Path, executed: bool = False) -> None:
+    """Write CSV audit log of planned/executed renames (for review or --undo).
+
+    Status is honest about what actually happened: "planned" on a dry run,
+    "renamed" only for ops that really executed, "skipped" for planned ops
+    that did not run. A dry-run manifest previously claimed "renamed" for
+    every row, which made --undo try to restore renames that never happened.
+    """
+    renamed_keys = {(op.src, op.dst) for op in report.renamed_ops}
     with manifest_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=MANIFEST_FIELDNAMES)
         writer.writeheader()
         for op in report.planned:
+            if not executed:
+                status = "planned"
+            elif (op.src, op.dst) in renamed_keys:
+                status = "renamed"
+            else:
+                status = "skipped"
             writer.writerow({
                 "original_name": op.old_name,
                 "new_name": op.new_name,
                 "original_path": str(op.src),
                 "new_path": str(op.dst),
-                "status": "renamed" if str(op.src) else "planned",
+                "status": status,
             })
 
 
@@ -246,6 +299,12 @@ def undo_from_manifest(manifest_path: Path, logger: logging.Logger, dry_run: boo
         rows = list(csv.DictReader(f))
     # Reverse order so later renames undo first (safest if names overlapped).
     for row in reversed(rows):
+        if row.get("status") and row["status"] != "renamed":
+            # A dry-run ("planned") or skipped row was never renamed; there
+            # is nothing to restore. Skipping here is what stops a dry-run
+            # manifest from undoing renames that never happened.
+            errors.append(f"SKIP (not a completed rename): {row['new_name']} (status={row['status']})")
+            continue
         new_path = Path(row["new_path"])
         orig_path = Path(row["original_path"])
         # Manifest stores absolute paths; fall back to names if paths moved.
@@ -350,6 +409,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 f"already_clean={report.skipped_no_prefix} | dirs_skipped={report.skipped_is_dir}")
     if report.skipped_empty_result:
         logger.warning(f"Skipped {report.skipped_empty_result} file(s) that would become empty names.")
+    if report.skipped_symlink:
+        logger.warning(f"Skipped {report.skipped_symlink} symlink(s) — symlinks are never renamed.")
     for c in report.skipped_collision:
         logger.warning(f"COLLISION-SKIP: {c}")
 
@@ -361,26 +422,45 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not args.verbose and len(report.planned) > preview_n:
             logger.info(f"  ... and {len(report.planned) - preview_n} more (use --verbose to list all)")
 
-    if args.manifest:
-        write_manifest(report, Path(args.manifest))
-        logger.info(f"Manifest written: {args.manifest}")
-
-    # ---- Phase 2: execute (only with --execute) ----
+    # The manifest is written AFTER the dry-run/execute decision, so its
+    # status column can tell the truth: "planned" on a dry run, "renamed"
+    # / "skipped" per op after execution.
     if not args.execute:
+        if args.manifest:
+            write_manifest(report, Path(args.manifest), executed=False)
+            logger.info(f"Manifest written: {args.manifest}")
         logger.info("DRY-RUN only — nothing was changed. Re-run with --execute to rename.")
-        return 2 if report.skipped_collision or report.skipped_empty_result else 0
+        blocked = bool(report.skipped_collision or report.skipped_empty_result or report.skipped_symlink)
+        return 2 if blocked else 0
 
     if not report.planned:
+        if args.manifest:
+            write_manifest(report, Path(args.manifest), executed=False)
+            logger.info(f"Manifest written: {args.manifest}")
+        blocked = bool(report.skipped_collision or report.skipped_empty_result or report.skipped_symlink)
+        if blocked:
+            logger.info("Nothing to rename — every candidate was skipped.")
+            return 2
         logger.info("Nothing to rename — all files already clean.")
         return 0
 
     logger.info(f"Executing {len(report.planned)} renames (metadata-preserving os.rename)...")
     report = execute_plan(report, logger)
+    if args.manifest:
+        write_manifest(report, Path(args.manifest), executed=True)
+        logger.info(f"Manifest written: {args.manifest}")
     logger.info(f"DONE: renamed={report.renamed}/{report.to_rename} "
                 f"errors={len(report.errors)} collision_skips={len(report.skipped_collision)}")
     for e in report.errors:
         logger.error(e)
-    return 0 if not report.errors else 2
+    complete = (
+        not report.errors
+        and not report.skipped_collision
+        and not report.skipped_empty_result
+        and not report.skipped_symlink
+        and report.renamed == report.to_rename
+    )
+    return 0 if complete else 2
 
 
 if __name__ == "__main__":
