@@ -199,12 +199,16 @@ class RenamerScreenTest {
         composeRule.waitUntil(5_000) {
             model.executeResult.value != null
         }
+        composeRule.onNodeWithText("Undo").performScrollTo()
         composeRule.onNodeWithText("Undo").assertIsDisplayed()
+        composeRule.onNodeWithText("Copy report").performScrollTo()
         composeRule.onNodeWithText("Copy report").assertIsDisplayed()
+        composeRule.onNodeWithText("Undo").performScrollTo()
         composeRule.onNodeWithText("Undo").performClick()
         composeRule.waitUntil(5_000) {
             model.undoResult.value != null
         }
+        composeRule.onNodeWithText("Copy report").performScrollTo()
         composeRule.onNodeWithText("Copy report").assertIsDisplayed()
     }
 }
