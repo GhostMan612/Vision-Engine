@@ -37,6 +37,9 @@ import com.visionengine.android.saf.GrantStore
 import com.visionengine.android.saf.buildTreePickerIntent
 import com.visionengine.android.saf.deriveFolderStates
 import com.visionengine.android.saf.picturesTreeUri
+import com.visionengine.app.renamer.RenamerScreen
+import com.visionengine.app.renamer.RenamerViewModel
+import com.visionengine.app.renamer.RenamerViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
@@ -84,12 +87,20 @@ fun FolderRow(
 }
 
 @Composable
-fun AppRoot() {
+fun AppRoot(
+    mainViewModel: MainViewModel? = null,
+    renamerViewModel: RenamerViewModel? = null,
+) {
     val context = LocalContext.current
     val resolver = context.contentResolver
     val store = remember { GrantStore(context.applicationContext) }
-    val viewModel: MainViewModel = viewModel(
+    val viewModel: MainViewModel = mainViewModel ?: viewModel(
         factory = MainViewModelFactory(store),
+    )
+    val renamer: RenamerViewModel = renamerViewModel ?: viewModel(
+        factory = RenamerViewModelFactory(
+            context.applicationContext.filesDir,
+        ),
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val entries by viewModel.entries.collectAsStateWithLifecycle(
@@ -100,6 +111,7 @@ fun AppRoot() {
     val pickFailure by viewModel.pickFailure.collectAsStateWithLifecycle()
     val folders = deriveFolderStates(entries, persistedUris, lastDiscovery)
     var repickTarget by remember { mutableStateOf<String?>(null) }
+    var tab by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val pickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -132,44 +144,65 @@ fun AppRoot() {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = state.appName)
                 Text(text = if (state.ready) "Native foundation ready" else "Starting")
-                Spacer(modifier = Modifier.height(16.dp))
-                if (pickFailure != null) {
-                    Text(text = pickFailure ?: "")
+                Row {
+                    Button(onClick = { tab = 0 }) {
+                        Text(text = "Folders")
+                    }
+                    Button(onClick = { tab = 1 }) {
+                        Text(text = "Renamer")
+                    }
+                }
+                if (tab == 0) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    if (pickFailure != null) {
+                        Text(text = pickFailure ?: "")
+                        Button(onClick = {
+                            viewModel.dismissPickFailure()
+                            repickTarget = null
+                            launchPicker()
+                        }) {
+                            Text(text = "Try again")
+                        }
+                    }
+                    if (folders.isEmpty()) {
+                        Text(text = "No folders yet — pick a folder to begin")
+                    } else {
+                        for (folder in folders) {
+                            FolderRow(
+                                folder = folder,
+                                onRepick = {
+                                    repickTarget = folder.entry.uri
+                                    launchPicker()
+                                },
+                                onForget = {
+                                    scope.launch {
+                                        viewModel.forgetFolder(
+                                            folder.entry.uri,
+                                            resolver,
+                                        )
+                                    }
+                                },
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {
-                        viewModel.dismissPickFailure()
                         repickTarget = null
                         launchPicker()
                     }) {
-                        Text(text = "Try again")
+                        Text(text = "Pick a folder")
                     }
-                }
-                if (folders.isEmpty()) {
-                    Text(text = "No folders yet — pick a folder to begin")
                 } else {
-                    for (folder in folders) {
-                        FolderRow(
-                            folder = folder,
-                            onRepick = {
-                                repickTarget = folder.entry.uri
-                                launchPicker()
-                            },
-                            onForget = {
-                                scope.launch {
-                                    viewModel.forgetFolder(
-                                        folder.entry.uri,
-                                        resolver,
-                                    )
-                                }
-                            },
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    repickTarget = null
-                    launchPicker()
-                }) {
-                    Text(text = "Pick a folder")
+                    RenamerScreen(
+                        folders = folders,
+                        renamerViewModel = renamer,
+                        resolver = resolver,
+                        scope = scope,
+                        onRepick = { uri ->
+                            repickTarget = uri
+                            launchPicker()
+                        },
+                    )
                 }
             }
         }
