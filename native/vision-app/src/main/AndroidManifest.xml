@@ -3,7 +3,7 @@
         android:label="Vision Engine"
         android:theme="@style/Theme.VisionEngine">
         <activity
-            android:name=".MainActivity"
+            android:name="com.visionengine.app.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
