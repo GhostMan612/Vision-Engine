@@ -162,7 +162,7 @@ class RenamerScreenTest {
         }
         composeRule.onNodeWithText("IMG_a.jpg -> a.jpg").assertIsDisplayed()
         composeRule
-            .onNodeWithText("SKIP IMG_smoke_a.jpg: target exists")
+            .onNodeWithText("SKIP IMG_smoke_a.jpg: target is a file staying put")
             .assertIsDisplayed()
         composeRule
             .onNodeWithText("SKIP smoke_a.jpg: no camera prefix")

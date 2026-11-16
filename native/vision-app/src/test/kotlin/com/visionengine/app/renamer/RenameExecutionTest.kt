@@ -417,8 +417,40 @@ class RenameExecutionTest {
         assertEquals(
             listOf(
                 SkippedRow("IMG_", "empty result"),
-                SkippedRow("IMG_smoke_a.jpg", "target exists"),
+                SkippedRow("IMG_smoke_a.jpg", "target is a file staying put"),
                 SkippedRow("cloud.jpg", "unsupported file type"),
+                SkippedRow("smoke_a.jpg", "no camera prefix"),
+            ),
+            rows,
+        )
+    }
+
+    @Test
+    fun collisionClassesRenderDistinctly() {
+        val entries = listOf(
+            RenameEntry("tree/smoke_a.jpg", "smoke_a.jpg"),
+            RenameEntry("tree/IMG_smoke_a.jpg", "IMG_smoke_a.jpg"),
+            RenameEntry("tree/IMG_a.jpg", "IMG_a.jpg"),
+            RenameEntry("tree/IMG_b.jpg", "IMG_b.jpg"),
+            RenameEntry("tree/VID_b.jpg", "VID_b.jpg"),
+        )
+        val existing = entries.map { it.path }.toSet() + "tree/a.jpg"
+        val report = buildPlan(entries, existing)
+        assertEquals(1, report.toRename)
+        assertEquals(3, report.collisionCount)
+        assertEquals(1, report.skippedNoPrefix)
+        val rows = skippedRowsFor(report, entries, emptyList())
+        assertEquals(
+            listOf(
+                SkippedRow("IMG_a.jpg", "target already exists"),
+                SkippedRow(
+                    "IMG_smoke_a.jpg",
+                    "target is a file staying put",
+                ),
+                SkippedRow(
+                    "VID_b.jpg",
+                    "duplicate target in this batch",
+                ),
                 SkippedRow("smoke_a.jpg", "no camera prefix"),
             ),
             rows,

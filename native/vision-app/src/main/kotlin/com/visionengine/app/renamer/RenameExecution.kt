@@ -336,21 +336,44 @@ fun skippedRowsFor(
 ): List<SkippedRow> {
     val rows = mutableListOf<SkippedRow>()
     val plannedOld = report.planned.map { it.oldName }.toSet()
-    val collisionByName = mutableMapOf<String, String>()
+    val stayingPaths = entries
+        .filter { it.isFile && stripLeadingPrefix(it.name) == null }
+        .map { it.path }
+        .toSet()
+    val collisionByName = mutableMapOf<String, Pair<String, String>>()
     for (line in report.skippedCollision) {
         val name = line.substringBefore(" -> ", "")
+        val stripped = line.substringAfter(" -> ", "")
+            .substringBeforeLast(" (", "")
         val reason = line.substringAfterLast("(", "").removeSuffix(")")
-        if (name.isNotEmpty() && reason.isNotEmpty()) {
-            collisionByName[name] = reason
+        if (name.isNotEmpty() && stripped.isNotEmpty() &&
+            reason.isNotEmpty()
+        ) {
+            collisionByName[name] = stripped to reason
         }
     }
     for (entry in entries) {
         if (entry.name in plannedOld) {
             continue
         }
-        val collisionReason = collisionByName[entry.name]
-        if (collisionReason != null) {
-            rows.add(SkippedRow(entry.name, collisionReason))
+        val collision = collisionByName[entry.name]
+        if (collision != null) {
+            val (stripped, reason) = collision
+            val display = when (reason) {
+                "target exists" -> {
+                    val destination = entry.path
+                        .dropLast(entry.name.length) + stripped
+                    if (destination in stayingPaths) {
+                        "target is a file staying put"
+                    } else {
+                        "target already exists"
+                    }
+                }
+                "duplicate target in batch" ->
+                    "duplicate target in this batch"
+                else -> reason
+            }
+            rows.add(SkippedRow(entry.name, display))
             continue
         }
         val stripped = stripLeadingPrefix(entry.name)
