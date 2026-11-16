@@ -120,7 +120,7 @@ class RenamerScreenTest {
     }
 
     @Test
-    fun grantLostStateShowsAndBlocksPreview() = runBlocking {
+    fun grantLostStateShowsAndBlocksPreview() = runBlocking<Unit> {
         val model = RenamerViewModel(
             filesDir = context.filesDir,
             backendFactory = { backendFor() },
@@ -142,7 +142,7 @@ class RenamerScreenTest {
     }
 
     @Test
-    fun previewShowsPlannedAndSkippedRows() = runBlocking {
+    fun previewShowsPlannedAndSkippedRows() = runBlocking<Unit> {
         val model = RenamerViewModel(
             filesDir = context.filesDir,
             backendFactory = { backendFor() },
@@ -171,7 +171,7 @@ class RenamerScreenTest {
     }
 
     @Test
-    fun executeShowsPostRunReportAndUndo() = runBlocking {
+    fun executeShowsPostRunReportAndUndo() = runBlocking<Unit> {
         val backend = backendFor(
             "IMG_a.jpg",
             "IMG_smoke_a.jpg",
