@@ -1,0 +1,18 @@
+{
+  "prefixes": ["IMG_", "VID_"],
+  "caseSensitive": true,
+  "recursive": true,
+  "entries": [
+    {"path": "/t/z/IMG_deep.jpg", "name": "IMG_deep.jpg"},
+    {"path": "/t/IMG_top.jpg", "name": "IMG_top.jpg"},
+    {"path": "/t/sub/keep.jpg", "name": "keep.jpg"},
+    {"path": "/t/sub2", "name": "sub2", "isDir": true, "isFile": false}
+  ],
+  "existing": ["/t/z/IMG_deep.jpg", "/t/IMG_top.jpg", "/t/sub/keep.jpg", "/t/sub2"],
+  "expectedPlanned": [
+    ["/t/z/IMG_deep.jpg", "/t/z/deep.jpg"],
+    ["/t/IMG_top.jpg", "/t/top.jpg"]
+  ],
+  "expectedCollisions": [],
+  "expectedCounts": {"scanned": 4, "planned": 2, "skippedNoPrefix": 1, "skippedIsDir": 1, "skippedEmptyResult": 0, "collisions": 0}
+}

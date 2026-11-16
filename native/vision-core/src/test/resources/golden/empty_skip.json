@@ -1,0 +1,14 @@
+{
+  "prefixes": ["IMG_", "VID_"],
+  "caseSensitive": true,
+  "recursive": false,
+  "entries": [
+    {"path": "/t/IMG_", "name": "IMG_"},
+    {"path": "/t/VID_", "name": "VID_"},
+    {"path": "/t/IMG_ok.jpg", "name": "IMG_ok.jpg"}
+  ],
+  "existing": ["/t/IMG_", "/t/VID_", "/t/IMG_ok.jpg"],
+  "expectedPlanned": [["/t/IMG_ok.jpg", "/t/ok.jpg"]],
+  "expectedCollisions": [],
+  "expectedCounts": {"scanned": 3, "planned": 1, "skippedNoPrefix": 0, "skippedIsDir": 0, "skippedEmptyResult": 2, "collisions": 0}
+}
