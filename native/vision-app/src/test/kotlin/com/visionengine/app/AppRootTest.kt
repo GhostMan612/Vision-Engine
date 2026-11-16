@@ -20,9 +20,13 @@ class AppRootTest {
     @Test
     fun rootShowsAppShell() {
         composeRule.setContent {
-            AppRoot(viewModel = MainViewModel())
+            AppRoot()
         }
         composeRule.onNodeWithText("Vision Engine").assertIsDisplayed()
         composeRule.onNodeWithText("Native foundation ready").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("No folders yet — pick a folder to begin")
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("Pick a folder").assertIsDisplayed()
     }
 }
