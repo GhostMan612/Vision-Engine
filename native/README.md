@@ -1,4 +1,4 @@
-# native/ — Vision Engine pure-native Android track (MP1 foundation)
+# native/ — Vision Engine native Kotlin / Compose migration (MP6 host-complete)
 
 > Flutter `app/` is the frozen reference (`flutter-final` tag). This tree
 > is the migration target. See `blueprints/NATIVE_ANDROID_MIGRATION_
