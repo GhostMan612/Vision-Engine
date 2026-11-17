@@ -1,10 +1,11 @@
 # Standalone v1 — Vision Engine, finished as its own app (spec)
 
-> Status: SPEC ONLY. Authorizes NOTHING to build. Drafted 2026-11-15
-> against main `d103ef6` (PR #1 Python fixes + PR #2 CI fixes merged).
-> Each file in this directory describes one slice; implementation PRs
-> follow one at a time, feature by feature, layer by layer, in the
-> order below.
+> Status: SPEC + IMPLEMENTATION RECORD. Drafted 2026-11-15 against
+> main `d103ef6` (PR #1 Python fixes + PR #2 CI fixes merged).
+> Slices S1–S4 are implemented on main `18c45c6` (PRs #4–#8, merged
+> 2026-11-16–17); S5 is next, S6 after. The spec text below is
+> preserved; implemented slices are recorded in §1–§2 and §5, and
+> each slice file carries its own implementation record.
 >
 > Fact discipline (per
 > `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` §0): FACT =
@@ -41,21 +42,21 @@
 
 | Layer | State |
 |---|---|
-| Python canonical scripts | `rename_camera_prefixes.py` (467 lines) + `rename_min.py`; PR #1 (merged `5f78388`) fixed chain renames, honest manifests, symlink skip, exit codes; 18 tests green. Python is stdlib-only, frozen as the canonical truth the Dart port is golden-tested against. There is NO Chaquopy / Python-in-Android in this repo. |
+| Python canonical scripts | `rename_camera_prefixes.py` + `rename_min.py`; PR #1 (merged `5f78388`) fixed chain renames, honest manifests, symlink skip, exit codes; PR #8 (merged `18c45c6`) added exclusive manifest creation, manifest alias guard, dependency-aware undo; 30 tests green (18 + 12 safety). Python is stdlib-only, frozen as the canonical truth the Dart port is golden-tested against. There is NO Chaquopy / Python-in-Android in this repo. |
 | Flutter `app/` + `packages/` | Frozen at tag `flutter-final` (`aae04f9`). Rename UI works only in its own app-private `vision_demo/` folder; the Probe tab is the only real-folder touch (D2-validated SAF-pick + raw rename on Moto G). Metadata/thumbnail/pipeline code is real and tested but has no UI. |
-| Native Kotlin MP0–MP6 | Read-only metadata + thumbnail pipeline library (55 core + 51 android JVM tests; MP4/MP5 device 6/6 each on Moto G). MP6 device run is BLOCKED — no device on adb at authoring time, not a code failure. Placeholder shell (two `Text` lines, zero permissions). NO rename, NO viewer, NO folder picker in native yet. |
-| CI | PR #2 (merged `d103ef6`): `python-app.yml` runs `py_compile` + `pytest -q tests/` on Python 3.14; `python-publish.yml` deleted (no package to publish). |
+| Native Kotlin MP0–MP6 | Read-only metadata + thumbnail pipeline library (55 core + 51 android JVM tests; MP4/MP5 device 6/6 each on Moto G). MP6 device run DONE 2026-11-17 — 13/13 PASS on BLU B160V, Android 14 (hardware substitution for the Moto G; no Moto G coverage claimed). Native rename (PR #4), folder picker + grants (PR #5), and Renamer screen (PR #6 + PR #7 fix) are all merged on main `18c45c6`. No Viewer yet (S5 next). |
+| CI | PR #2 (merged `d103ef6`): `python-app.yml` runs `py_compile` + `pytest -q tests/` on Python 3.14; `python-publish.yml` deleted (no package to publish). No native Gradle CI exists — the only workflow is `python-app.yml`; host Gradle gates run on Glenn's laptop. |
 
 ## 2. The slices, in order (each is its own file here)
 
 | Slice | File | What it is | Hard prerequisites |
 |---|---|---|---|
-| S1 | `S1-MP6-DEVICE-RERUN.md` | Re-run the authored MP6 instrumented device suite (13 tests) on Glenn's Moto G + laptop. Glenn-side; no code. | None (needs laptop + phone together) |
-| S2 | `S2-NATIVE-RENAME-PORT.md` | Port `stripLeadingPrefix` + `buildPlan` + manifest codec + reverse-order undo into pure-JVM `vision-core`, replaying the 6 Dart goldens byte-identical. Post-PR #1 Python semantics. | None (pure JVM, no device) |
-| S3 | `S3-SAF-PICKER-GRANTS.md` | System folder picker + persisted URI grants (DataStore), re-request flow, top-level-only enumeration via existing `SafDiscovery`. | — (S2 not required, but S4 needs both) |
-| S4 | `S4-RENAMER-SCREEN.md` | Compose Renamer screen on a real folder: preview → execute → honest manifest → undo, staged smoke (app files, then copied/quarantined DCIM; live DCIM never first). | S1, S2, S3 all green |
-| S5 | `S5-MP7-VIEWER.md` | MP7 Viewer: Compose grid → detail, corrected dims, `—` for unknown, provenance chips, GPS strip button disabled (Phase 3). Closes G2 with the real-shot smoke. | S1 green (pipeline device-proved) |
-| S6 | `S6-MP8-MP9-PARITY-RETIREMENT.md` | MP8 side-by-side reference-vs-native parity on hardware + G2 sign-off; MP9 Flutter retirement criteria + atomic removal, Glenn's call at the gate. | S1–S5 done |
+| S1 | `S1-MP6-DEVICE-RERUN.md` | Re-run the authored MP6 instrumented device suite (13 tests) on Glenn's Moto G + laptop. Glenn-side; no code. **Done 2026-11-17: 13/13 PASS on BLU B160V (Moto G → B160V substitution); self-containment confirmation still PENDING.** | None (needs laptop + phone together) |
+| S2 | `S2-NATIVE-RENAME-PORT.md` | Port `stripLeadingPrefix` + `buildPlan` + manifest codec + reverse-order undo into pure-JVM `vision-core`, replaying the 6 Dart goldens byte-identical. Post-PR #1 Python semantics. **Done: PR #4, merged 2026-11-16 (`4ef05e7`).** | None (pure JVM, no device) |
+| S3 | `S3-SAF-PICKER-GRANTS.md` | System folder picker + persisted URI grants (DataStore), re-request flow, top-level-only enumeration via existing `SafDiscovery`. **Done: PR #5, merged 2026-11-16 (`2223beb`). Revoke-then-re-pick NOT verified — open item.** | — (S2 not required, but S4 needs both) |
+| S4 | `S4-RENAMER-SCREEN.md` | Compose Renamer screen on a real folder: preview → execute → honest manifest → undo, staged smoke (app files, then copied/quarantined DCIM; live DCIM never first). **Done: PR #6, merged 2026-11-17 (`5ea6c2c`), + PR #7 fix, merged 2026-11-17 (`b0d2b36`); S4B/S4C green on B160V. Stage (c) live DCIM NOT run.** | S1, S2, S3 all green |
+| S5 | `S5-MP7-VIEWER.md` | MP7 Viewer: Compose grid → detail, corrected dims, `—` for unknown, provenance chips, GPS strip button disabled (Phase 3). Closes G2 with the real-shot smoke. **Next — not started.** | S1 green (pipeline device-proved) |
+| S6 | `S6-MP8-MP9-PARITY-RETIREMENT.md` | MP8 side-by-side reference-vs-native parity on hardware + G2 sign-off; MP9 Flutter retirement criteria + atomic removal, Glenn's call at the gate. **After S5.** | S1–S5 done |
 
 `RECOMMENDATIONS.md` consolidates the cross-slice recommendations
 (REC-01–REC-11) and the risk register (R-01–R-11). `CHECKLIST.md`
@@ -100,22 +101,25 @@ the drift the canonical rule exists to prevent).
 
 ## 5. Open decisions (consolidated — each lives in its slice file)
 
-These are Glenn's calls. None is settled in this PR.
+These are Glenn's calls. Decisions settled by the merged work are
+marked decided with the PR reference; the rest stay open. The
+original "none is settled" line from the 2026-11-15 draft is
+superseded by the entries below (2026-11-17).
 
-| # | Question | Where |
-|---|---|---|
-| D1 | Rename mechanism from a SAF tree URI: `DocumentsContract.renameDocument` vs raw `File.rename`? (Also decides S3 grant flags: READ-only vs READ+WRITE.) | S3 Q1/Q2, S4 Q1 |
-| D2 | Verify-after-write: how do we know a rename really happened? | S4 Q2 |
-| D3 | Manifest placement: app-private only, or also offer export? | S4 Q3 |
-| D4 | Manifest columns: confirm the 6-column Dart form (with `content_uri`) as the native standard? (Spec recommends yes; S2/S4 reconciled to one position before this PR.) | S2 Q1, S4 Q4 |
-| D5 | Recursive rename: ever, or never in v1? (Spec recommends top-level only.) | S4 Q5 |
-| D6 | Symlinks through SAF: visible at all? (Probe in the S4 smoke, or state the limitation.) | S4 Q6 |
-| D7 | Execute confirmation: is "Execute N renames" enough, or a second dialog? | S4 Q7 |
-| D8 | MP6 run timing + stale Gradle path in the runbook + flake policy + state-update vehicle. | S1 Q1–Q5 |
-| D9 | Native rename port details: sealed result type vs nullable+sentinel; `parity_probe.py` three-way; package layout; astral-plane sort pinning; chain-ordering home. | S2 Q2–Q6 |
-| D10 | Saved folders: one slot or a growable list? Picker initial location? Launch health-check cost? Lost-grant expiry? | S3 Q3–Q6 |
-| D11 | Viewer: GPS "Strip…" button form; K5 HEIF/DNG fallback; Coil revisit; detail full-res decode; page size; video beyond a still frame. | S5 Q1–Q6 |
-| D12 | MP9 archive-tag name (`flutter-final` is taken by the MP0 freeze tag); post-removal `verify_reference.py` story; parity report location; second OEM device; keep Flutter building during migration; Viewer comparison method. | S6 Q1–Q6 |
+| # | Question | Where | Status (2026-11-17, main `18c45c6`) |
+|---|---|---|---|
+| D1 | Rename mechanism from a SAF tree URI: `DocumentsContract.renameDocument` vs raw `File.rename`? (Also decides S3 grant flags: READ-only vs READ+WRITE.) | S3 Q1/Q2, S4 Q1 | **Decided 2026-11-15 (Glenn): `renameDocument` + READ+WRITE grants.** PR #5 / PR #6. |
+| D2 | Verify-after-write: how do we know a rename really happened? | S4 Q2 | **Decided (PR #6):** re-query the document after the op; null/mismatch → UNVERIFIED, never counted renamed. |
+| D3 | Manifest placement: app-private only, or also offer export? | S4 Q3 | **Decided (PR #6):** app-private + `CreateDocument` export. |
+| D4 | Manifest columns: confirm the 6-column Dart form (with `content_uri`) as the native standard? (Spec recommends yes; S2/S4 reconciled to one position before this PR.) | S2 Q1, S4 Q4 | **Implemented as recommended (PR #4 / PR #6):** six-column form with `content_uri`. Formal confirmation by Glenn still OPEN — do not read this as a confirmed decision. |
+| D5 | Recursive rename: ever, or never in v1? (Spec recommends top-level only.) | S4 Q5 | **Decided (PR #6):** top-level only for v1. |
+| D6 | Symlinks through SAF: visible at all? (Probe in the S4 smoke, or state the limitation.) | S4 Q6 | **Decided (PR #6):** undetectable through SAF — recorded limitation, `skippedSymlink` stays 0 on that path. |
+| D7 | Execute confirmation: is "Execute N renames" enough, or a second dialog? | S4 Q7 | **Decided (PR #6):** no second dialog. |
+| D8 | MP6 run timing + stale Gradle path in the runbook + flake policy + state-update vehicle. | S1 Q1–Q5 | **Partially decided:** the run happened 2026-11-17 on BLU B160V; the state update landed as its own docs PR. Flake policy and the stale runbook Gradle path still OPEN. |
+| D9 | Native rename port details: sealed result type vs nullable+sentinel; `parity_probe.py` three-way; package layout; astral-plane sort pinning; chain-ordering home. | S2 Q2–Q6 | **Partially decided (PR #4):** package layout `vision-core/rename/`; astral-plane sort pinned by test; chain ordering in `ExecutionOrder.kt` (port of Python `_execution_order`); nullable + `""` sentinel. The `parity_probe.py` three-way (Dart regression) still OPEN — PR #8 added a chain-execution assertion but not the three-way comparison. |
+| D10 | Saved folders: one slot or a growable list? Picker initial location? Launch health-check cost? Lost-grant expiry? | S3 Q3–Q6 | **Decided (PR #5):** growable list; picker opens near Pictures via `EXTRA_INITIAL_URI` (silent fallback); lookup-only launch health check, live re-check on folder-open; lost-grant entry kept until forgotten/re-picked. |
+| D11 | Viewer: GPS "Strip…" button form; K5 HEIF/DNG fallback; Coil revisit; detail full-res decode; page size; video beyond a still frame. | S5 Q1–Q6 | **Open** — S5 not started. |
+| D12 | MP9 archive-tag name (`flutter-final` is taken by the MP0 freeze tag); post-removal `verify_reference.py` story; parity report location; second OEM device; keep Flutter building during migration; Viewer comparison method. | S6 Q1–Q6 | **Open** — S6 not started. |
 
 ## 6. Known findings recorded by this spec (not fixes — fixes are later PRs)
 
@@ -138,6 +142,8 @@ These are Glenn's calls. None is settled in this PR.
   UTF-16 code unit — they can differ for astral-plane (e.g. emoji)
   filenames. No fixture covers it; S2 §9.1 records it as a risk and
   D9 asks whether pinning it is worth a test.
+  **Resolved by PR #4 (2026-11-16):** `PlanTest` pins the Kotlin
+  UTF-16 sort with an astral-plane test.
 - The GitHub API connection cannot create/update files under
   `.github/workflows/` (403, proven in PR #2); workflow changes go
   via the web editor. No workflow change is in this PR for that

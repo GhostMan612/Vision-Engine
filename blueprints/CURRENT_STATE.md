@@ -2,6 +2,67 @@
 
 > Updated every session per RULES.md §4.2. Evidence > status.
 
+## Implementation record (2026-11-15–17, main `18c45c6`)
+
+- **S1 MP6 device re-run (2026-11-17):** 13/13 instrumented tests
+  PASS on **BLU B160V, Android 14** (ADB serial
+  `7040016025040287`) — `ExtractorDeviceTest` 6/6,
+  `ThumbsDeviceTest` 6/6, `PipelineDeviceTest` 1/1; Gradle `BUILD
+  SUCCESSFUL` in 1m 32s; instrumented XML reports independently
+  checked. **Hardware substitution:** the S1 spec named the Moto G;
+  the run used the BLU B160V instead. No Moto G coverage is claimed.
+  **Self-containment gate PENDING:** the S1 spec (§5.4 item 3 / §7 /
+  §8) requires the operator's confirmation line "no folder picker
+  appeared and no DCIM was touched" before S1 is complete — that
+  confirmation has NOT been received. S1 is 13/13 passed, not fully
+  closed.
+- **S2 native rename port (PR #4, merged 2026-11-16,
+  `4ef05e7`):** `vision-core` rename package — strip, `buildPlan`,
+  manifest codec (6-column Dart form), dependency-ordered execution,
+  undo; 38 tests incl. golden replay of all 6 Dart fixtures;
+  JUnitCore OK (93) with the pre-existing suite.
+- **S3 SAF picker + grants (PR #5, merged 2026-11-16,
+  `2223beb`):** system folder picker (`StartActivityForResult` +
+  `ACTION_OPEN_DOCUMENT_TREE`, READ+WRITE persistable grants),
+  DataStore grant store (`vision_grants`), folder list UI with
+  Re-pick/Forget, lookup-only launch health check. Follow-up fixes:
+  coroutines-core explicit dep (`65a27a9`), `preferencesDataStore`
+  import (`67275cf`), vision-core dep (`86c47c3`), stale-test
+  rewrites (`eb696b9`), manifest activity (`bf0e480`). Host gate
+  green on the laptop. Device: grant + discovery proven on B160V
+  (Stage A); reboot + reinstall survival verified with the S4B/S4C
+  runs (see PR #7); revoke-then-re-pick NOT verified — open item.
+- **S4 Renamer screen (PR #6, merged 2026-11-17,
+  `5ea6c2c`):** two-tab shell (Folders | Renamer), preview → execute
+  → honest manifest → undo via S2 + S3; `renameDocument` mechanism
+  with verify-by-re-query; app-private manifest
+  (`renames_<epochMillis>.csv`) + `CreateDocument` export; host gate
+  BUILD SUCCESSFUL in 1m 40s (four tasks green).
+- **PR #7 S4-FIX-01 (merged 2026-11-17, `b0d2b36`):** destination
+  preflight via parent enumeration (3 outcomes) + post-rename URI
+  preserved for undo; 6 Robolectric backend tests; host gate green.
+  Hardware acceptance on B160V at head `4c444db` (recorded as a
+  comment on PR #7): S4B synthetic rename/Undo passed, S4C
+  real-media rename/Undo passed, all four original files restored
+  with identical SHA-256, 41.5 MB MP4 byte-identical, SAF grants
+  survived reboot + same-signature reinstall, app-private manifests
+  survived reinstall, post-rename SAF document URI verified, no
+  live DCIM touched.
+- **PR #8 Python safety residuals (merged 2026-11-17,
+  `18c45c6`):** exclusive manifest creation (mode `"x"` +
+  pre-check), manifest alias guard (exit 2), dependency-aware undo
+  (pending-map + vacated-set), 12 adapted safety tests, parity
+  probe Dart-path fix + chain-execution assertion; pytest 30 passed
+  (18 + 12), flake8 clean, CI pass.
+- **Remaining limitations (2026-11-17):** no Moto G coverage for
+  the S1 run; S3 revoke/re-pick unverified; S4 stage (c) live DCIM
+  never run (needs Glenn's separate go-ahead); symlinks
+  undetectable through SAF (`skippedSymlink` stays 0 on that path);
+  no native Gradle CI — only `python-app.yml`; S1 paste-back was a
+  summary (head commit + `adb devices` output not pasted).
+- **Next:** S5 MP7 Viewer, on Glenn's nod. LICENSE is a separate
+  owner decision (no LICENSE on main).
+
 ## Historical snapshot (2026-09-14 scaffold; subsequent dated entries below)
 
 - **Standalone v1 spec (2026-11-15):** Glenn decided Vision
@@ -15,6 +76,11 @@
   (`d103ef6`, CI fixes) are merged on main. The MP6 device run is
   still the outstanding Glenn-side item (S1); no native rename,
   viewer, or folder picker exists yet.
+  **Superseded 2026-11-17:** the MP6 device run is done (13/13 on
+  BLU B160V, see Implementation record above); native rename (PR
+  #4), folder picker + grants (PR #5), and the Renamer screen (PR
+  #6) are all merged on main. The sentence above is kept for the
+  historical record only.
 
 - **Repo:** `C:\vision engine\` — git `main` tracks
   `github.com/GhostMan612/Vision-Engine` (init + push 2026-09-15:
@@ -64,6 +130,14 @@
   + 7/7 JVM tests; instrumented `PipelineDeviceTest` authored+compiled,
   DEVICE RUN BLOCKED (Moto G not visible to adb at session time — rerun
   per `docs/device-validation-mp6.md`). NO Viewer, NO MP7.
+  **Superseded 2026-11-17:** the device run is done — 13/13 PASS on
+  BLU B160V, Android 14 (Extractor 6/6, Thumbs 6/6, Pipeline 1/1),
+  Gradle BUILD SUCCESSFUL in 1m 32s, XML reports checked. Hardware
+  substitution for the Moto G named in the S1 spec; no Moto G
+  coverage claimed. Self-containment confirmation ("no folder
+  picker appeared and no DCIM was touched") still PENDING operator
+  confirmation, so S1 is not fully closed. NO Viewer, NO MP7 (S5
+  next, on Glenn's nod).
 - MP4 EXTRACTION 2026-09-15: `ExifReader`/`VideoReader` mapping +
   `AndroidMetadataExtractor` (file/URI, guarded lifecycle) + 15/15 JVM
   tests + **device suite 6/6 PASS on Moto G (agent-run over adb)**;

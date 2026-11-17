@@ -1,11 +1,10 @@
 # S4 — Renamer screen, real folders (native)
 
-> Status: SPEC-ONLY DRAFT for operator review. Authorizes NOTHING to build.
-> Slice 4 of the Vision-Engine standalone v1 spec series: S1 MP6 device
-> re-run → S2 native rename port (`vision-core`) → S3 SAF picker +
-> persisted grants → **S4 Renamer screen** → S5 MP7 Viewer → S6 MP8
-> parity + MP9 Flutter retirement. S1, S2, S3, S5, S6 are separate
-> spec files.
+> Status: IMPLEMENTED — PR #6, merged 2026-11-17 (main `5ea6c2c`),
+> plus PR #7 (S4-FIX-01), merged 2026-11-17 (main `b0d2b36`).
+> The spec text below is preserved; implemented items are ticked in
+> §1 and §6, superseded claims are marked in §3–§4, device evidence
+> is recorded in §8, and Glenn's Q-decisions are recorded in §10.
 > Research date: 2026-11-15. Baseline: main `d103ef6`
 > (PR #2 merged: python-app CI tests real code, PyPI workflow removed).
 
@@ -25,20 +24,33 @@ folder, preview the prefix rename, execute it, write an honest manifest,
 undo it — on a real user folder, with the same safety the Python
 canonical script has had since the beginning.
 
-- [ ] Compose Renamer screen in `vision-app`: pick folder (from S3's
+- [x] Compose Renamer screen in `vision-app`: pick folder (from S3's
       saved grants) → preview → execute → manifest → undo → post-run
-      report.
-- [ ] Dry-run is the default. Nothing changes on disk until the user
-      explicitly executes a previewed plan.
-- [ ] Preview shows every planned op AND every skipped row with its
+      report. **Implemented PR #6:** two-tab shell (Folders |
+      Renamer), `RenamerScreen` + `RenamerViewModel`.
+- [x] Dry-run is the default. Nothing changes on disk until the user
+      explicitly executes a previewed plan. **Implemented PR #6;
+      proven on device (Stage A dry-run file preservation).**
+- [x] Preview shows every planned op AND every skipped row with its
       reason (collision class, empty result, symlink, non-file) —
-      nothing is silently not renamed.
-- [ ] Manifest is honest: `planned` / `renamed` / `skipped` per PR #1
+      nothing is silently not renamed. **Implemented PR #6
+      (`skippedRowsFor` + preview list); three collision classes
+      render distinctly (see §11).**
+- [x] Manifest is honest: `planned` / `renamed` / `skipped` per PR #1
       semantics, written after the execute decision, never before.
-- [ ] Undo is reverse-order and refuses non-`renamed` rows, per PR #1.
-- [ ] First real-folder run is a Glenn-supervised smoke on a
+      **Implemented PR #6 (six-column Dart form) + PR #7
+      (post-rename `content_uri`). Note: the manifest contains
+      planned ops only — planning-skipped rows appear in the
+      preview and the post-run report, not as manifest rows.**
+- [x] Undo is reverse-order and refuses non-`renamed` rows, per PR #1.
+      **Implemented PR #6 (`undoRows` + `isRestorable`) with
+      PR #7's candidate-URI fallback (manifest `content_uri`
+      first, reconstructed path second).**
+- [x] First real-folder run is a Glenn-supervised smoke on a
       copied/quarantined DCIM folder — the way the original Python
       script was first tested — never on live DCIM first.
+      **Done: stages (a)/(b) green on B160V (see §8); stage (c)
+      live DCIM never run.**
 
 ## 2. Non-goals
 
@@ -70,14 +82,22 @@ canonical script has had since the beginning.
   package is on `main` with its gates green. S4 may be drafted (this
   file) while S2 is in flight; it may not be built on a rename
   package that does not exist yet.
+  **Met 2026-11-16 (PR #4, `4ef05e7`):** `vision-core/rename/`
+  (strip, plan, manifest, execution order; 38 tests incl. golden
+  replay) on main, host gate green.
 - FACT: **S3 is a hard prerequisite.** The folder comes from S3's
   saved grants; the Renamer screen has no folder picker of its own.
   If S3 has not landed, S4 has no folder source.
+  **Met 2026-11-16 (PR #5, `2223beb`).**
 - FACT: **S1 (MP6 device re-run) is a sequencing prerequisite.**
   The pipeline S4 executes against must have its device re-run
   complete first — the slice order is S1 → S2 → S3 → S4 for a reason,
   and S4's device smoke (§8) assumes the pipeline underneath it is
   already device-proved.
+  **Met in substance 2026-11-17:** the MP6 suite ran 13/13 PASS on
+  BLU B160V (hardware substitution for the Moto G; see S1 doc §13).
+  Note: S1 is not fully closed — its self-containment confirmation
+  is still PENDING operator confirmation.
 - RECOMMENDATION: if S2 or S3 slips, S4 waits. Do not stub a rename
   engine inside the app module "temporarily" — a temporary engine
   becomes the drift the canonical rule exists to prevent (see §4).
@@ -114,6 +134,10 @@ canonical script has had since the beginning.
   is not `renamed` are refused with a `SKIP (not a completed rename)`
   error per row — a dry-run manifest can never undo renames that
   never happened).
+  **Updated by PR #8 (2026-11-17, `18c45c6`):** Python undo is no
+  longer plain reverse order — it is dependency-aware
+  (pending-map + vacated-set), so chain undos restore both rows.
+  The line citations above still hold on main `18c45c6`.
 - FACT: the Dart port's `buildPlan` is behavior-identical to
   `build_plan` and is golden-tested. REPO EVIDENCE:
   `packages/rename_core/lib/src/plan.dart` (sort by name — or by path
@@ -196,6 +220,10 @@ canonical script has had since the beginning.
   activity-compose 1.10.1, lifecycle-viewmodel-compose 2.8.7,
   material3, ui-test-junit4). S4 adds screens to this shell; it does
   not re-scaffold it.
+  **Superseded 2026-11-17 (PR #5 + PR #6):** the shell is now a
+  two-tab shell (Folders | Renamer) with the folder list and the
+  Renamer screen; the two-`Text` placeholder survives only as the
+  header lines above the tabs.
 - FACT: minSdk 26, compileSdk 37, targetSdk 36. REPO EVIDENCE:
   `native/vision-app/build.gradle.kts`. The Renamer screen must work
   at minSdk 26 — any API newer than 26 needs a version guard, not a
@@ -282,56 +310,91 @@ canonical script has had since the beginning.
 
 ## 6. Acceptance criteria checklist
 
-- [ ] Renamer screen exists in `vision-app` and is reachable from
+- [x] Renamer screen exists in `vision-app` and is reachable from
       the app shell; the placeholder two-`Text` shell is gone from
       the user path (kept only if a screen is genuinely absent).
-- [ ] Folder selection comes only from S3's saved grants; a lost
+      **Done PR #6: two-tab shell (Folders | Renamer); the header
+      lines remain above the tabs.**
+- [x] Folder selection comes only from S3's saved grants; a lost
       grant blocks Preview and offers re-pick; no folder → calm
-      empty state, not an error.
-- [ ] Preview is dry-run: after Preview, zero files on disk have
+      empty state, not an error. **Done PR #6 in code
+      (`RenamerViewModel` lost-grant flag, no discovery); the
+      lost-grant path itself is NOT device-verified (S3 revoke
+      run open — see S3 doc §8).**
+- [x] Preview is dry-run: after Preview, zero files on disk have
       changed (asserted in UI + device tests — compare directory
-      listing before/after).
-- [ ] Preview lists every planned op (old → new) and every skipped
+      listing before/after). **Done PR #6; proven on device
+      (Stage A dry-run file preservation — hashes unchanged).**
+- [x] Preview lists every planned op (old → new) and every skipped
       row with its reason; counts reconcile: planned + skipped +
-      clean + dirs == scanned.
-- [ ] The three collision classes each render distinctly
+      clean + dirs == scanned. **Done PR #6 (`skippedRowsFor` +
+      `countsReconcile`); Stage A preview counts reported.**
+- [x] The three collision classes each render distinctly
       ("target already exists", "target is a file staying put",
       "duplicate target in this batch") with the file names attached.
-- [ ] A chain fixture (`IMG_VID_a.jpg` + `VID_a.jpg` in one batch)
+      **Done PR #6 (collision fix `3cba024` + test
+      `collisionClassesRenderDistinctly`).**
+- [x] A chain fixture (`IMG_VID_a.jpg` + `VID_a.jpg` in one batch)
       previews and executes to the correct final names — no
       half-failed chain with a success report (the PR #1 bug, now a
-      regression test).
+      regression test). **Done: S2 `ExecutionOrderTest` + S4
+      `RenameExecutionTest` chain cases; Python chain execution
+      covered by PR #1/PR #8 tests.**
 - [ ] A symlink fixture is skipped, never renamed (PR #1 rule).
       INFERENCE, not FACT: whether a symlink is even visible through
       SAF enumeration is unproven — the test asserts the behavior on
       the path the rename actually takes (see Q2), and the spec
       records the outcome either way.
-- [ ] Execute is disabled until a preview exists; the Execute button
+      **Decided, not ticked (Q6, PR #6): symlinks are undetectable
+      through SAF — `SafDiscovery` exposes no symlink flag, so
+      `skippedSymlink` stays 0 on the SAF path. Recorded limitation,
+      not a passing test.**
+- [x] Execute is disabled until a preview exists; the Execute button
       reads "Execute N renames" with the live planned count.
-- [ ] Execute never overwrites: a destination appearing mid-batch is
-      skipped and reported, not replaced.
-- [ ] A mid-batch failure on one file is counted and listed; the
+      **Done PR #6 (`RenamerScreen.kt`: "Execute " + count +
+      " renames", enabled only on a fresh preview).**
+- [x] Execute never overwrites: a destination appearing mid-batch is
+      skipped and reported, not replaced. **Done PR #6 + PR #7
+      (per-op destination preflight before every op).**
+- [x] A mid-batch failure on one file is counted and listed; the
       batch continues; the final report never claims a higher
-      renamed count than files actually renamed.
-- [ ] Manifest is written after the execute decision with honest
+      renamed count than files actually renamed. **Done PR #6
+      (`executePlan` per-op results; `RenameExecutionTest`
+      partial-batch case).**
+- [x] Manifest is written after the execute decision with honest
       statuses; a dry-run preview produces either no manifest or a
       manifest whose rows are all `planned` — never `renamed`.
-- [ ] Manifest has the six Dart columns including `content_uri`,
+      **Done PR #6 + PR #7 (post-rename `content_uri`). Note:
+      the manifest contains planned ops only.**
+- [x] Manifest has the six Dart columns including `content_uri`,
       and lives in app-private storage, not in the renamed folder.
-- [ ] Undo restores in reverse order; rows with status other than
+      **Done PR #6 (`filesDir/renames_<epochMillis>.csv`) + PR #7.**
+- [x] Undo restores in reverse order; rows with status other than
       `renamed` are refused with a per-row SKIP note; undo of a
-      dry-run manifest restores zero files.
-- [ ] Undo after a partially-failed execute restores exactly the
-      files that really renamed — no more, no fewer.
-- [ ] Post-run report shows renamed/skipped/errors + manifest
+      dry-run manifest restores zero files. **Done PR #6 + PR #7
+      (candidate-URI fallback); proven on device (S4B/S4C Undo
+      passed, files restored with identical SHA-256).**
+- [x] Undo after a partially-failed execute restores exactly the
+      files that really renamed — no more, no fewer. **Done PR #6
+      (`undoRows` + `isRestorable`); host-tested.**
+- [x] Post-run report shows renamed/skipped/errors + manifest
       location + Undo availability, and is copyable as text.
-- [ ] Discovery warnings (provider failure, virtual documents,
+      **Done PR #6 (`buildExecuteReportText` /
+      `buildUndoReportText`, Copy report button).**
+- [x] Discovery warnings (provider failure, virtual documents,
       unsupported rows) surface on screen; the screen never shows an
       empty preview for a folder that failed to enumerate.
+      **Done PR #6 (discovery counts + warnings on screen;
+      warnings-only outcome blocks Preview).**
 - [ ] The screen works offline (airplane mode) — no network exists in
-      this app and this slice adds none.
-- [ ] No new dependency beyond S2 + S3; manifest permission list
+      this app and this slice adds none. **Not device-verified: no
+      airplane-mode run was reported. The app has no network
+      (grep gate, no INTERNET permission) — that part is verified;
+      the airplane-mode run itself is open.**
+- [x] No new dependency beyond S2 + S3; manifest permission list
       unchanged (diff gate, §7); no INTERNET (grep gate, §7).
+      **Done PR #6: no new deps, both manifests unchanged, no
+      INTERNET.**
 
 ## 7. Gates
 
@@ -352,6 +415,37 @@ canonical script has had since the beginning.
   reports; the Q1/Q2 answers are recorded in the PR body.
 
 ## 8. Device evidence required (Moto G — the gate)
+
+**Evidence recorded (2026-11-17, BLU B160V, Android 14 — hardware
+substitution for the Moto G named above; no Moto G coverage
+claimed; PR #7 head `4c444db`, also recorded as a comment on
+PR #7):**
+
+**Stage (a) — throwaway folder, app-created files.** `Pictures/
+VE_TEST_S4`, seeded `IMG_smoke_a.jpg`, `VID_smoke_b.mp4`,
+`keep.jpg`, plus pre-existing `smoke_a.jpg` as a deliberate
+collision. **Result:** grant + discovery PASS, preview + collision
+planning PASS, dry-run file preservation PASS (hashes unchanged),
+execution report accurate. **Execute BLOCKED on the first build
+(`5ea6c2c`):** `destinationExists` queried the not-yet-existing
+child URI and ExternalStorageProvider threw
+`FileNotFoundException` → op SKIPPED "could not check destination",
+0 renamed. Manifest honestly recorded the VID row `skipped`.
+**Fixed by PR #7; re-run as S4B below.**
+
+**Stage (b) — S4B synthetic + S4C real-media (fresh folder
+`Pictures/VE_TEST_S4B`, same 4 seeds, then real camera files).**
+**Result: S4B synthetic rename/Undo PASSED; S4C real-media
+rename/Undo PASSED.** All four original files restored with
+identical SHA-256 hashes; 41.5 MB MP4 preserved byte-for-byte; SAF
+grants survived reboot + same-signature reinstall; app-private
+manifests survived reinstall; post-rename SAF document URI
+verified; no live DCIM touched.
+
+**Stage (c) — live DCIM.** **NOT RUN.** Requires (a) and (b) green
+plus Glenn's explicit go-ahead in chat. When it happens, it follows
+the same report shape, and the first live run is one folder,
+watched, with the manifest in hand before Undo is even discussed.
 
 Same runbook style as D2 (`docs/device-probe-moto-g.md`): USB
 debugging, debug run from Android Studio, paste the report back.
@@ -424,6 +518,9 @@ previewed, a `renameDocument` refusal, an unverifiable op).
   S4's Q1 are the same fork, stated twice because both slices need
   the answer. FACT: neither mechanism is proven from a SAF tree URI
   on this device yet.
+  **Decided 2026-11-15 (Glenn's READ+WRITE grant choice) + PR #6:**
+  `renameDocument`. Proven on B160V (S4B/S4C); other providers
+  unprobed.
 - Q2 — **Verify-after-write: how do we know a rename really
   happened?** Options: re-query the document URI after the op and
   compare display names; re-enumerate the folder and diff; trust
@@ -433,6 +530,9 @@ previewed, a `renameDocument` refusal, an unverifiable op).
   rather than counting it renamed. If re-query is not possible on
   some provider, that provider gets a quarantine note, not a
   silent pass.
+  **Decided (spec recommendation adopted in PR #6):** re-query the
+  document after the op; null or name mismatch → UNVERIFIED, never
+  counted renamed (`executePlan`, `undoRows`).
 - Q3 — **Manifest placement: app-private only, or also offer export?**
   RECOMMENDATION: app-private by default (never pollute the user's
   folder), with a Share/Export action on the post-run report so the
@@ -440,6 +540,10 @@ previewed, a `renameDocument` refusal, an unverifiable op).
   execute time where the manifest goes. The Flutter screen's
   in-folder default is NOT an option — it is recorded here as a
   defect, not a candidate.
+  **Decided (spec recommendation adopted in PR #6):** app-private
+  (`filesDir/renames_<epochMillis>.csv`) + `CreateDocument`
+  export ("Export manifest" button). The report states plainly
+  that clearing app data loses undo history.
 - Q4 — **Manifest columns: six-column Dart form (with `content_uri`)
   as the native standard?** RECOMMENDATION: yes (§4.1) — SAF
   identity is the document URI, and the Python five-column form
@@ -448,12 +552,20 @@ previewed, a `renameDocument` refusal, an unverifiable op).
   future Python `--undo` of a Kotlin manifest must handle the extra
   column (or explicitly refuse it). Flag if that consequence is
   unacceptable.
+  **Decided (spec recommendation adopted in PR #6, implemented
+  as-recommended):** six-column Dart form, `content_uri` carried
+  through. Formal confirmation by Glenn is still open (see
+  README §5 D4) — the implementation follows the recommendation;
+  the decision is recorded as implemented-as-recommended, not
+  formally confirmed.
 - Q5 — **Recursive rename: ever, or never?** The Flutter settings
   had a recursive toggle and `buildPlan` accepts `recursive: true`,
   but S3's enumerator and S4's v1 are top-level only. RECOMMENDATION:
   top-level only for v1; recursive rename is a separate spec with
   its own safety review (a recursive rename that hits a nested
   collision mid-tree is a worse failure mode than a flat one).
+  **Decided (spec recommendation adopted in PR #6):** top-level
+  only for v1.
 - Q6 — **Symlinks through SAF: visible at all?** `SafDiscovery`
   has no symlink concept (DocumentsContract exposes no symlink
   flag), and the Python `is_symlink` skip cannot be expressed
@@ -463,6 +575,9 @@ previewed, a `renameDocument` refusal, an unverifiable op).
   can contain one (likely only on the raw-path lane, not SAF) and
   records the outcome; if it cannot be probed, the limitation is
   stated in the PR rather than assumed away.
+  **Decided (limitation stated, PR #6):** symlinks are undetectable
+  through SAF; `skippedSymlink` stays 0 on that path. Recorded
+  limitation, not probed.
 - Q7 — **Execute confirmation: is the "Execute N renames" button
   enough, or is a second confirm dialog wanted?** The Flutter
   screen executed on one tap after preview. RECOMMENDATION: the
@@ -470,3 +585,48 @@ previewed, a `renameDocument` refusal, an unverifiable op).
   screen is the confirmation — a second dialog adds friction to an
   already deliberate two-step flow. Flag if a second confirm is
   preferred.
+  **Decided (spec recommendation adopted in PR #6):** no second
+  dialog; the "Execute N renames" button (enabled only on a fresh
+  preview) is the confirmation.
+
+## 11. Implementation record (PR #6 + PR #7)
+
+- **PR #6 (merged 2026-11-17, main `5ea6c2c`):**
+  `RenameExecution.kt` (pure engine: `executePlan` / `undoRows` /
+  counts / report text), `SafRenameBackend.kt`
+  (`renameDocument`, re-query display name, destination-exists
+  query), `RenamerViewModel.kt` (preview / execute / manifest /
+  undo / export), `RenamerScreen.kt`, two-tab `AppRoot.kt`.
+  Tests: `RenameExecutionTest.kt` (16 + collision test),
+  `RenamerViewModelTest.kt`, `RenamerScreenTest.kt`,
+  `FakeRenameBackend.kt`, `SafTestFixtures.kt`. Host gate BUILD
+  SUCCESSFUL in 1m 40s on the laptop (four tasks green); two
+  test-only fixes on the branch (`f8bfce1` void-return,
+  `550432f` scroll-into-view).
+- **PR #7 S4-FIX-01 (merged 2026-11-17, main `b0d2b36`):**
+  destination preflight via parent enumeration
+  (`buildChildDocumentsUriUsingTree`, three outcomes — present →
+  skip, clean absence → proceed, indeterminate → throw);
+  post-rename URI preserved into the manifest `content_uri`;
+  undo tries the manifest URI first, reconstructed path second.
+  `SafRenameBackendTest.kt` (6 Robolectric tests via a fake
+  `ContentProvider` registered with
+  `ShadowContentResolver.registerProviderInternal` — note:
+  `registerProvider` does NOT resolve in Robolectric 4.17).
+  Host gate green; S4B/S4C device evidence in §8.
+- **Deviations from this spec (recorded in the PR #6 body):**
+  (1) collision checks 1+2 originally rendered identically —
+  **fixed on the branch** (`3cba024`: "target is a file staying
+  put" / "target already exists" / "duplicate target in this
+  batch"); (2) export is `CreateDocument` (no FileProvider, no
+  manifest change); (3) undo URI reconstruction — **fixed by
+  PR #7** (post-rename URI preserved); (4) `skippedRowsFor`
+  parses S2's `"<name> -> <stripped> (<reason>)"` format — a
+  display name containing `" -> "` mis-parses the name (row still
+  shown, generic reason fallback).
+- **Manifest note:** the manifest contains planned ops only
+  (`RenamerViewModel.kt:271` calls `manifestToCsv` on
+  `report.planned`). Planning-skipped rows (e.g. the IMG collision
+  in Stage A) appear in the Preview and in the post-run report
+  header (`collisions=1`), not as named manifest rows.
+- **Device evidence:** see §8. Stage (c) live DCIM NOT run.

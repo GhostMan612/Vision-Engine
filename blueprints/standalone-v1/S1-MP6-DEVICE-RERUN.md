@@ -1,8 +1,12 @@
 # S1 — MP6 device re-run (spec)
 
-> Status: SPEC for operator review. Authorizes NOTHING to run — the run
-> itself is Glenn-side, on Glenn's laptop with Glenn's Moto G on adb.
-> No code changes in this slice. No claim below says the run happened.
+> Status: RUN RECORDED 2026-11-17 — see §7. The run happened on the
+> BLU B160V (hardware substitution for the Moto G named below); 13/13
+> PASS, Gradle BUILD SUCCESSFUL. The slice is NOT fully closed: the
+> self-containment confirmation (§5.4 item 3 / §7 / §8) is PENDING
+> operator confirmation. No code changes in this slice. The original
+> spec text is preserved below; run results are recorded in §7 and
+> §13, and superseded claims are marked, not erased.
 
 Labels used throughout: **FACT** (verified in repo/docs), **REPO
 EVIDENCE** (file:line or gate result), **RECOMMENDATION** (judgment),
@@ -68,6 +72,8 @@ platform-truth leg before MP7 (Viewer) builds on it.
   (device visibility), not a defect in the suite — but that is not
   proven until the run completes. The runbook agrees: "Re-run as soon
   as the device reappears; no code changes needed."
+  **Resolved 2026-11-17:** the run completed 13/13 with no test
+  failure — the block was environmental, not a suite defect.
 
 ### 3.2 The runbook (already written — this spec does not rewrite it)
 
@@ -174,6 +180,16 @@ adb devices
    touched (all suites are fully self-contained; none should).
 4. The `adb devices` output from §5.2 (proves which device ran).
 
+**What was actually pasted back (2026-11-17):** a summary, not the
+full §5.4 paste-back — per-suite counts (Extractor 6/6, Thumbs 6/6,
+Pipeline 1/1), `BUILD SUCCESSFUL`, 1m 32s, device BLU B160V
+Android 14 (ADB serial `7040016025040287`), instrumented XML
+reports independently checked. **Gaps (do not invent):** the head
+commit was not pasted, the `adb devices` output was not pasted,
+and the §5.4 item 3 confirmation line ("no folder picker appeared
+and no DCIM was touched") was NOT given — it is PENDING, and S1
+stays open until it arrives.
+
 ### 5.5 After the run — state update (separate, small commit or handoff note)
 
 - [ ] `blueprints/CURRENT_STATE.md` MP6 entry updated with the run
@@ -220,21 +236,34 @@ at the time)". Each step is cheap, reversible, and Glenn-side.
 ## 7. Acceptance criteria — checklist
 
 - [ ] `adb devices` listed the Moto G as `device` before the run
-      (§5.2).
-- [ ] The §3.2 command ran to completion from
-      `C:\vision engine\native` (not cancelled).
-- [ ] Terminal output shows `BUILD SUCCESSFUL` and all 13 tests ran:
+      (§5.2). **Not met as written:** the run used the BLU B160V
+      (hardware substitution, recorded in §13); the `adb devices`
+      output was not pasted.
+- [x] The §3.2 command ran to completion from
+      `C:\vision engine\native` (not cancelled). **2026-11-17:** run
+      completed in 1m 32s per the operator report (exact command
+      line not pasted).
+- [x] Terminal output shows `BUILD SUCCESSFUL` and all 13 tests ran:
       `ExtractorDeviceTest` 6, `ThumbsDeviceTest` 6,
-      `PipelineDeviceTest` 1.
+      `PipelineDeviceTest` 1. **2026-11-17:** per the operator
+      report; instrumented XML reports independently checked.
 - [ ] Paste-back delivered per §5.4 (full output, head commit,
       no-picker/no-DCIM confirmation, `adb devices` output).
-- [ ] All 13 tests passed (0 failures, 0 skipped).
+      **Partial 2026-11-17:** a summary was delivered (counts,
+      BUILD SUCCESSFUL, duration, device); full output, head
+      commit, and `adb devices` output were not pasted.
+- [x] All 13 tests passed (0 failures, 0 skipped).
+      **2026-11-17, BLU B160V.**
 - [ ] No folder picker appeared during the run; no DCIM touched
-      (confirmation line present).
-- [ ] `blueprints/CURRENT_STATE.md` MP6 entry updated with the
-      result (date, device, head, 13/13).
-- [ ] No file outside the state docs (§5.5) was modified by this
-      slice.
+      (confirmation line present). **PENDING operator confirmation
+      — S1 stays open until this line is given.**
+- [x] `blueprints/CURRENT_STATE.md` MP6 entry updated with the
+      result (date, device, head, 13/13). **Done by the 2026-11-17
+      documentation-reconciliation PR (head commit for the run
+      itself was not pasted — recorded as a gap, not invented).**
+- [x] No file outside the state docs (§5.5) was modified by this
+      slice. **The run itself modified no repo file; the state
+      update is this docs PR.**
 
 ## 8. Gates
 
@@ -295,6 +324,9 @@ without re-running.
 1. **When does the run happen?** It needs Glenn's laptop + Moto G
    together. Is there a day/time to schedule it, or does it happen
    opportunistically?
+   **Answered in part 2026-11-17:** the run happened on the BLU
+   B160V (not the Moto G). No Moto G run is scheduled; no Moto G
+   coverage is claimed.
 2. **Gradle path:** Is the runbook's `gradle-9.3.1` wrapper-dist path
    (§3.2) still valid on the laptop, or has Gradle been upgraded
    since September? If upgraded, should the runbook be corrected to
@@ -313,3 +345,26 @@ without re-running.
    its own commit on `main`, or ride along with the next code PR?
    (House session-end law says update the state docs every session;
    the PR #1 lane deliberately deferred that to the spec PR.)
+   **Answered 2026-11-17:** it landed as its own documentation
+   PR (docs-only, no code).
+
+## 13. Run result — 2026-11-17 (BLU B160V)
+
+- **Device:** BLU B160V, Android 14, ADB serial
+  `7040016025040287`. **Hardware substitution:** the S1 spec named
+  the Moto G; the run used the BLU B160V instead. No Moto G
+  coverage is claimed anywhere from this run.
+- **Result:** `ExtractorDeviceTest` 6/6 PASS, `ThumbsDeviceTest`
+  6/6 PASS, `PipelineDeviceTest` 1/1 PASS — **13 passed, 0 failed,
+  0 skipped**. Gradle `BUILD SUCCESSFUL`; test execution completed
+  in 1m 32s. Instrumented XML reports independently checked.
+- **Counts corroborated in-repo:** `grep -c '@Test'` on the three
+  device test files returns 6, 6, and 1.
+- **Gaps (do not invent):** the head commit the run was made from
+  was not pasted; the `adb devices` output was not pasted; the
+  §5.4 item 3 confirmation line ("no folder picker appeared and
+  no DCIM was touched") was NOT given.
+- **Status:** 13/13 passed on B160V. S1 is NOT fully closed until
+  the self-containment confirmation arrives. Recorded in
+  `blueprints/CURRENT_STATE.md` and `blueprints/CHECKLIST.md` by
+  the 2026-11-17 documentation-reconciliation PR.
