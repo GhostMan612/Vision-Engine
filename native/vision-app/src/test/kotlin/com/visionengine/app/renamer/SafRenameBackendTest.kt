@@ -117,7 +117,7 @@ class SafRenameBackendTest {
             "content://com.example.docs/tree/primary%3APictures",
         )
         provider = FakeDocsProvider()
-        ShadowContentResolver.registerProvider(
+        ShadowContentResolver.registerProviderInternal(
             "com.example.docs",
             provider,
         )
