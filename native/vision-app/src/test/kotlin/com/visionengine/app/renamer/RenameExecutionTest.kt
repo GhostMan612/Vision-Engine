@@ -45,7 +45,23 @@ class RenameExecutionTest {
             ordered = ordered,
             cyclic = cyclic,
             sourceUriOf = { op -> "doc://" + op.oldName },
-            destinationUriOf = { op -> "doc://" + op.newName },
+            treeUri = "tree://Pictures",
+            treeDocumentId = "primary:Pictures",
+            backend = backend,
+        )
+    }
+
+    private fun undoWith(
+        rows: List<ManifestRow>,
+        backend: FakeRenameBackend,
+    ): UndoResult {
+        return undoRows(
+            rows = rows,
+            documentUrisOf = { row ->
+                listOf(row.contentUri, "doc://" + row.newName)
+            },
+            treeUri = "tree://Pictures",
+            treeDocumentId = "primary:Pictures",
             backend = backend,
         )
     }
@@ -59,7 +75,7 @@ class RenameExecutionTest {
             newName = renamed,
             originalPath = "tree/$original",
             newPath = "tree/$renamed",
-            contentUri = "doc://$original",
+            contentUri = "doc://$renamed",
             status = "renamed",
         )
     }
@@ -90,7 +106,7 @@ class RenameExecutionTest {
         val report = planFor("IMG_a.jpg", "IMG_b.jpg")
         val backend = backendFor("IMG_a.jpg", "IMG_b.jpg")
         backend.appearAfterCalls = 1
-        backend.appearing = setOf("doc://b.jpg")
+        backend.appearing = setOf("b.jpg")
         val result = runPlan(report, backend)
         assertEquals(1, result.renamedCount)
         assertEquals(1, result.skippedCount)
@@ -197,7 +213,8 @@ class RenameExecutionTest {
             ordered = ordered,
             cyclic = cyclic,
             sourceUriOf = { op -> "doc://" + op.oldName },
-            destinationUriOf = { op -> "doc://" + op.newName },
+            treeUri = "tree://Pictures",
+            treeDocumentId = "primary:Pictures",
             backend = backend,
         )
         assertEquals(0, result.renamedCount)
@@ -241,12 +258,7 @@ class RenameExecutionTest {
             renamedRow("IMG_b.jpg", "b.jpg"),
         )
         val backend = backendFor("a.jpg", "b.jpg")
-        val result = undoRows(
-            rows = rows,
-            documentUriOf = { row -> "doc://" + row.newName },
-            destinationUriOf = { row -> "doc://" + row.originalName },
-            backend = backend,
-        )
+        val result = undoWith(rows, backend)
         assertEquals(2, result.restoredCount)
         assertEquals(0, result.skippedCount)
         assertEquals(0, result.errorCount)
@@ -281,12 +293,7 @@ class RenameExecutionTest {
             ),
         )
         val backend = backendFor("a.jpg")
-        val result = undoRows(
-            rows = rows,
-            documentUriOf = { row -> "doc://" + row.newName },
-            destinationUriOf = { row -> "doc://" + row.originalName },
-            backend = backend,
-        )
+        val result = undoWith(rows, backend)
         assertEquals(1, result.restoredCount)
         assertEquals(2, result.skippedCount)
         assertEquals(0, result.errorCount)
@@ -306,12 +313,7 @@ class RenameExecutionTest {
             ),
         )
         val backend = backendFor("a.jpg")
-        val result = undoRows(
-            rows = rows,
-            documentUriOf = { row -> "doc://" + row.newName },
-            destinationUriOf = { row -> "doc://" + row.originalName },
-            backend = backend,
-        )
+        val result = undoWith(rows, backend)
         assertEquals(0, result.restoredCount)
         assertEquals(1, result.skippedCount)
         assertTrue(backend.renameCalls.isEmpty())
@@ -331,12 +333,7 @@ class RenameExecutionTest {
             ),
         )
         val backend = backendFor("a.jpg")
-        val result = undoRows(
-            rows = rows,
-            documentUriOf = { row -> "doc://" + row.newName },
-            destinationUriOf = { row -> "doc://" + row.originalName },
-            backend = backend,
-        )
+        val result = undoWith(rows, backend)
         assertEquals(1, result.restoredCount)
         assertEquals(1, result.skippedCount)
         assertEquals(
@@ -349,12 +346,7 @@ class RenameExecutionTest {
     fun undoDestinationOccupiedIsError() {
         val rows = listOf(renamedRow("IMG_a.jpg", "a.jpg"))
         val backend = backendFor("a.jpg", "IMG_a.jpg")
-        val result = undoRows(
-            rows = rows,
-            documentUriOf = { row -> "doc://" + row.newName },
-            destinationUriOf = { row -> "doc://" + row.originalName },
-            backend = backend,
-        )
+        val result = undoWith(rows, backend)
         assertEquals(0, result.restoredCount)
         assertEquals(1, result.errorCount)
         assertTrue(
@@ -488,5 +480,192 @@ class RenameExecutionTest {
             manifestName = "renames_1.csv",
         )
         assertTrue(undoText.contains("restored=0"))
+    }
+
+    @Test
+    fun destinationCheckThrowingSkipsOpAndBatchContinues() {
+        val report = planFor("IMG_a.jpg", "IMG_b.jpg")
+        val backend = backendFor("IMG_a.jpg", "IMG_b.jpg")
+        backend.throwOnCheck = setOf("a.jpg")
+        val result = runPlan(report, backend)
+        assertEquals(1, result.renamedCount)
+        assertEquals(1, result.skippedCount)
+        assertEquals(0, result.errorCount)
+        assertEquals(0, result.unverifiedCount)
+        assertTrue(
+            result.results.first {
+                it.op.oldName == "IMG_a.jpg"
+            }.detail.contains("could not check destination"),
+        )
+        assertTrue(
+            backend.renameCalls.none { it.first == "doc://IMG_a.jpg" },
+        )
+        assertTrue(
+            backend.renameCalls.contains("doc://IMG_b.jpg" to "b.jpg"),
+        )
+    }
+
+    @Test
+    fun destinationPresentAtExecuteSkipsWithoutRename() {
+        val report = planFor("IMG_a.jpg")
+        val backend = backendFor("IMG_a.jpg")
+        backend.liveUris.add("doc://a.jpg")
+        backend.names["doc://a.jpg"] = "a.jpg"
+        val result = runPlan(report, backend)
+        assertEquals(0, result.renamedCount)
+        assertEquals(1, result.skippedCount)
+        assertTrue(
+            result.results[0].detail.contains("target already exists"),
+        )
+        assertTrue(backend.renameCalls.isEmpty())
+    }
+
+    @Test
+    fun partialBatchCheckFailureKeepsManifestHonest() {
+        val report = planFor("IMG_a.jpg", "IMG_b.jpg")
+        val backend = backendFor("IMG_a.jpg", "IMG_b.jpg")
+        backend.throwOnCheck = setOf("b.jpg")
+        val result = runPlan(report, backend)
+        assertEquals(1, result.renamedCount)
+        assertEquals(1, result.skippedCount)
+        val csv = manifestToCsv(
+            report.planned,
+            mapOf(
+                "tree/IMG_a.jpg" to "doc://IMG_a.jpg",
+                "tree/IMG_b.jpg" to "doc://IMG_b.jpg",
+            ),
+            executed = true,
+            renamedOps = result.renamedOps,
+        )
+        val rows = parseManifestCsv(csv)
+        assertEquals(
+            "renamed",
+            rows.first { it.originalName == "IMG_a.jpg" }.status,
+        )
+        assertEquals(
+            "skipped",
+            rows.first { it.originalName == "IMG_b.jpg" }.status,
+        )
+    }
+
+    @Test
+    fun postRenameUriIsPreservedInResult() {
+        val report = planFor("IMG_a.jpg")
+        val backend = FakeRenameBackend(
+            newUriOf = { _, newName -> "doc://renamed-$newName" },
+        )
+        backend.liveUris.add("doc://IMG_a.jpg")
+        backend.names["doc://IMG_a.jpg"] = "IMG_a.jpg"
+        val result = runPlan(report, backend)
+        assertEquals(1, result.renamedCount)
+        assertEquals(
+            mapOf(report.planned[0] to "doc://renamed-a.jpg"),
+            result.renamedUris,
+        )
+    }
+
+    @Test
+    fun manifestCarriesPostRenameContentUri() {
+        val report = planFor("IMG_a.jpg")
+        val backend = FakeRenameBackend(
+            newUriOf = { _, newName -> "doc://renamed-$newName" },
+        )
+        backend.liveUris.add("doc://IMG_a.jpg")
+        backend.names["doc://IMG_a.jpg"] = "IMG_a.jpg"
+        val result = runPlan(report, backend)
+        val manifestUris = mutableMapOf(
+            "tree/IMG_a.jpg" to "doc://IMG_a.jpg",
+        )
+        for ((op, uri) in result.renamedUris) {
+            manifestUris[op.srcPath] = uri
+        }
+        val rows = parseManifestCsv(
+            manifestToCsv(
+                report.planned,
+                manifestUris,
+                executed = true,
+                renamedOps = result.renamedOps,
+            ),
+        )
+        assertEquals(1, rows.size)
+        assertEquals("renamed", rows[0].status)
+        assertEquals("doc://renamed-a.jpg", rows[0].contentUri)
+    }
+
+    @Test
+    fun undoPrefersManifestContentUri() {
+        val rows = listOf(
+            ManifestRow(
+                originalName = "IMG_a.jpg",
+                newName = "a.jpg",
+                originalPath = "tree/IMG_a.jpg",
+                newPath = "tree/a.jpg",
+                contentUri = "doc://current-a.jpg",
+                status = "renamed",
+            ),
+        )
+        val backend = FakeRenameBackend()
+        backend.liveUris.add("doc://current-a.jpg")
+        backend.names["doc://current-a.jpg"] = "a.jpg"
+        val result = undoWith(rows, backend)
+        assertEquals(1, result.restoredCount)
+        assertEquals(0, result.errorCount)
+        assertEquals(
+            listOf("doc://current-a.jpg" to "IMG_a.jpg"),
+            backend.renameCalls,
+        )
+    }
+
+    @Test
+    fun undoFallsBackToReconstructedPath() {
+        val rows = listOf(
+            ManifestRow(
+                originalName = "IMG_a.jpg",
+                newName = "a.jpg",
+                originalPath = "tree/IMG_a.jpg",
+                newPath = "tree/a.jpg",
+                contentUri = "doc://IMG_a.jpg",
+                status = "renamed",
+            ),
+        )
+        val backend = backendFor("a.jpg")
+        val result = undoWith(rows, backend)
+        assertEquals(1, result.restoredCount)
+        assertEquals(0, result.errorCount)
+        assertEquals(
+            listOf(
+                "doc://IMG_a.jpg" to "IMG_a.jpg",
+                "doc://a.jpg" to "IMG_a.jpg",
+            ),
+            backend.renameCalls,
+        )
+    }
+
+    @Test
+    fun undoAllCandidatesFailIsError() {
+        val rows = listOf(
+            ManifestRow(
+                originalName = "IMG_a.jpg",
+                newName = "a.jpg",
+                originalPath = "tree/IMG_a.jpg",
+                newPath = "tree/a.jpg",
+                contentUri = "doc://IMG_a.jpg",
+                status = "renamed",
+            ),
+        )
+        val backend = FakeRenameBackend()
+        val result = undoWith(rows, backend)
+        assertEquals(0, result.restoredCount)
+        assertEquals(1, result.errorCount)
+        assertTrue(
+            result.results[0].detail.contains("unknown document"),
+        )
+        assertEquals(
+            listOf(
+                "doc://IMG_a.jpg" to "IMG_a.jpg",
+                "doc://a.jpg" to "IMG_a.jpg",
+            ),
+            backend.renameCalls,
+        )
     }
 }

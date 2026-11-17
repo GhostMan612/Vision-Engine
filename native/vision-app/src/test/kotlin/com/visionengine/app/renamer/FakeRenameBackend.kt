@@ -14,6 +14,7 @@ class FakeRenameBackend(
     var misnamed: Set<String> = emptySet(),
     var appearAfterCalls: Int = -1,
     var appearing: Set<String> = emptySet(),
+    var throwOnCheck: Set<String> = emptySet(),
 ) : RenameBackend {
     val renameCalls: MutableList<Pair<String, String>> = mutableListOf()
     var destinationChecks: Int = 0
@@ -46,14 +47,21 @@ class FakeRenameBackend(
         return names[documentUri]
     }
 
-    override fun destinationExists(documentUri: String): Boolean {
+    override fun destinationExists(
+        treeUri: String,
+        treeDocumentId: String,
+        name: String,
+    ): Boolean {
         destinationChecks += 1
+        if (name in throwOnCheck) {
+            throw RuntimeException("check boom")
+        }
         if (appearAfterCalls >= 0 &&
             destinationChecks > appearAfterCalls &&
-            documentUri in appearing
+            name in appearing
         ) {
             return true
         }
-        return documentUri in liveUris
+        return names.any { (uri, n) -> uri in liveUris && n == name }
     }
 }

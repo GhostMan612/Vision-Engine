@@ -8,17 +8,6 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.DocumentsContract
 
-fun destinationDocumentUri(
-    treeUri: Uri,
-    treeDocumentId: String,
-    name: String,
-): String {
-    return DocumentsContract.buildDocumentUriUsingTree(
-        treeUri,
-        "$treeDocumentId/$name",
-    ).toString()
-}
-
 fun documentUriForPath(treeUri: Uri, path: String): String {
     return DocumentsContract.buildDocumentUriUsingTree(
         treeUri,
@@ -64,15 +53,39 @@ class SafRenameBackend(
         }
     }
 
-    override fun destinationExists(documentUri: String): Boolean {
-        return resolver.query(
-            Uri.parse(documentUri),
+    override fun destinationExists(
+        treeUri: String,
+        treeDocumentId: String,
+        name: String,
+    ): Boolean {
+        val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+            Uri.parse(treeUri),
+            treeDocumentId,
+        )
+        val cursor = resolver.query(
+            childrenUri,
             arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME),
             null,
             null,
             null,
-        )?.use { cursor ->
-            cursor.moveToFirst()
-        } ?: false
+        ) ?: throw IllegalStateException(
+            "could not enumerate folder",
+        )
+        cursor.use {
+            val index = it.getColumnIndex(
+                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            )
+            if (index < 0) {
+                throw IllegalStateException(
+                    "provider returned no display name column",
+                )
+            }
+            while (it.moveToNext()) {
+                if (!it.isNull(index) && it.getString(index) == name) {
+                    return true
+                }
+            }
+            return false
+        }
     }
 }

@@ -74,7 +74,7 @@ class RenamerViewModelTest {
     private fun backendFor(vararg names: String): FakeRenameBackend {
         val backend = FakeRenameBackend(
             newUriOf = { _, newName ->
-                destinationDocumentUri(treeUri, "primary:Pictures", newName)
+                documentUriForPath(treeUri, "primary:Pictures/$newName")
             },
         )
         for (name in names) {
@@ -219,6 +219,14 @@ class RenamerViewModelTest {
         assertEquals(2, rows.size)
         assertTrue(rows.all { it.status == "renamed" })
         assertTrue(rows.all { it.contentUri.isNotEmpty() })
+        assertEquals(
+            docUri("a.jpg"),
+            rows.first { it.originalName == "IMG_a.jpg" }.contentUri,
+        )
+        assertEquals(
+            docUri("b.mp4"),
+            rows.first { it.originalName == "VID_b.mp4" }.contentUri,
+        )
         assertTrue(model.reportText.value.contains("renamed=2/2"))
         assertTrue(model.reportText.value.contains(file.name))
         assertEquals(2, model.undoRemaining.value.size)
@@ -248,9 +256,7 @@ class RenamerViewModelTest {
     fun executeSkipsDestinationAppearingMidBatch() = runBlocking {
         val backend = backendFor("IMG_a.jpg", "IMG_b.jpg")
         backend.appearAfterCalls = 1
-        backend.appearing = setOf(
-            destinationDocumentUri(treeUri, "primary:Pictures", "b.jpg"),
-        )
+        backend.appearing = setOf("b.jpg")
         val model = RenamerViewModel(
             filesDir = context.filesDir,
             backendFactory = { backend },

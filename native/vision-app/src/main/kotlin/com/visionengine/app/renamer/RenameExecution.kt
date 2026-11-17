@@ -23,12 +23,17 @@ data class OpResult(
     val op: RenameOp,
     val outcome: OpOutcome,
     val detail: String,
+    val postRenameUri: String? = null,
 )
 
 data class ExecuteResult(val results: List<OpResult>) {
     val renamedOps: Set<RenameOp> =
         results.filter { it.outcome == OpOutcome.RENAMED }
             .map { it.op }.toSet()
+    val renamedUris: Map<RenameOp, String> =
+        results.filter {
+            it.outcome == OpOutcome.RENAMED && it.postRenameUri != null
+        }.associate { it.op to it.postRenameUri!! }
     val renamedCount: Int =
         results.count { it.outcome == OpOutcome.RENAMED }
     val skippedCount: Int =
@@ -42,7 +47,11 @@ data class ExecuteResult(val results: List<OpResult>) {
 interface RenameBackend {
     fun rename(documentUri: String, newName: String): String?
     fun displayName(documentUri: String): String?
-    fun destinationExists(documentUri: String): Boolean
+    fun destinationExists(
+        treeUri: String,
+        treeDocumentId: String,
+        name: String,
+    ): Boolean
 }
 
 private fun messageOf(e: Exception): String =
@@ -52,14 +61,14 @@ fun executePlan(
     ordered: List<RenameOp>,
     cyclic: List<RenameOp>,
     sourceUriOf: (RenameOp) -> String,
-    destinationUriOf: (RenameOp) -> String,
+    treeUri: String,
+    treeDocumentId: String,
     backend: RenameBackend,
 ): ExecuteResult {
     val results = mutableListOf<OpResult>()
     for (op in ordered) {
-        val destinationUri = destinationUriOf(op)
         val occupied = try {
-            backend.destinationExists(destinationUri)
+            backend.destinationExists(treeUri, treeDocumentId, op.newName)
         } catch (e: Exception) {
             results.add(
                 OpResult(
@@ -135,6 +144,7 @@ fun executePlan(
                 op,
                 OpOutcome.RENAMED,
                 "renamed",
+                newUri,
             ),
         )
     }
@@ -173,8 +183,9 @@ data class UndoResult(val results: List<UndoRowResult>) {
 
 fun undoRows(
     rows: List<ManifestRow>,
-    documentUriOf: (ManifestRow) -> String,
-    destinationUriOf: (ManifestRow) -> String,
+    documentUrisOf: (ManifestRow) -> List<String>,
+    treeUri: String,
+    treeDocumentId: String,
     backend: RenameBackend,
 ): UndoResult {
     val results = mutableListOf<UndoRowResult>()
@@ -189,9 +200,12 @@ fun undoRows(
             )
             continue
         }
-        val destinationUri = destinationUriOf(row)
         val occupied = try {
-            backend.destinationExists(destinationUri)
+            backend.destinationExists(
+                treeUri,
+                treeDocumentId,
+                row.originalName,
+            )
         } catch (e: Exception) {
             results.add(
                 UndoRowResult(
@@ -212,52 +226,62 @@ fun undoRows(
             )
             continue
         }
-        val documentUri = documentUriOf(row)
-        val newUri = try {
-            backend.rename(documentUri, row.originalName)
-        } catch (e: Exception) {
+        val candidates = documentUrisOf(row)
+            .distinct()
+            .filter { it.isNotEmpty() }
+        if (candidates.isEmpty()) {
             results.add(
                 UndoRowResult(
                     row,
                     UndoOutcome.ERROR,
-                    "rename failed: ${messageOf(e)}",
+                    "no document URI to restore from",
                 ),
             )
             continue
         }
-        if (newUri == null) {
+        var lastDetail = "rename refused"
+        var restored = false
+        for (documentUri in candidates) {
+            val newUri = try {
+                backend.rename(documentUri, row.originalName)
+            } catch (e: Exception) {
+                lastDetail = "rename failed: ${messageOf(e)}"
+                continue
+            }
+            if (newUri == null) {
+                lastDetail = "rename refused"
+                continue
+            }
+            val actual = try {
+                backend.displayName(newUri)
+            } catch (e: Exception) {
+                null
+            }
+            if (actual != row.originalName) {
+                lastDetail = "rename reported success but the document " +
+                    "could not be verified"
+                continue
+            }
+            restored = true
+            break
+        }
+        if (restored) {
+            results.add(
+                UndoRowResult(
+                    row,
+                    UndoOutcome.RESTORED,
+                    "restored",
+                ),
+            )
+        } else {
             results.add(
                 UndoRowResult(
                     row,
                     UndoOutcome.ERROR,
-                    "rename refused",
+                    lastDetail,
                 ),
             )
-            continue
         }
-        val actual = try {
-            backend.displayName(newUri)
-        } catch (e: Exception) {
-            null
-        }
-        if (actual != row.originalName) {
-            results.add(
-                UndoRowResult(
-                    row,
-                    UndoOutcome.ERROR,
-                    "rename reported success but the document " +
-                        "could not be verified",
-                ),
-            )
-            continue
-        }
-        results.add(
-            UndoRowResult(
-                row,
-                UndoOutcome.RESTORED,
-                "restored",
-            ),
-        )
     }
     return UndoResult(results)
 }
