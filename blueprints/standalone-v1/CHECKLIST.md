@@ -49,10 +49,21 @@
       PR #6, merged 2026-11-17 (`5ea6c2c`), + PR #7 fix, merged
       2026-11-17 (`b0d2b36`); S4B/S4C passed on B160V at PR #7 head
       `4c444db`.
-- [ ] **S5 — MP7 Viewer** (`S5-MP7-VIEWER.md` §5). Grid + detail
-      render from a picked folder; corrected dims, `—` for unknown,
-      provenance chips; G2 closable except the human smoke, which is
-      recorded as device evidence in the slice.
+- [~] **S5 — MP7 Viewer** (`S5-MP7-VIEWER.md` §5, §11). Grid +
+      detail render from a picked folder; corrected dims, `—` for
+      unknown, provenance chips; URI-gap fix in `MediaPipeline`
+      (descriptors closed in `finally`, bounds preserved);
+      `ViewerPipeline` seam, `DetailFields.kt`, `ViewerViewModel`
+      (page size 50, generation-guarded cancellation),
+      `ViewerScreen` (third tab, Strip GPS disabled as Phase 3).
+      29 new tests (6 core JVM + 8 URI pipeline + 10 ViewModel +
+      6 screen) + instrumented `UriPipelineDeviceTest` (4 tests);
+      vision-core JUnitCore OK (99) on this VM. Host Gradle gate
+      + device evidence PENDING — draft PR #10, not merged; G2
+      stays OPEN until the instrumented Viewer tests + real-shot
+      read-only smoke pass (runbook:
+      `S5-DEVICE-RUNBOOK.md`). Q1/Q2/Q3/Q4/Q5 decided
+      2026-11-17 (see S5 §10); Q6 still open.
 - [ ] **S6 — MP8 parity + MP9 retirement**
       (`S6-MP8-MP9-PARITY-RETIREMENT.md` §7). MP8: 9 goldens
       byte-identical, parity probe green against the native rename
@@ -67,7 +78,11 @@
 
 - [ ] `tools/verify_reference.py` exit 0 — the frozen Flutter
       reference is untouched (REC-10, R-10). Expected to FAIL after
-      MP9 by design; see S6 §5 Step 4 item 3.
+      MP9 by design; see S6 §5 Step 4 item 3. NOTE 2026-11-17:
+      the script fails on clean main `9c3a2aa` (28 files, same
+      list as on the S5 branch) — pre-existing, caused by PRs
+      #1–#9 moving pinned files, not by any S5 change. No
+      Flutter file was touched by PR #10.
 - [ ] Manifest contains no INTERNET (grep gate); no new permission
       without a diff-gate review (REC-06).
 - [ ] Dependency audit: no network/analytics/crash SDK; any new dep
@@ -112,7 +127,11 @@ reference (2026-11-17).
       still OPEN
 - [x] D10 saved folders / picker / health-check / expiry (S3 Q3–Q6)
       — decided (PR #5)
-- [ ] D11 viewer details (S5 Q1–Q6)
+- [~] D11 viewer details (S5 Q1–Q6) — Q1/Q2/Q3/Q4/Q5 decided
+      2026-11-17 (PR #10): Strip button disabled "Phase 3", K5
+      honest `—`, Coil NOT adopted, detail reuses the cached
+      256px thumb, page size 50. Q6 (video beyond a still frame)
+      still OPEN.
 - [ ] D12 MP9 tag name / verification story / report location /
       second device / Flutter lane / comparison method (S6 Q1–Q6)
 

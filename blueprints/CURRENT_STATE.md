@@ -2,7 +2,7 @@
 
 > Updated every session per RULES.md §4.2. Evidence > status.
 
-## Implementation record (2026-11-15–17, main `18c45c6`)
+## Implementation record (2026-11-15–17, main `9c3a2aa`)
 
 - **S1 MP6 device re-run (2026-11-17):** 13/13 instrumented tests
   PASS on **BLU B160V, Android 14** (ADB serial
@@ -61,6 +61,24 @@
   (pending-map + vacated-set), 12 adapted safety tests, parity
   probe Dart-path fix + chain-execution assertion; pytest 30 passed
   (18 + 12), flake8 clean, CI pass.
+- **S5 MP7 Viewer (draft PR #10, branch
+  `feat/mp7-native-viewer`, base main `9c3a2aa`, 2026-11-17,
+  NOT merged):** the SAF URI gap is closed — `MediaPipeline`
+  now probes + thumbs URI-only sources via the existing
+  `probePhotoUri` / `probeVideoUri` / `grabFrameDescriptor`
+  paths (descriptors closed in `finally` on all paths; 64 MB
+  photo cap, 512 video maxSide, 100 / 32 MB cache); new
+  `ViewerPipeline` interface, `DetailFields.kt` (11 photo / 10
+  video fields, corrected dims, `—` for unknown, provenance
+  chip per row), `ViewerViewModel` (page size 50, generation-
+  guarded cancellation, grant-lost keeps records), `ViewerScreen`
+  (third tab, grid → detail, Strip GPS button disabled as
+  Phase 3), instrumented `UriPipelineDeviceTest` (4 tests) +
+  test provider. 29 new tests (6 core JVM + 8 URI pipeline +
+  10 ViewModel + 6 screen, incl. 1 renamed PipelineTest case);
+  vision-core JUnitCore OK (99) on this VM; pytest 30 passed.
+  Host Gradle gate + device evidence PENDING — see
+  `blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md`. G2 stays OPEN.
 - **Remaining limitations (2026-11-17):** no Moto G coverage for
   the S1 run; S3 revoke/re-pick unverified; S4 stage (b)
   copied-DCIM requirement unverified; S4 stage (c) live DCIM
@@ -69,9 +87,16 @@
   no native Gradle CI — only `python-app.yml`; S1 terminal
   transcripts, ADB device listing, and XML audit were supplied in
   the operator conversation but have not yet been archived in
-  GitHub.
-- **Next:** S5 MP7 Viewer, on Glenn's nod. LICENSE is a separate
-  owner decision (no LICENSE on main).
+  GitHub. S5: host gate + instrumented Viewer tests + real-shot
+  read-only smoke all pending; `tools/verify_reference.py`
+  fails on clean main `9c3a2aa` (28 files, same list as on the
+  S5 branch — pre-existing, caused by PRs #1–#9 moving pinned
+  files, not by the S5 branch); the video URI retriever
+  defaults over a `FileDescriptor` source are host-gate-
+  verified, not proven on this VM.
+- **Next:** S5 host gate + device evidence (PR #10, draft), then
+  S6 MP8/MP9 after the S5 merge, on Glenn's nod. LICENSE is a
+  separate owner decision (no LICENSE on main).
 
 ## Historical snapshot (2026-09-14 scaffold; subsequent dated entries below)
 

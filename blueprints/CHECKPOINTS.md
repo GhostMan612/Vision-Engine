@@ -30,14 +30,18 @@
   (RAW_RENAME WORKS, undo 2/2, cleaned; human-pasted reports).
 - [ ] Full DCIM round-trip — deferred until explicitly tasked (never probed).
 
-## 2026-11-17 note (main `18c45c6`) — no checkpoint flips
+## 2026-11-17 note (main `9c3a2aa`) — no checkpoint flips
 
 - S1's platform-truth leg is done: the MP6 device suite ran 13/13
   PASS on BLU B160V (hardware substitution for the Moto G named in
   the S1 spec; no Moto G coverage claimed). This feeds S5/MP7
   readiness, but it flips no checkpoint on its own.
-- G2 stays open: the Viewer (S5) is not built and there is no
-  real-shot smoke yet.
+- G2 stays open: the Viewer (S5) is built as draft PR #10
+  (`feat/mp7-native-viewer`, base main `9c3a2aa`) but the host
+  Gradle gate has not run yet and there is no instrumented Viewer
+  device evidence or real-shot smoke yet. G2 flips only when the
+  instrumented Viewer tests + the real-shot read-only smoke pass
+  (runbook: `blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md`).
 - G5 stays open: the full DCIM round-trip is still deferred, and
   S4 stage (c) live DCIM was explicitly not run.
 - S1 is now ACCEPTED for the tested BLU B160V hardware scope

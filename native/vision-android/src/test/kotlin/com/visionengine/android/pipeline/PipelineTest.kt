@@ -135,7 +135,7 @@ class PipelineTest {
     }
 
     @Test
-    fun uriOnlySourceStaysUnreadableWithoutLocalPath() {
+    fun uriSourceWithNoProviderStaysUnreadable() {
         val sources = listOf(
             MediaSource(
                 id = "content://com.example.docs/document/1",

@@ -40,6 +40,9 @@ import com.visionengine.android.saf.picturesTreeUri
 import com.visionengine.app.renamer.RenamerScreen
 import com.visionengine.app.renamer.RenamerViewModel
 import com.visionengine.app.renamer.RenamerViewModelFactory
+import com.visionengine.app.viewer.ViewerScreen
+import com.visionengine.app.viewer.ViewerViewModel
+import com.visionengine.app.viewer.ViewerViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
@@ -90,6 +93,7 @@ fun FolderRow(
 fun AppRoot(
     mainViewModel: MainViewModel? = null,
     renamerViewModel: RenamerViewModel? = null,
+    viewerViewModel: ViewerViewModel? = null,
 ) {
     val context = LocalContext.current
     val resolver = context.contentResolver
@@ -101,6 +105,9 @@ fun AppRoot(
         factory = RenamerViewModelFactory(
             context.applicationContext.filesDir,
         ),
+    )
+    val viewer: ViewerViewModel = viewerViewModel ?: viewModel(
+        factory = ViewerViewModelFactory(),
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val entries by viewModel.entries.collectAsStateWithLifecycle(
@@ -151,6 +158,9 @@ fun AppRoot(
                     Button(onClick = { tab = 1 }) {
                         Text(text = "Renamer")
                     }
+                    Button(onClick = { tab = 2 }) {
+                        Text(text = "Viewer")
+                    }
                 }
                 if (tab == 0) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -192,10 +202,21 @@ fun AppRoot(
                     }) {
                         Text(text = "Pick a folder")
                     }
-                } else {
+                } else if (tab == 1) {
                     RenamerScreen(
                         folders = folders,
                         renamerViewModel = renamer,
+                        resolver = resolver,
+                        scope = scope,
+                        onRepick = { uri ->
+                            repickTarget = uri
+                            launchPicker()
+                        },
+                    )
+                } else {
+                    ViewerScreen(
+                        folders = folders,
+                        viewerViewModel = viewer,
                         resolver = resolver,
                         scope = scope,
                         onRepick = { uri ->

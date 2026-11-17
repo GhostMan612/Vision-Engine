@@ -1,10 +1,13 @@
-# S5 — MP7 Viewer: Compose grid → detail (spec only)
+# S5 — MP7 Viewer: Compose grid → detail (IMPLEMENTED — draft PR #10)
 
-> Status: SPEC ONLY — authorizes NOTHING to build. Drafted 2026-11-15
-> against main `d103ef6` for the Vision-Engine standalone v1 spec PR.
-> Sibling slices: S1 MP6 device re-run, S2 native rename port, S3 SAF
-> picker + persisted grants, S4 Renamer screen, S6 MP8 parity + MP9
-> Flutter retirement.
+> Status: IMPLEMENTED as draft PR #10 (branch
+> `feat/mp7-native-viewer`, base main `9c3a2aa`), 2026-11-17.
+> Host Gradle gate + device evidence PENDING — the PR is a draft,
+> not merged, and G2 stays OPEN until the instrumented Viewer
+> tests + the real-shot read-only smoke pass (see §8 and
+> `S5-DEVICE-RUNBOOK.md`). The spec text below is preserved;
+> deviations and decided questions are recorded in the
+> implementation record (§11).
 >
 > Fact discipline (per
 > `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md` §0): FACT =
@@ -194,29 +197,30 @@ plumbing with no UI.
 
 ## 5. Acceptance criteria
 
-- [ ] Grid renders from a picked folder via `MediaPipeline.loadPage`; no
+- [x] Grid renders from a picked folder via `MediaPipeline.loadPage`; no
       direct SAF queries or decodes from UI code.
-- [ ] Detail shows all 11 photo fields / all 10 video fields from
+- [x] Detail shows all 11 photo fields / all 10 video fields from
       `PhotoMeta` / `VideoMeta`, with corrected dims as headline and raw
       values only as the badge.
-- [ ] Every missing field renders `—`; no field invents a value (grep
+- [x] Every missing field renders `—`; no field invents a value (grep
       gate passes: no mtime-as-EXIF substitution anywhere in the Viewer).
-- [ ] Every row carries a provenance chip matching the record's
+- [x] Every row carries a provenance chip matching the record's
       `Provenance` enum value.
-- [ ] GPS "Strip…" button never edits: disabled with a Phase 3 label
+- [x] GPS "Strip…" button never edits: disabled with a Phase 3 label
       (or placeholder stating not implemented) — no write path exists in
       this slice.
-- [ ] Empty / no-folder / all-unsupported / permission-lost / per-record
+- [x] Empty / no-folder / all-unsupported / permission-lost / per-record
       failure states each render distinctly and are covered by tests.
-- [ ] Thumbs are 256px, orientation-applied, JPEG-85 cached under the
+- [x] Thumbs are 256px, orientation-applied, JPEG-85 cached under the
       existing FNV LRU (100 / 32 MB); no second cache, no disk cache.
-- [ ] Sequential probing default preserved; leaving the screen cancels
+- [x] Sequential probing default preserved; leaving the screen cancels
       in-flight work; completed records persist in cache.
 - [ ] `flutter analyze`-equivalent native gates green (see §6); no new
-      dependencies (see §7).
+      dependencies (see §7). Host Gradle gate PENDING at draft time.
 - [ ] G2 checklist items in `blueprints/CHECKPOINTS.md` §G2 check off
       except the human Moto G smoke, which is recorded as device evidence
-      (§8), not claimed from host runs.
+      (§8), not claimed from host runs. G2 stays OPEN until the
+      instrumented Viewer tests + real-shot smoke pass.
 
 ## 6. Gates (must all pass before the slice is called done)
 
@@ -248,8 +252,11 @@ plumbing with no UI.
   324B with orientation 6, `ve_plain.png`, `ve_minimal.mp4`, `ve_thumb.jpg`;
   FLUTTER_REFERENCE_BASELINE.md §9) and assert:
   - grid shows the record's name + kind + thumb state;
-  - detail shows corrected dims (orientation-6 fixture: 3000×4000 raw
-    displays as 4000×3000 corrected) with the raw-tag badge;
+  - detail shows corrected dims (orientation-6 fixture: the
+    committed `ve_thumb.jpg` is 24×16 raw and displays as 16×24
+    corrected — the spec's 3000×4000 example was illustrative, not
+    the committed fixture; tests pin the real values) with the
+    raw-tag badge;
   - unknown fields render `—` (e.g. `ve_plain.png` has no EXIF);
   - provenance chips match the fixture's provenance;
   - GPS "Strip…" button is disabled / non-editing;
@@ -306,25 +313,256 @@ may be claimed from a host run or an emulator.
 - **Q1 — GPS "Strip…" button form:** disabled-with-label vs. a
   placeholder screen stating Phase 3 is not implemented? (RECOMMENDATION
   in §4 Step 3 is disabled-with-label; Glenn's call.)
+  **Decided 2026-11-17 (Glenn's brief, implemented in PR #10):**
+  disabled button with the label "Strip GPS — Phase 3"; no routing
+  target, no write path.
 - **Q2 — K5 HEIF/DNG fallback:** when a file's EXIF coverage differs
   between the Dart `exif` path and native `ExifInterface`, what is the
   v1 fallback — honest `—`, a second native probe, or a documented
   per-format quarantine note? (K5 is open in CURRENT_STATE.md; the Viewer
   must not invent an answer.)
+  **Decided 2026-11-17 (Glenn's brief, implemented in PR #10):**
+  honest `—`, no invented fallback — the spec's own R-V4 position.
+  A second probe or quarantine note is a later decision, not this slice.
 - **Q3 — Coil revisit trigger:** migration blueprint §8 says revisit Coil
   ONLY for crossfade/AsyncImage ergonomics at Viewer time. Does Glenn
   want that revisit now (with its key/contract trade-offs: default keys
   omit mtime, disk cache overlaps ours), or does the hand-rolled loader
   stay for v1?
+  **Decided 2026-11-17 (Glenn's brief, implemented in PR #10):**
+  Coil NOT adopted; the hand-rolled loader stays for v1. The revisit
+  stays open as a later decision.
 - **Q4 — Detail full-resolution image:** should the detail screen decode
   a larger image than the cached 256px thumb, or is the 256px thumb the
   detail image for v1? (A larger decode changes memory bounds — R-V1 —
   and must not be decided inside this slice's implementation.)
+  **Decided 2026-11-17 (Glenn's brief, implemented in PR #10):**
+  the cached 256px thumb is the detail image for v1; no larger decode.
 - **Q5 — Page size for the grid:** the pipeline pages records; what page
   size does the Viewer request? (Manual paging is the default per ADR-005
   non-decisions; Paging 3 is a separate question for MP1 kickoff, not
   this slice.)
+  **Decided 2026-11-17 (implemented in PR #10):** page size 50
+  (`ViewerViewModel.PAGE_SIZE`), recorded in the PR body. No
+  pre-existing page-size constant existed anywhere in the pipeline;
+  device tests use 10. Paging 3 stays a separate question.
 - **Q6 — Video detail beyond a still frame:** is a mute preview / scrub
   in scope for a later Viewer slice, or is the still frame the permanent
   v1 video detail? (Out of this slice either way; the answer shapes the
   detail screen's layout, not its v1 content.)
+  **Still OPEN** — the still frame is the v1 video detail; no preview
+  or scrub in this slice.
+
+## 11. Implementation record (PR #10, draft 2026-11-17)
+
+Branch `feat/mp7-native-viewer`, base main `9c3a2aa`. Draft PR,
+not merged. Host Gradle gate + device evidence PENDING.
+
+### The URI gap, closed
+
+FACT: `SafDiscovery` produces `MediaSource` instances with
+`documentUri` only, and `MediaPipeline.recordFor` /
+`thumbnailFor` handled only `filePath` — a URI-only source came
+back unreadable / "no local path". The URI read paths already
+existed below the pipeline (`AndroidMetadataExtractor.probePhotoUri`
+/ `probeVideoUri`, `VideoFrames.grabFrameDescriptor`), so the fix
+is wiring only:
+
+- `MediaPipeline` stores the constructor `ContentResolver`
+  (`private val resolver`) and implements the new `ViewerPipeline`
+  interface (`loadPage` + `thumbnailFor`), so the ViewModel can
+  inject a fake pipeline in tests.
+- `recordFor`: `filePath` present → existing `probePhotoFile` /
+  `probeVideoFile`, unchanged; `filePath` absent and `documentUri`
+  present → `probePhotoUri` / `probeVideoUri`; both absent →
+  unreadable with the pre-existing "no local path" warning.
+- `thumbnailFor`: file path → existing `fetchPhotoThumb` /
+  `fetchVideoThumb`, unchanged; URI photo → `fetchPhotoThumbUri`
+  (bounded FD byte read, then the shared `decodePhotoThumb`
+  helper); URI video → `fetchVideoThumbUri`
+  (`grabFrameDescriptor` on the opened FD).
+- Descriptor lifecycle: every descriptor the pipeline opens is
+  closed in a `finally` on all paths — success, decode failure,
+  over-cap, and exception. The extractor's own `probePhotoUri`
+  (`use {}`) and `probeVideoUri` (`finally`) already closed theirs.
+- Bounds preserved: photo source cap 64 MB (`maxSourceBytes`,
+  enforced by a bounded chunked read that aborts past the cap
+  instead of reading the whole file first), video `maxSide` 512,
+  cache 100 entries / 32 MB, detail reuses the cached 256px thumb.
+  No second cache, no disk cache, no full-resolution decode.
+- Never copies user libraries into app-private storage. Never
+  constructs raw filesystem paths from SAF document IDs.
+
+### What was built
+
+- `native/vision-core/.../DetailFields.kt` — pure detail-field
+  table: `DetailField(label, value, provenance)`,
+  `photoDetailFields` (11, spec order) / `videoDetailFields`
+  (10, spec order), `formatDurationMs` (<1000 ms → "N ms", else
+  seconds one decimal trimmed), `formatFileSize` (B / KB / MB).
+  Corrected dims from `PhotoMeta.width`/`height` /
+  `VideoMeta.width`/`height` getters only; unknown → "—"
+  (U+2014). No mtime-as-EXIF anywhere (grep-gated).
+- `native/vision-app/.../viewer/ViewerViewModel.kt` — mirrors
+  `RenamerViewModel`: injectable `pipelineFactory` /
+  `discoveryFactory`, `StateFlow`s for grant / grantLost /
+  loading / records / counts / hasMore / error / selected
+  record; `openFolder` (discovery on IO, counts, first page),
+  `loadMore` (page size 50), `selectRecord` / `clearSelection`,
+  `onFoldersChanged` (lost grant keeps loaded records visible,
+  state preserved; missing grant resets). Cancellation: the
+  owning coroutine scope cancels in-flight work; a generation
+  counter makes the latest open win and guarantees `_loading`
+  returns to false via `finally` even when a load is cancelled
+  mid-loop. No `viewModelScope` — `lifecycle-viewmodel-ktx` is
+  not a dependency (same constraint as S3); the ViewModel is
+  driven by suspend functions from the UI scope.
+- `native/vision-app/.../viewer/ViewerScreen.kt` — `ViewerScreen`
+  (folder list with Select, counts line, `LazyVerticalGrid`
+  3-column in pipeline folded-name order, per-cell loading /
+  failure placeholders, "Load more", error + Dismiss),
+  `ViewerCell` (cached thumb or placeholder, name, kind badge,
+  "Could not read this file" for unreadable records),
+  `ViewerDetail` (cached thumb full-width, name, field table
+  with one provenance chip per row, "Strip GPS — Phase 3"
+  button DISABLED).
+- `AppRoot.kt` — third tab "Viewer" (`tab == 2`), optional
+  `viewerViewModel` injection param with default factory (same
+  seam as `renamerViewModel`). This is the S5 extension the S4
+  spec anticipated ("S5 extends it"); no S3/S4 logic changed.
+
+### Tests (29 new; 1 renamed)
+
+- `DetailFieldsTest.kt` (vision-core, JVM) — 6 tests: 11/10
+  fields in spec order, corrected dims (24×16 raw → 16×24),
+  rotation-corrected video dims, unknown + provenance,
+  duration/size format vectors.
+- `UriPipelineTest.kt` (vision-android, Robolectric) — 8 tests
+  with a fake ContentProvider serving staged fixtures:
+  URI photo probe (orientation 6, 16×24), URI photo thumb
+  decode + cache hit, URI video probe, URI video thumb
+  unavailable on the trackless fixture, descriptor closure on
+  decode failure, inaccessible source stays unreadable,
+  over-cap thumb stays unavailable, file-path regression.
+  Descriptors are asserted closed (`fileDescriptor.valid ==
+  false`) on every success and failure path.
+- `ViewerViewModelTest.kt` (vision-app, Robolectric) — 10 tests
+  with a fake pipeline + scripted discovery: healthy open with
+  counts, lost grant blocks load, empty folder, discovery
+  failure, discovery `SecurityException` → grant lost,
+  cancellation stops without thumbs, second open supersedes
+  first, select/clear, folders-changed lost (records kept) and
+  missing (reset).
+- `ViewerScreenTest.kt` (vision-app, Robolectric + Compose) — 6
+  tests with the real pipeline + fake provider: empty state,
+  lost-grant state, grid + photo detail (corrected dims, six
+  "—", provenance counts 3 exif / 2 filesystem, Strip button
+  displayed + disabled, Back returns to grid), video detail
+  opens, empty folder, all-unsupported cells + counts.
+- `UriPipelineDeviceTest.kt` + `TestDocsProvider` (instrumented)
+  — 4 tests: URI photo probe + thumb on device, URI video probe
+  + thumb unavailable on device, corrupt photo unreadable on
+  device, sources untouched. The test provider is declared in a
+  new `src/androidTest/AndroidManifest.xml` (`exported="true"`,
+  test APK only, never ships).
+- `AppRootTest.kt` — 1 new test: the Viewer tab renders the
+  viewer empty state.
+- `PipelineTest.kt` — 1 test RENAMED
+  (`uriOnlySourceStaysUnreadableWithoutLocalPath` →
+  `uriSourceWithNoProviderStaysUnreadable`); same assertions —
+  with no provider registered the URI source still stays
+  unreadable. That is the inaccessible-file case, not the old
+  gap behavior.
+- New test resource: `ve_thumb.jpg` copied byte-identical into
+  `native/vision-app/src/test/resources/fixtures/` so the
+  vision-app unit tests can load it (vision-android test
+  resources are not on the vision-app test classpath).
+
+### Verification on this VM (host gate is the arbiter)
+
+- vision-core JUnitCore: OK (99 tests) — 93 pre-existing + 6 new.
+- pytest: 30 passed. flake8 hard-select clean.
+- Standalone kotlinc checks over all five Android source sets:
+  no real errors in the new/changed files. One real bug caught
+  and fixed here: cross-module smart cast on `record.photo` /
+  `record.video` in `ViewerDetail` (Kotlin forbids smart-casting
+  a public property from another module) — fixed with local
+  vals, plus a defensive local for the delegated `error` state.
+  Everything else in the filtered output is missing-Android-SDK
+  cascade noise, at the same level as the pre-existing files.
+- No new dependencies: `git diff` on all three
+  `build.gradle.kts` files is empty. No `INTERNET` permission;
+  both main manifests `git diff` empty. The only new manifest
+  is the androidTest one (test provider).
+- Genesis headers: exactly 4 `//` lines on all 10 new `.kt`
+  files. No TODOs. No mojibake. No mtime-as-EXIF.
+
+### Host-gate-only (not run here)
+
+- All Robolectric + Compose tests above (UriPipelineTest 8,
+  ViewerViewModelTest 10, ViewerScreenTest 6, AppRootTest 1
+  new + 1 existing, PipelineTest 7 incl. the renamed test),
+  the vision-android unit suite, and `lintDebug`.
+- The instrumented `UriPipelineDeviceTest` (4 tests) — runs on
+  the B160V via `S5-DEVICE-RUNBOOK.md`.
+
+### Deviations from this spec
+
+1. §7's orientation-6 example ("3000×4000 raw displays
+   4000×3000 corrected") does not match the committed fixture.
+   Tests pin the real values: `ve_thumb.jpg` 24×16 raw → 16×24
+   corrected. §7 corrected in place.
+2. §6 gate 3 (`tools/verify_reference.py` exit 0) cannot pass
+   on this branch: the script fails identically (28 files, same
+   list) on clean main `9c3a2aa` — the files PRs #1–#9 changed
+   (Python + blueprints + root files) differ from the frozen
+   reference manifest. Pre-existing on main, not caused by this
+   PR; the cross-slice gate in `standalone-v1/CHECKLIST.md`
+   stays unchecked. No Flutter file was touched by this PR.
+3. The video URI metadata assertions in `UriPipelineTest`
+   mirror the file-path test's unscripted-retriever values
+   (status ok, rotation 0) — whether
+   `ShadowMediaMetadataRetriever` returns the same defaults
+   over a `FileDescriptor` source is host-gate-verified, not
+   proven here.
+4. Discovery swallows query exceptions: `SafDiscovery.discover`
+   catches them into a warnings-only outcome ("query failed"),
+   so a revoked grant during discovery surfaces as a
+   "Discovery failed" error, not as grant-lost. Grant-lost is
+   driven by S3's persisted-flags state (`FolderState.LOST`),
+   which the Viewer honors. The ViewModel's `SecurityException`
+   catch covers factories that throw directly. Recorded as a
+   limitation, not fixed here (changing `SafDiscovery`'s
+   contract is S3's, not S5's).
+5. The all-unsupported empty message in the spec (§4 Step 2)
+   is not a separate screen state: unsupported files produce
+   records, so they render as grid cells with "Unsupported"
+   badges + the counts line ("Unsupported: N") instead of a
+   dedicated message. The "No photos or videos here" text
+   covers only the truly empty folder.
+6. Page size 50 is the Viewer's own choice
+   (`ViewerViewModel.PAGE_SIZE`); no pre-existing page-size
+   constant existed anywhere (device tests use 10). Recorded
+   here and in the PR body (S5 Q5).
+7. `ViewerPipeline` is a new testability seam: `MediaPipeline`
+   is a final class and cannot be subclassed, so the interface
+   exists so ViewModel tests can inject a fake slow pipeline
+   for deterministic cancellation tests.
+8. The ViewModel decodes thumb JPEG bytes to `Bitmap` on IO
+   (`BitmapFactory.decodeByteArray`) and holds them as
+   transient per-page presentation state. The FNV-keyed
+   `ThumbnailCache` remains the only cache.
+9. The instrumented test provider is `exported="true"` in the
+   androidTest manifest: the test code runs in the target app
+   process while the provider runs in the test APK process, so
+   cross-process access needs it. Test APK only, never ships.
+
+### Decided questions (see §10)
+
+- Q1: disabled "Strip GPS — Phase 3" button (2026-11-17).
+- Q2: K5 HEIF/DNG → honest "—", no fallback (2026-11-17).
+- Q3: Coil NOT adopted (2026-11-17).
+- Q4: detail reuses the cached 256px thumb, no larger decode
+  (2026-11-17).
+- Q5: page size 50 (2026-11-17).
+- Q6: still OPEN — video beyond a still frame is a later slice.

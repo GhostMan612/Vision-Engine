@@ -86,6 +86,13 @@
       `18c45c6`):** exclusive manifest, alias guard,
       dependency-aware undo, 12 adapted safety tests; pytest 30
       passed (18 + 12), CI pass.
+- [~] **S5 — MP7 Viewer (draft PR #10, branch
+      `feat/mp7-native-viewer`, base main `9c3a2aa`,
+      2026-11-17):** URI-gap fix + grid → detail + field tables
+      + instrumented URI tests built; vision-core JUnitCore OK
+      (99) on this VM, pytest 30 passed. Host Gradle gate +
+      device evidence PENDING; G2 stays OPEN. See
+      `blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md`.
 - [ ] Viewer UI (grid → detail, orientation-correct, unknown-as-—, provenance chips)
 - [ ] Moto G smoke (operator-supplied shots, never committed)
 
