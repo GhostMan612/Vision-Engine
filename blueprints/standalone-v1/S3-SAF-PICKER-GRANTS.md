@@ -1,12 +1,12 @@
 # S3 — SAF picker + persisted grants (native)
 
-> Status: SPEC-ONLY DRAFT for operator review. Authorizes NOTHING to build.
-> Slice 3 of the Vision-Engine standalone v1 spec series: S1 MP6 device
-> re-run → S2 native rename port (`vision-core`) → **S3 SAF picker +
-> persisted grants** → S4 Renamer screen → S5 MP7 Viewer → S6 MP8 parity
-> + MP9 Flutter retirement. S1, S2, S5, S6 are separate spec files.
-> Research date: 2026-11-15. Baseline: main `d103ef6`
-> (PR #2 merged: python-app CI tests real code, PyPI workflow removed).
+> Status: IMPLEMENTED — PR #5, merged 2026-11-16 (main `2223beb`),
+> plus follow-up fixes (see §11). The spec text below is preserved;
+> implemented items are ticked in §1 and §6, superseded claims are
+> marked in §3, device evidence is recorded in §8, and Glenn's
+> Q-decisions are recorded in §10. Research date: 2026-11-15.
+> Baseline: main `d103ef6` (PR #2 merged: python-app CI tests real
+> code, PyPI workflow removed).
 
 ## 0. Reading guide (fact discipline)
 
@@ -24,19 +24,29 @@ with the system picker, the app keeps that grant across reboot and
 app update, re-asks cleanly when the grant is gone, and enumerates the
 folder's top level through the code that already exists for it.
 
-- [ ] ACTION_OPEN_DOCUMENT_TREE picker launched from the native app,
-      returning a tree URI the app can keep.
-- [ ] Persisted URI grant taken and stored; the grant survives reboot
+- [x] ACTION_OPEN_DOCUMENT_TREE picker launched from the native app,
+      returning a tree URI the app can keep. **Implemented PR #5:**
+      `StartActivityForResult` + `buildTreePickerIntent` (see §11
+      deviation note — not the spec's recommended
+      `OpenDocumentTree()` contract).
+- [x] Persisted URI grant taken and stored; the grant survives reboot
       and app update (verified on device, not assumed from the API doc).
+      **Verified on BLU B160V with the S4B/S4C runs (see §8):**
+      reboot + same-signature reinstall survival confirmed.
 - [ ] Grant re-request flow on `SecurityException` (or on a grant that
       no longer appears in `persistedUriPermissions`): user sees what
       happened, the saved folder entry is marked, nothing is renamed
-      or deleted, no crash.
-- [ ] Saved grant list persisted in DataStore: display name, URI
+      or deleted, no crash. **Implemented in code (PR #5) but NOT
+      device-verified:** the revoke-then-re-pick run was never done.
+      Open item — see §8.
+- [x] Saved grant list persisted in DataStore: display name, URI
       string, granted timestamp, last-seen-healthy timestamp.
-- [ ] Top-level-only enumeration boundary kept — the S3 slice changes
+      **Implemented PR #5:** DataStore `vision_grants`,
+      `grant_uris` set + `grant:<uri>:<field>` keys
+      (`GrantStore.kt`).
+- [x] Top-level-only enumeration boundary kept — the S3 slice changes
       how the folder is obtained, not what is enumerated.
-- [ ] Unknown / virtual-document handling stays exactly as
+- [x] Unknown / virtual-document handling stays exactly as
       `SafDiscovery` already does it (see §2).
 
 ## 2. Non-goals
@@ -83,6 +93,9 @@ folder's top level through the code that already exists for it.
   EVIDENCE: grep for `SafDiscovery` / `withResolver` across
   `native/` finds only `SafDiscovery.kt` itself and `DiscoveryTest.kt`.
   S3 is what wires it to a real user action.
+  **Superseded 2026-11-16 (PR #5):** `MainViewModel`
+  (`handlePickedFolder` / `handleRepickedFolder`) and
+  `RenamerViewModel` now call `SafDiscovery` on real user actions.
 - FACT: no picker or grant-taking code exists yet in either stack.
   REPO EVIDENCE: grep for `takePersistableUriPermission`,
   `OpenDocumentTree`, `ACTION_OPEN_DOCUMENT_TREE`,
@@ -91,6 +104,10 @@ folder's top level through the code that already exists for it.
   `FilePicker.getDirectoryPath` (a path, not a persisted SAF grant) —
   REPO EVIDENCE: `app/lib/features/probe/probe_screen.dart:58-66`.
   S3 is new code, not a port.
+  **Superseded 2026-11-16 (PR #5):** picker + grant-taking code
+  exists in `AppRoot.kt` (launcher) and `MainViewModel.kt`
+  (`takePersistableUriPermission` with READ+WRITE flags,
+  `persistedGrantUris` lookup).
 - FACT: no DataStore exists yet anywhere in `native/`. REPO EVIDENCE:
   grep for `DataStore` / `datastore` across `native/` returns no
   matches. The dependency is pre-justified, not invented here:
@@ -98,6 +115,9 @@ folder's top level through the code that already exists for it.
   (`blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md:229-245`)
   lists `datastore-preferences` under "ADD (narrow, justified at
   MP1)". S3 still records the add in its own diff audit (see §7).
+  **Superseded 2026-11-16 (PR #5):** `GrantStore.kt` uses DataStore
+  Preferences (`vision_grants`); dep declared in
+  `native/vision-android/build.gradle.kts`.
 
 ### 3.2 The blueprint contract S3 must honor
 
@@ -245,45 +265,73 @@ folder's top level through the code that already exists for it.
 
 ## 6. Acceptance criteria checklist
 
-- [ ] Picking a folder via the system picker returns a tree URI and
+- [x] Picking a folder via the system picker returns a tree URI and
       the app takes a persistable grant for it (flags per Q1's answer).
-- [ ] The grant appears in `contentResolver.persistedUriPermissions`
-      after the pick (asserted on device, §8).
-- [ ] After a reboot, the saved folder still enumerates with no
-      re-pick (asserted on device, §8).
-- [ ] After an app update (debug reinstall over the existing install),
+      **Done PR #5, flags READ+WRITE per Glenn's Q1 decision
+      (15 Nov 2026); proven on B160V (Stage A grant + discovery).**
+- [x] The grant appears in `contentResolver.persistedUriPermissions`
+      after the pick (asserted on device, §8). **Done: grant taken
+      with READ+WRITE flags and listed by `persistedGrantUris`
+      (`GrantHealth.kt`); reboot + reinstall survival (below)
+      confirms persistence on B160V.**
+- [x] After a reboot, the saved folder still enumerates with no
+      re-pick (asserted on device, §8). **Verified on BLU B160V
+      with the S4B/S4C runs, 17 Nov 2026.**
+- [x] After an app update (debug reinstall over the existing install),
       the saved folder still enumerates with no re-pick (asserted on
       device, §8). INFERENCE, not FACT, until the device run proves it.
+      **Verified on BLU B160V with the S4B/S4C runs, 17 Nov 2026
+      (same-signature reinstall).**
 - [ ] A forced grant loss (revoke in system Settings, or clear via
       `releasePersistableUriPermission` in a test build) shows the
       "grant lost — re-pick" state; no crash, no silent drop, no
-      rename attempted.
+      rename attempted. **NOT verified — the revoke run was never
+      done. Open item; code exists (`deriveFolderStates` LOST state
+      + "Re-pick" UI), device proof outstanding.**
 - [ ] Re-picking the lost folder restores it in place (same list
       entry, updated timestamps); pre-loss screen state is preserved.
-- [ ] Picking the same folder twice creates one entry, not two.
-- [ ] `SecurityException` thrown by `takePersistableUriPermission`
+      **NOT verified — same open item as above.**
+- [x] Picking the same folder twice creates one entry, not two.
+      **Done PR #5: `upsertGrant` replaces same-URI entries in
+      place (`GrantModel.kt`); `GrantModelTest` covers it.**
+- [x] `SecurityException` thrown by `takePersistableUriPermission`
       (provider refuses persistability) is shown to the user; the
-      folder is NOT recorded as a saved grant.
-- [ ] Empty folder enumerates to an empty list with zero warnings
+      folder is NOT recorded as a saved grant. **Done PR #5:
+      `handlePickedFolder` catches it → pick-failure state, no
+      save (`MainViewModel.kt`).**
+- [x] Empty folder enumerates to an empty list with zero warnings
       treated as success (an empty folder is not an error).
-- [ ] A folder containing a virtual document (cloud-backed) lists it
+      **Done PR #5: an empty folder is healthy (warnings empty →
+      `lastSeenHealthyMs` set); verified in code.**
+- [x] A folder containing a virtual document (cloud-backed) lists it
       as `unsupported` with a warning, exactly as `SafDiscovery`
-      does today — S3 adds no new classification.
-- [ ] Subdirectories are skipped and counted (`skippedDirs`), never
-      descended into.
-- [ ] Enumeration still issues exactly one query per discovery
+      does today — S3 adds no new classification. **Unchanged
+      `SafDiscovery` behavior; `DiscoveryTest` covers it.**
+- [x] Subdirectories are skipped and counted (`skippedDirs`), never
+      descended into. **Unchanged `SafDiscovery` behavior.**
+- [x] Enumeration still issues exactly one query per discovery
       (existing `singleQueryPerDiscovery` test stays green; no second
       query added for grant checks — health checks reuse discovery or
       `persistedUriPermissions`, never a new listing query).
-- [ ] "Forget this folder" removes the entry and releases the grant;
-      folder contents are untouched.
-- [ ] Zero grants → calm empty state; the screen never presents an
-      error for having no folder yet.
-- [ ] Manifest permission list unchanged (diff gate, §7); no INTERNET
-      in the manifest (grep gate, §7).
-- [ ] DataStore is the only new dependency, and it is the one
+      **Done: `DiscoveryTest.singleQueryPerDiscovery` green;
+      launch health check is a `persistedUriPermissions` lookup
+      only (`refreshHealth`).**
+- [x] "Forget this folder" removes the entry and releases the grant;
+      folder contents are untouched. **Done PR #5: `forgetFolder`
+      removes the DataStore entry + best-effort
+      `releasePersistableUriPermission`; never touches contents.**
+- [x] Zero grants → calm empty state; the screen never presents an
+      error for having no folder yet. **Done PR #5: "No folders yet
+      — pick a folder to begin" (`AppRoot.kt`).**
+- [x] Manifest permission list unchanged (diff gate, §7); no INTERNET
+      in the manifest (grep gate, §7). **Done PR #5: both manifests
+      unchanged, `grep -ri internet` no match.**
+- [x] DataStore is the only new dependency, and it is the one
       migration blueprint §12 already justifies — recorded in the PR
-      body with that citation.
+      body with that citation. **Done PR #5, with one deviation:
+      `kotlinx-coroutines-core:1.7.3` was also added explicitly
+      (both modules, `65a27a9`, Glenn-approved) because DataStore's
+      POMs scope it runtime-only — see §11.**
 
 ## 7. Gates
 
@@ -308,9 +356,35 @@ folder's top level through the code that already exists for it.
 
 ## 8. Device evidence required (Moto G — the gate)
 
+**Evidence recorded (2026-11-17, BLU B160V — hardware substitution
+for the Moto G named above; no Moto G coverage claimed):**
+
+1. Android version: Android 14 (BLU B160V, ADB serial
+   `7040016025040287`).
+2. Test folder: `Pictures/VE_TEST_S4` (Stage A) / fresh
+   `Pictures/VE_TEST_S4B` (S4B re-run), seeded files — never live
+   DCIM.
+3. Folder list after the pick: grant taken, discovery enumerated
+   (Stage A: SAF grant + discovery PASS; preview + collision
+   planning PASS).
+4. **Reboot → folder still enumerates, no re-pick: VERIFIED**
+   (S4B/S4C runs, 17 Nov 2026).
+5. **Reinstall (same-signature debug reinstall) → folder still
+   enumerates, no re-pick: VERIFIED** (S4B/S4C runs, 17 Nov 2026).
+   App-private manifests also survived the reinstall.
+6. **Revoke in system Settings → "grant lost — re-pick" state:
+   NOT VERIFIED — open item.** The revoke run was never done; the
+   code path exists (`deriveFolderStates` LOST state, "Re-pick"
+   button in `AppRoot.kt`) but has no device proof.
+7. Consent dialogs: none reported beyond the SAF picker itself.
+8. Provider variance: ExternalStorageProvider behavior verified
+   through the S4B/S4C runs (including the PR #7 preflight fix for
+   its `FileNotFoundException` on a not-yet-existing destination).
+
 Run on Glenn's Moto G (same setup as the D2 run:
 `docs/device-probe-moto-g.md` — USB debugging, debug run from Android
-Studio). Paste back:
+Studio). Paste back — the original ask, preserved (items 4–5 above
+answer parts of it on B160V; item 6 remains open):
 
 1. Android version (Settings → About phone → Android version).
 2. Pick a folder the operator creates for the test (a throwaway
@@ -380,21 +454,36 @@ a docs note, so the next slice inherits the knowledge.
   the flags S3 requests, so it should be answered before S3
   implements — or S3 lands READ-only first with WRITE as a named,
   separately-reviewed follow-up.
+  **Decided 2026-11-15 (Glenn): READ+WRITE grants now** — so S4
+  rename goes via `DocumentsContract.renameDocument`. Implemented
+  PR #5 (`grantFlags()` READ|WRITE, `persistedGrantUris` requires
+  both); provider support proven on B160V by the S4B/S4C runs.
 - Q2 — **Rename mechanism: `DocumentsContract.renameDocument` vs raw
   `File.rename` from a SAF tree?** Same fork as Q1, stated from the
   S4 side. If `renameDocument` is chosen, what happens on providers
   that do not support it (returns what — null, exception, silent
   no-op)? Needs a device probe per provider; S4's smoke covers it,
   S3 must not bake in an assumption.
+  **Decided by Glenn's Q1 answer (15 Nov 2026) + PR #6:**
+  `renameDocument`; null return → "rename refused" (skipped),
+  exception → ERROR, verified by re-query after the op. Proven on
+  B160V (S4B/S4C); other providers unprobed.
 - Q3 — **How many saved folders?** One (the current camera folder)
   or a list the user grows? RECOMMENDATION: a list (the DataStore
   shape already supports it, and a second folder costs nothing),
   but if Glenn wants exactly one slot, the UI and the store should
   say so up front rather than growing a list nobody asked for.
+  **Decided 2026-11-15 (spec recommendation adopted in PR #5): a
+  list** — `GrantStore` holds one entry per tree URI, UI lists
+  them.
 - Q4 — **Initial picker location:** is opening the picker near
   Pictures/DCIM via `EXTRA_INITIAL_URI` wanted, or should the picker
   always open at the provider root and let the user navigate? Minor,
   but it changes first-run UX.
+  **Decided 2026-11-15 (spec recommendation adopted in PR #5):**
+  picker opens near Pictures via `EXTRA_INITIAL_URI`
+  (`picturesTreeUri()`, `primary:Pictures`) with silent fallback to
+  a bare intent.
 - Q5 — **Grant health check on launch: cheap
   `persistedUriPermissions` lookup only, or a live discovery
   re-run?** The lookup is free and never touches the provider; the
@@ -402,7 +491,52 @@ a docs note, so the next slice inherits the knowledge.
   surface provider slowness on every launch. RECOMMENDATION: lookup
   on launch, live re-check only when the user opens the folder —
   but this is a judgment call, flag it if it feels wrong.
+  **Decided 2026-11-15 (spec recommendation adopted in PR #5):**
+  lookup-only on launch (`refreshHealth`); live re-check when the
+  user opens the folder (S4 folder-open discovery). Note:
+  `GrantStore.markHealthy` exists but is never called — the
+  last-seen-healthy timestamp is stamped only at pick time, never
+  refreshed afterwards.
 - Q6 — **Should a lost grant keep its entry forever, or expire?**
   RECOMMENDATION: keep it until the user forgets or re-picks it
   (an entry is a bookmark the user chose). Alternative: auto-drop
   after N days — needs a reason to exist, none seen yet.
+  **Decided 2026-11-15 (spec recommendation adopted in PR #5):**
+  keep the entry until forgotten or re-picked
+  (`deriveFolderStates` LOST state; `forgetFolder` removes it).
+
+## 11. Implementation record (PR #5, merged 2026-11-16, main `2223beb`)
+
+- **Files:** `GrantModel.kt`, `GrantStore.kt`, `GrantHealth.kt`,
+  `FolderDisplayName.kt`, `SafPicker.kt` (new, in
+  `native/vision-android/.../saf/`); `GrantModelTest.kt` (14 tests);
+  `MainViewModel.kt` + `AppRoot.kt` modified (folder list,
+  Re-pick/Forget, pick-failure + "Try again"); `MainActivity.kt`
+  unchanged.
+- **Deviations from this spec (recorded in the PR #5 body):**
+  (1) picker uses `StartActivityForResult` + a manual intent, NOT
+  the recommended `OpenDocumentTree()` — its `createIntent` cannot
+  carry the READ+WRITE + PERSISTABLE flags; (2) DataStore dep in
+  `vision-android`, not `vision-app`; (3) live re-check deferred
+  to S4 folder-open, and `markHealthy` remains uncalled — the
+  last-seen-healthy timestamp is stamped only at pick time;
+  (4) display name queried at pick time (`resolveFolderDisplayName`,
+  falls back to the tree document ID, never empty); (5) DataStore
+  `IOException`s caught and surfaced as pick-failure text.
+- **Dependency audit:** `datastore-preferences:1.1.1` (justified by
+  migration blueprint §12) + `kotlinx-coroutines-core:1.7.3`
+  explicit in both modules (`65a27a9`, Glenn-approved 15 Nov
+  2026) — DataStore's POMs scope coroutines runtime-only, so the
+  compile classpath lacked it.
+- **Host-gate fixes on the PR #5 branch:** `preferencesDataStore`
+  import package (`67275cf`), explicit `vision-core` dep in
+  `vision-app` (`86c47c3`), stale-test rewrites (`eb696b9`),
+  manifest activity name (`bf0e480` — the `.MainActivity`
+  `MissingClass` lint error was pre-existing). Host gate green on
+  the laptop (unit tests + lint).
+- **DataStore key scheme (frozen contract for S4+):**
+  `grant_uris` string-set index + per-entry
+  `grant:<uri>:displayName` / `:displayNameSource` / `:grantedMs` /
+  `:lastSeenHealthyMs`. Renaming keys later needs a migration note.
+- **Device evidence:** see §8. Reboot + reinstall verified on BLU
+  B160V (S4B/S4C runs); revoke-then-re-pick NOT verified.
