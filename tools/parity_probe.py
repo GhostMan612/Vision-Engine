@@ -92,7 +92,7 @@ def find_dart() -> str:
     found = shutil.which("dart")
     if found:
         return found
-    fallback = Path(r"C:\src\flutter\bin\dart.bat")
+    fallback = Path(r"C:\android\flutter\bin\dart.bat")
     if fallback.is_file():
         return str(fallback)
     raise SystemExit("dart not found on PATH")
@@ -212,6 +212,20 @@ def main() -> int:
               f"renamed={report.renamed}")
         if not (names_ok and bytes_ok):
             failures += 1
+
+    with tempfile.TemporaryDirectory(prefix="ve-chain-") as tmp:
+        target = Path(tmp)
+        (target / "IMG_VID_a.jpg").write_bytes(b"first")
+        (target / "VID_a.jpg").write_bytes(b"second")
+        chain = truth.build_plan(target)
+        truth.execute_plan(chain, logging.getLogger("parity-chain"))
+        chain_ok = (
+            (target / "VID_a.jpg").read_bytes() == b"first"
+            and (target / "a.jpg").read_bytes() == b"second"
+            and chain.renamed == 2
+        )
+        print(f"[chain_execution] {'PASS' if chain_ok else 'FAIL'}")
+        failures += 0 if chain_ok else 1
 
     print(f"parity: {'GREEN' if failures == 0 else 'RED'} "
           f"({len(CASES)} plan cases + byte proof)")

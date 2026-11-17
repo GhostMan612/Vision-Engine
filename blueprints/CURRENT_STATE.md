@@ -2,7 +2,7 @@
 
 > Updated every session per RULES.md §4.2. Evidence > status.
 
-## Snapshot (2026-09-14, scaffold session)
+## Historical snapshot (2026-09-14 scaffold; subsequent dated entries below)
 
 - **Standalone v1 spec (2026-11-15):** Glenn decided Vision
   standalone first (finish the renamer + viewer before lending the
@@ -39,7 +39,8 @@
   native Kotlin + Compose is the target; Flutter `main` is the frozen
   reference. Migration blueprint
   (`blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md`) + ADR-005 written;
-  NO implementation started; 2D stays locked until kickoff.
+  HISTORICAL ONLY: at that moment no native implementation had started;
+  subsequent MP0–MP6 implementation below supersedes this line.
 - MP0 REFERENCE FREEZE 2026-09-15: tag `flutter-final` (see handoff);
   `FLUTTER_REFERENCE_BASELINE.md` + manifest (137 files hashed) +
   `tools/verify_reference.py` (self-check green). Reference code frozen.
@@ -126,5 +127,6 @@
 - ADR-003 ACCEPTED 2026-09-15 (single native extraction path, no Dart
   exif pkg, exifinterface 1.4.1 pin, §24 build leg delegated to operator
   per RULES supremacy).
-- ADR-005 PROPOSED 2026-09-15 (GQ8=NO → native Kotlin + Compose target,
-  Flutter frozen reference, MP0–MP9 sequence; awaits kickoff).
+- ADR-005 recorded as PROPOSED on 2026-09-15; MP0–MP6 subsequently
+  progressed on the native track. Formal acceptance signature not evidenced.
+  See decision record for the documented implementation-vs-approval gap.
