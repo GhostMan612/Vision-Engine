@@ -11,11 +11,16 @@
   SUCCESSFUL` in 1m 32s; instrumented XML reports independently
   checked. **Hardware substitution:** the S1 spec named the Moto G;
   the run used the BLU B160V instead. No Moto G coverage is claimed.
-  **Self-containment gate PENDING:** the S1 spec (§5.4 item 3 / §7 /
-  §8) requires the operator's confirmation line "no folder picker
-  appeared and no DCIM was touched" before S1 is complete — that
-  confirmation has NOT been received. S1 is 13/13 passed, not fully
-  closed.
+  **ACCEPTED 2026-11-17 for the tested BLU B160V hardware scope:**
+  run head commit `18c45c6` (confirmed); an observed second run was
+  `BUILD SUCCESSFUL` in 25 seconds, watched in full by the operator,
+  with no folder picker appearing at any point; DCIM isolation is
+  supported by source inspection (suites stage bundled synthetic
+  fixtures in app-private `ve_mp4`/`ve_mp5`/`ve_mp6`; inspected test
+  execution paths contain no DCIM access, user-media renaming, or
+  folder-picker launch — source-code evidence of isolation, not a
+  complete filesystem-access trace). No additional S1 device run is
+  required for this substituted hardware acceptance.
 - **S2 native rename port (PR #4, merged 2026-11-16,
   `4ef05e7`):** `vision-core` rename package — strip, `buildPlan`,
   manifest codec (6-column Dart form), dependency-ordered execution,
@@ -134,9 +139,10 @@
   BLU B160V, Android 14 (Extractor 6/6, Thumbs 6/6, Pipeline 1/1),
   Gradle BUILD SUCCESSFUL in 1m 32s, XML reports checked. Hardware
   substitution for the Moto G named in the S1 spec; no Moto G
-  coverage claimed. Self-containment confirmation ("no folder
-  picker appeared and no DCIM was touched") still PENDING operator
-  confirmation, so S1 is not fully closed. NO Viewer, NO MP7 (S5
+  coverage claimed. **ACCEPTED 2026-11-17** for the tested BLU
+  B160V hardware scope (run head commit `18c45c6`; observed
+  second run BUILD SUCCESSFUL in 25s, watched in full by the
+  operator, no folder picker appeared). NO Viewer, NO MP7 (S5
   next, on Glenn's nod).
 - MP4 EXTRACTION 2026-09-15: `ExifReader`/`VideoReader` mapping +
   `AndroidMetadataExtractor` (file/URI, guarded lifecycle) + 15/15 JVM

@@ -40,7 +40,8 @@
   real-shot smoke yet.
 - G5 stays open: the full DCIM round-trip is still deferred, and
   S4 stage (c) live DCIM was explicitly not run.
-- S1 is not fully closed either: the self-containment confirmation
-  ("no folder picker appeared and no DCIM was touched") is still
-  PENDING operator confirmation — see
-  `blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md` §7.
+- S1 is now ACCEPTED for the tested BLU B160V hardware scope
+  (2026-11-17): the operator confirmation was received — no
+  folder picker appeared during the watched second run — and the
+  run head commit is `18c45c6`. See
+  `blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md` §7 and §13.

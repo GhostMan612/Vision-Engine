@@ -51,7 +51,7 @@
 
 | Slice | File | What it is | Hard prerequisites |
 |---|---|---|---|
-| S1 | `S1-MP6-DEVICE-RERUN.md` | Re-run the authored MP6 instrumented device suite (13 tests) on Glenn's Moto G + laptop. Glenn-side; no code. **Done 2026-11-17: 13/13 PASS on BLU B160V (Moto G → B160V substitution); self-containment confirmation still PENDING.** | None (needs laptop + phone together) |
+| S1 | `S1-MP6-DEVICE-RERUN.md` | Re-run the authored MP6 instrumented device suite (13 tests) on Glenn's Moto G + laptop. Glenn-side; no code. **Done 2026-11-17: 13/13 PASS on BLU B160V (Moto G → B160V substitution); ACCEPTED for the tested BLU B160V scope.** | None (needs laptop + phone together) |
 | S2 | `S2-NATIVE-RENAME-PORT.md` | Port `stripLeadingPrefix` + `buildPlan` + manifest codec + reverse-order undo into pure-JVM `vision-core`, replaying the 6 Dart goldens byte-identical. Post-PR #1 Python semantics. **Done: PR #4, merged 2026-11-16 (`4ef05e7`).** | None (pure JVM, no device) |
 | S3 | `S3-SAF-PICKER-GRANTS.md` | System folder picker + persisted URI grants (DataStore), re-request flow, top-level-only enumeration via existing `SafDiscovery`. **Done: PR #5, merged 2026-11-16 (`2223beb`). Revoke-then-re-pick NOT verified — open item.** | — (S2 not required, but S4 needs both) |
 | S4 | `S4-RENAMER-SCREEN.md` | Compose Renamer screen on a real folder: preview → execute → honest manifest → undo, staged smoke (app files, then copied/quarantined DCIM; live DCIM never first). **Done: PR #6, merged 2026-11-17 (`5ea6c2c`), + PR #7 fix, merged 2026-11-17 (`b0d2b36`); S4B/S4C green on B160V. Stage (c) live DCIM NOT run.** | S1, S2, S3 all green |

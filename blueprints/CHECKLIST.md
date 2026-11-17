@@ -39,11 +39,12 @@
   PipelineDeviceTest 1/1), Gradle BUILD SUCCESSFUL in 1m 32s,
   instrumented XML reports independently checked. Hardware
   substitution: the S1 spec named the Moto G; the run used the BLU
-  B160V instead — no Moto G coverage is claimed. NOTE: the S1
-  self-containment confirmation ("no folder picker appeared and no
-  DCIM was touched") is still PENDING operator confirmation, so S1
-  is not fully closed; see `blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md`
-  §7. NO Viewer, NO MP7
+  B160V instead — no Moto G coverage is claimed. ACCEPTED
+  2026-11-17 for the tested BLU B160V hardware scope (run head
+  commit `18c45c6`; observed second run BUILD SUCCESSFUL in 25s,
+  watched in full by the operator, no folder picker appeared);
+  see `blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md` §7 and
+  §13. NO Viewer, NO MP7
 - [x] MP4 extraction (2026-09-15): readers + extractor + 15/15 JVM tests;
   instrumented device suite 6/6 PASS on Moto G (agent-run); NO MP5, NO Viewer
 - [x] MP5 thumbnails (2026-09-15): PhotoThumbs + VideoFrames + cache
@@ -59,11 +60,12 @@
 
 ## Standalone v1 (2026-11-15–17, main `18c45c6`)
 
-- [~] **S1 — MP6 device re-run:** 13/13 PASS on BLU B160V
+- [x] **S1 — MP6 device re-run:** 13/13 PASS on BLU B160V
       2026-11-17 (BUILD SUCCESSFUL, 1m 32s, XML checked); Moto G →
       B160V hardware substitution recorded, no Moto G coverage
-      claimed. Self-containment confirmation still PENDING operator
-      confirmation — S1 not fully closed.
+      claimed. ACCEPTED 2026-11-17 for the tested BLU B160V
+      hardware scope (head commit `18c45c6`; observed second run
+      BUILD SUCCESSFUL in 25s, watched in full, no picker).
 - [x] **S2 — Native rename port (PR #4, merged 2026-11-16,
       `4ef05e7`):** `vision-core` rename package green on JVM (38
       rename tests incl. 6 golden replays), host gate green.

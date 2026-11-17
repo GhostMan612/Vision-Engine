@@ -10,13 +10,17 @@
 
 ## Slice exits
 
-- [~] **S1 — MP6 device re-run** (`S1-MP6-DEVICE-RERUN.md` §7).
+- [x] **S1 — MP6 device re-run** (`S1-MP6-DEVICE-RERUN.md` §7).
       13/13 instrumented tests green on BLU B160V 2026-11-17 (Moto G
       → B160V substitution; BUILD SUCCESSFUL, 1m 32s, XML checked),
-      `blueprints/CURRENT_STATE.md` MP6 entry updated. NOT fully
-      closed: paste-back was a summary (head commit + `adb devices`
-      output not pasted) and the self-containment confirmation is
-      still PENDING operator confirmation.
+      `blueprints/CURRENT_STATE.md` MP6 entry updated. ACCEPTED
+      2026-11-17 for the tested BLU B160V hardware scope: run head
+      commit `18c45c6` confirmed; observed second run BUILD
+      SUCCESSFUL in 25s, watched in full by the operator, no folder
+      picker appeared; DCIM isolation supported by source
+      inspection (qualified, not a filesystem trace). Paste-back
+      remains a summary (full output + `adb devices` output not
+      pasted) — recorded as gaps, not invented.
 - [x] **S2 — Native rename port** (`S2-NATIVE-RENAME-PORT.md` §7).
       `vision-core` rename package green on JVM (38 rename tests,
       6 goldens replayed byte-identical), `parity_probe.py` still
