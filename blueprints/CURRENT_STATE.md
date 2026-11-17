@@ -62,11 +62,14 @@
   probe Dart-path fix + chain-execution assertion; pytest 30 passed
   (18 + 12), flake8 clean, CI pass.
 - **Remaining limitations (2026-11-17):** no Moto G coverage for
-  the S1 run; S3 revoke/re-pick unverified; S4 stage (c) live DCIM
+  the S1 run; S3 revoke/re-pick unverified; S4 stage (b)
+  copied-DCIM requirement unverified; S4 stage (c) live DCIM
   never run (needs Glenn's separate go-ahead); symlinks
   undetectable through SAF (`skippedSymlink` stays 0 on that path);
-  no native Gradle CI — only `python-app.yml`; S1 paste-back was a
-  summary (head commit + `adb devices` output not pasted).
+  no native Gradle CI — only `python-app.yml`; S1 terminal
+  transcripts, ADB device listing, and XML audit were supplied in
+  the operator conversation but have not yet been archived in
+  GitHub.
 - **Next:** S5 MP7 Viewer, on Glenn's nod. LICENSE is a separate
   owner decision (no LICENSE on main).
 

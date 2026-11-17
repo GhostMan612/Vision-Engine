@@ -46,11 +46,13 @@ canonical script has had since the beginning.
       **Implemented PR #6 (`undoRows` + `isRestorable`) with
       PR #7's candidate-URI fallback (manifest `content_uri`
       first, reconstructed path second).**
-- [x] First real-folder run is a Glenn-supervised smoke on a
+- [ ] First real-folder run is a Glenn-supervised smoke on a
       copied/quarantined DCIM folder — the way the original Python
       script was first tested — never on live DCIM first.
-      **Done: stages (a)/(b) green on B160V (see §8); stage (c)
-      live DCIM never run.**
+      **Stage (a) verified. S4B and S4C verified under their actual
+      synthetic-file and non-DCIM real-media scopes. The original
+      copied/quarantined DCIM stage (b) remains unverified. Live
+      DCIM stage (c) was not performed.**
 
 ## 2. Non-goals
 
