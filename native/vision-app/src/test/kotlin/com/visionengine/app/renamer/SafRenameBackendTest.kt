@@ -4,7 +4,7 @@
 // ============================================================
 package com.visionengine.app.renamer
 
-import android.content.ContentResolver
+import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -21,71 +21,74 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(RobolectricTestRunner::class)
 class SafRenameBackendTest {
     private lateinit var context: Context
     private lateinit var treeUri: Uri
+    private lateinit var provider: FakeDocsProvider
 
-    private var lastQueriedUri: Uri? = null
+    private class FakeDocsProvider : ContentProvider() {
+        var rows: List<String>? = null
+        var throwOnQuery: Exception? = null
+        var includeDisplayName: Boolean = true
+        var lastQueriedUri: Uri? = null
 
-    private fun resolverFor(
-        rows: List<String>?,
-        throwOnQuery: Exception? = null,
-        includeDisplayName: Boolean = true,
-    ): ContentResolver {
-        return object : ContentResolver(context) {
-            override fun query(
-                uri: Uri,
-                projection: Array<String>?,
-                selection: String?,
-                selectionArgs: Array<String>?,
-                sortOrder: String?,
-            ): Cursor? {
-                lastQueriedUri = uri
-                if (throwOnQuery != null) {
-                    throw throwOnQuery
-                }
-                if (rows == null) {
-                    return null
-                }
-                val cursor = MatrixCursor(
-                    if (includeDisplayName) {
-                        arrayOf(
-                            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                        )
-                    } else {
-                        arrayOf(
-                            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                        )
-                    },
-                )
-                for (name in rows) {
-                    cursor.addRow(arrayOf<Any?>(name))
-                }
-                return cursor
+        override fun onCreate(): Boolean = true
+
+        override fun query(
+            uri: Uri,
+            projection: Array<String>?,
+            selection: String?,
+            selectionArgs: Array<String>?,
+            sortOrder: String?,
+        ): Cursor? {
+            lastQueriedUri = uri
+            val toThrow = throwOnQuery
+            if (toThrow != null) {
+                throw toThrow
             }
-
-            override fun getType(uri: Uri): String? = null
-
-            override fun insert(
-                uri: Uri,
-                values: ContentValues?,
-            ): Uri? = null
-
-            override fun delete(
-                uri: Uri,
-                selection: String?,
-                selectionArgs: Array<String>?,
-            ): Int = 0
-
-            override fun update(
-                uri: Uri,
-                values: ContentValues?,
-                selection: String?,
-                selectionArgs: Array<String>?,
-            ): Int = 0
+            val currentRows = rows
+            if (currentRows == null) {
+                return null
+            }
+            val cursor = MatrixCursor(
+                if (includeDisplayName) {
+                    arrayOf(
+                        DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    )
+                } else {
+                    arrayOf(
+                        DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    )
+                },
+            )
+            for (name in currentRows) {
+                cursor.addRow(arrayOf<Any?>(name))
+            }
+            return cursor
         }
+
+        override fun getType(uri: Uri): String? = null
+
+        override fun insert(
+            uri: Uri,
+            values: ContentValues?,
+        ): Uri? = null
+
+        override fun delete(
+            uri: Uri,
+            selection: String?,
+            selectionArgs: Array<String>?,
+        ): Int = 0
+
+        override fun update(
+            uri: Uri,
+            values: ContentValues?,
+            selection: String?,
+            selectionArgs: Array<String>?,
+        ): Int = 0
     }
 
     private fun backendFor(
@@ -93,9 +96,11 @@ class SafRenameBackendTest {
         throwOnQuery: Exception? = null,
         includeDisplayName: Boolean = true,
     ): SafRenameBackend {
-        return SafRenameBackend(
-            resolverFor(rows, throwOnQuery, includeDisplayName),
-        )
+        provider.rows = rows
+        provider.throwOnQuery = throwOnQuery
+        provider.includeDisplayName = includeDisplayName
+        provider.lastQueriedUri = null
+        return SafRenameBackend(context.contentResolver)
     }
 
     private fun childrenUri(): Uri {
@@ -111,7 +116,11 @@ class SafRenameBackendTest {
         treeUri = Uri.parse(
             "content://com.example.docs/tree/primary%3APictures",
         )
-        lastQueriedUri = null
+        provider = FakeDocsProvider()
+        ShadowContentResolver.registerProvider(
+            "com.example.docs",
+            provider,
+        )
     }
 
     @Test
@@ -124,7 +133,7 @@ class SafRenameBackendTest {
                 "smoke_b.mp4",
             ),
         )
-        assertEquals(childrenUri(), lastQueriedUri)
+        assertEquals(childrenUri(), provider.lastQueriedUri)
     }
 
     @Test
