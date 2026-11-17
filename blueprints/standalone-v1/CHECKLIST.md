@@ -18,9 +18,9 @@
       commit `18c45c6` confirmed; observed second run BUILD
       SUCCESSFUL in 25s, watched in full by the operator, no folder
       picker appeared; DCIM isolation supported by source
-      inspection (qualified, not a filesystem trace). Paste-back
-      remains a summary (full output + `adb devices` output not
-      pasted) — recorded as gaps, not invented.
+      inspection (qualified, not a filesystem trace). Terminal
+      transcripts + `adb devices` output were supplied in the
+      operator conversation but are not yet archived in GitHub.
 - [x] **S2 — Native rename port** (`S2-NATIVE-RENAME-PORT.md` §7).
       `vision-core` rename package green on JVM (38 rename tests,
       6 goldens replayed byte-identical), `parity_probe.py` still
@@ -35,14 +35,19 @@
       `kotlinx-coroutines-core`, Glenn-approved, see S3 §11).
       NOT fully closed: lost-grant state + re-pick NOT device-proven
       (revoke run never done). PR #5, merged 2026-11-16 (`2223beb`).
-- [x] **S4 — Renamer screen** (`S4-RENAMER-SCREEN.md` §6). Preview
+- [~] **S4 — Renamer screen** (`S4-RENAMER-SCREEN.md` §6). Preview
       dry-run proven (zero disk changes); staged smoke (a) app files
-      and (b) copied/quarantined DCIM green with pasted reports;
-      manifest honest + app-private; undo restores exactly what
-      renamed. Live DCIM is NOT part of this exit — separate
-      Glenn-approved event. PR #6, merged 2026-11-17 (`5ea6c2c`),
-      + PR #7 fix, merged 2026-11-17 (`b0d2b36`); S4B synthetic +
-      S4C real-media rename/Undo passed on B160V at PR #7 head
+      green with a pasted report; manifest honest + app-private;
+      undo restores exactly what renamed. Stage (b) as specified
+      (copied/quarantined DCIM) NOT run — S4B zero-byte synthetics
+      and S4C real JPEG + screen-recording MP4 in
+      `Pictures/VE_TEST_S4C` passed Rename → Undo with unchanged
+      hashes, but no copied DCIM directory was tested, so the
+      original stage-(b) requirement remains UNVERIFIED unless the
+      operator authorizes a revised acceptance criterion. Live DCIM
+      is NOT part of this exit — separate Glenn-approved event.
+      PR #6, merged 2026-11-17 (`5ea6c2c`), + PR #7 fix, merged
+      2026-11-17 (`b0d2b36`); S4B/S4C passed on B160V at PR #7 head
       `4c444db`.
 - [ ] **S5 — MP7 Viewer** (`S5-MP7-VIEWER.md` §5). Grid + detail
       render from a picked folder; corrected dims, `—` for unknown,

@@ -194,8 +194,10 @@ Android 14 (ADB serial `7040016025040287`), instrumented XML
 reports independently checked. The head commit (`18c45c6`) and the
 §5.4 item 3 confirmation line ("no folder picker appeared and no
 DCIM was touched") were then confirmed by the operator the same
-day (see §13). **Gaps (do not invent):** the full terminal output
-and the `adb devices` output were not pasted.
+day (see §13). **Not yet archived in GitHub:** the full terminal
+output and the `adb devices` output were supplied in the operator
+conversation but are not yet archived in the repo (per GPT's
+independent review, 2026-11-17).
 
 ### 5.5 After the run — state update (separate, small commit or handoff note)
 
@@ -245,7 +247,9 @@ at the time)". Each step is cheap, reversible, and Glenn-side.
 - [ ] `adb devices` listed the Moto G as `device` before the run
       (§5.2). **Not met as written:** the run used the BLU B160V
       (hardware substitution, recorded in §13); the `adb devices`
-      output was not pasted. **Covered by the 2026-11-17 acceptance
+      output was supplied in the operator conversation but is not
+      yet archived in GitHub (per GPT's independent review,
+      2026-11-17). **Covered by the 2026-11-17 acceptance
       decision:** the Moto G requirement is satisfied through the
       explicitly documented B160V substitution, not a claim of
       Moto G testing.
@@ -263,7 +267,9 @@ at the time)". Each step is cheap, reversible, and Glenn-side.
       BUILD SUCCESSFUL, durations, device); the head commit was
       then confirmed as `18c45c6`, and the no-picker/no-DCIM
       confirmation was given (see §13). The full terminal output
-      and the `adb devices` output were not pasted.
+      and the `adb devices` output were supplied in the operator
+      conversation but are not yet archived in GitHub (per GPT's
+      independent review, 2026-11-17).
 - [x] All 13 tests passed (0 failures, 0 skipped).
       **2026-11-17, BLU B160V.**
 - [x] No folder picker appeared during the run; no DCIM touched
@@ -383,6 +389,9 @@ without re-running.
 - **Head commit (confirmed 2026-11-17):** `18c45c6` — the run was
   made from consolidated main at
   `18c45c68aa8a832b179aa6511dde2fa53c2f1514`.
+- **Run location:** `C:\Users\612co\vision-engine-main-20261117\native`
+  — a fresh worktree at `18c45c6`, not the divergent original
+  checkout `C:\vision engine`.
 - **Observed rerun:** a second run on the same device was
   `BUILD SUCCESSFUL` in 25 seconds; the operator watched the
   entire second run.
@@ -400,8 +409,11 @@ without re-running.
   B160V substitution, not through a claim of Moto G testing. No
   additional S1 device run is required for this substituted
   hardware acceptance.
-- **Gaps (do not invent):** the full terminal output and the
-  `adb devices` output were not pasted.
+- **Evidence not yet archived in GitHub:** per the operator
+  conversation (GPT independent review, 2026-11-17), the original
+  and repeat terminal transcripts, the ADB device listing, and the
+  XML audit were supplied there; they are not yet archived in the
+  repo. The exact head commit is recorded above.
 - **Status:** ACCEPTED 2026-11-17 (BLU B160V scope). Recorded in
   `blueprints/CURRENT_STATE.md` and `blueprints/CHECKLIST.md` by
   the 2026-11-17 documentation-reconciliation PR.

@@ -47,12 +47,14 @@
   preflight via parent enumeration (3 outcomes) + post-rename URI
   preserved for undo; 6 Robolectric backend tests; host gate green.
   Hardware acceptance on B160V at head `4c444db` (recorded as a
-  comment on PR #7): S4B synthetic rename/Undo passed, S4C
-  real-media rename/Undo passed, all four original files restored
-  with identical SHA-256, 41.5 MB MP4 byte-identical, SAF grants
-  survived reboot + same-signature reinstall, app-private manifests
-  survived reinstall, post-rename SAF document URI verified, no
-  live DCIM touched.
+  comment on PR #7): S4B synthetic rename/Undo passed (zero-byte
+  synthetic files, all four restored with identical SHA-256), S4C
+  real-media rename/Undo passed (a real nonempty JPEG and a
+  screen-recording MP4 copied into `Pictures/VE_TEST_S4C`, 41.5 MB
+  MP4 byte-identical), SAF grants survived reboot + same-signature
+  reinstall, app-private manifests survived reinstall, post-rename
+  SAF document URI verified, no live DCIM touched. No copied DCIM
+  directory was tested; that requirement remains unverified.
 - **PR #8 Python safety residuals (merged 2026-11-17,
   `18c45c6`):** exclusive manifest creation (mode `"x"` +
   pre-check), manifest alias guard (exit 2), dependency-aware undo

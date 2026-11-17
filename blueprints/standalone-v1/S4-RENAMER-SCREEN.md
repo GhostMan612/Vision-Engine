@@ -94,10 +94,10 @@ canonical script has had since the beginning.
   complete first — the slice order is S1 → S2 → S3 → S4 for a reason,
   and S4's device smoke (§8) assumes the pipeline underneath it is
   already device-proved.
-  **Met in substance 2026-11-17:** the MP6 suite ran 13/13 PASS on
-  BLU B160V (hardware substitution for the Moto G; see S1 doc §13).
-  Note: S1 is not fully closed — its self-containment confirmation
-  is still PENDING operator confirmation.
+  **Met 2026-11-17:** the MP6 suite ran 13/13 PASS on BLU B160V
+  (hardware substitution for the Moto G; see S1 doc §13), and S1
+  was ACCEPTED the same day for the tested BLU B160V hardware
+  scope.
 - RECOMMENDATION: if S2 or S3 slips, S4 waits. Do not stub a rename
   engine inside the app module "temporarily" — a temporary engine
   becomes the drift the canonical rule exists to prevent (see §4).
@@ -408,9 +408,15 @@ canonical script has had since the beginning.
   blueprint §1.F, §10).
 - Host: Android Lint on `:vision-app` — no new warnings.
 - Host: manifest permission diff + no-INTERNET grep gate (as S3 §7).
-- Device: §8 staged smoke runs (a) and (b) complete with pasted
-  reports. Stage (c) — live DCIM — is explicitly NOT a gate for
-  this slice; it is a separate Glenn-approved event afterwards.
+- Device: §8 staged smoke run (a) complete with a pasted report.
+  Run (b) as specified (copied/quarantined DCIM) is NOT complete:
+  S4B (zero-byte synthetics) and S4C (real JPEG + screen-recording
+  MP4 in `Pictures/VE_TEST_S4C`) passed Rename → Undo with
+  unchanged hashes, but no copied DCIM directory was tested, so
+  the original stage-(b) requirement remains UNVERIFIED unless
+  the operator authorizes a revised acceptance criterion.
+  Stage (c) — live DCIM — is explicitly NOT a gate for this slice;
+  it is a separate Glenn-approved event afterwards.
 - Human gate: Glenn reviews the PR diff and the pasted device
   reports; the Q1/Q2 answers are recorded in the PR body.
 
@@ -433,14 +439,18 @@ child URI and ExternalStorageProvider threw
 0 renamed. Manifest honestly recorded the VID row `skipped`.
 **Fixed by PR #7; re-run as S4B below.**
 
-**Stage (b) — S4B synthetic + S4C real-media (fresh folder
-`Pictures/VE_TEST_S4B`, same 4 seeds, then real camera files).**
-**Result: S4B synthetic rename/Undo PASSED; S4C real-media
-rename/Undo PASSED.** All four original files restored with
-identical SHA-256 hashes; 41.5 MB MP4 preserved byte-for-byte; SAF
-grants survived reboot + same-signature reinstall; app-private
-manifests survived reinstall; post-rename SAF document URI
-verified; no live DCIM touched.
+**Stage (b) — copied/quarantined DCIM — NOT TESTED as specified.**
+No copied DCIM directory was run. What ran instead is recorded
+here under its actual scope. **S4B:** zero-byte synthetic files in
+a fresh folder; rename/Undo PASSED, all four original files
+restored with identical SHA-256 hashes. **S4C:** a real nonempty
+JPEG and a screen-recording MP4 copied into
+`Pictures/VE_TEST_S4C`; rename/Undo PASSED with unchanged hashes;
+the 41.5 MB MP4 preserved byte-for-byte. SAF grants survived
+reboot + same-signature reinstall; app-private manifests survived
+reinstall; post-rename SAF document URI verified; no live DCIM
+touched. The original copied-DCIM requirement remains UNVERIFIED
+unless the operator authorizes a revised acceptance criterion.
 
 **Stage (c) — live DCIM.** **NOT RUN.** Requires (a) and (b) green
 plus Glenn's explicit go-ahead in chat. When it happens, it follows
