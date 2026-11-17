@@ -70,7 +70,7 @@ class RenamerScreenTest {
     private fun backendFor(vararg names: String): FakeRenameBackend {
         val backend = FakeRenameBackend(
             newUriOf = { _, newName ->
-                destinationDocumentUri(treeUri, "primary:Pictures", newName)
+                documentUriForPath(treeUri, "primary:Pictures/$newName")
             },
         )
         for (name in names) {

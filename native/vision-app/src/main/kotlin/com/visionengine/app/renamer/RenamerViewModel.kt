@@ -250,7 +250,6 @@ class RenamerViewModel(
         grant: GrantEntry,
         docId: String,
     ) {
-        val treeUri = Uri.parse(grant.uri)
         val backend = backendFactory(resolver)
         val (ordered, cyclic) = executionOrder(report.planned)
         val result = withContext(Dispatchers.IO) {
@@ -258,9 +257,8 @@ class RenamerViewModel(
                 ordered = ordered,
                 cyclic = cyclic,
                 sourceUriOf = { op -> lastContentUris[op.srcPath] ?: "" },
-                destinationUriOf = { op ->
-                    destinationDocumentUri(treeUri, docId, op.newName)
-                },
+                treeUri = grant.uri,
+                treeDocumentId = docId,
                 backend = backend,
             )
         }
@@ -268,9 +266,13 @@ class RenamerViewModel(
         _previewFresh.value = false
         val epoch = System.currentTimeMillis()
         val file = File(filesDir, "renames_$epoch.csv")
+        val manifestContentUris = lastContentUris.toMutableMap()
+        for ((op, uri) in result.renamedUris) {
+            manifestContentUris[op.srcPath] = uri
+        }
         val csv = manifestToCsv(
             report.planned,
-            lastContentUris,
+            manifestContentUris,
             executed = true,
             renamedOps = result.renamedOps,
         )
@@ -356,12 +358,18 @@ class RenamerViewModel(
         val result = withContext(Dispatchers.IO) {
             undoRows(
                 rows = rows,
-                documentUriOf = { row ->
-                    documentUriForPath(treeUri, row.newPath)
+                documentUrisOf = { row ->
+                    val candidates = mutableListOf<String>()
+                    if (row.contentUri.isNotEmpty()) {
+                        candidates.add(row.contentUri)
+                    }
+                    candidates.add(
+                        documentUriForPath(treeUri, row.newPath),
+                    )
+                    candidates
                 },
-                destinationUriOf = { row ->
-                    documentUriForPath(treeUri, row.originalPath)
-                },
+                treeUri = grant.uri,
+                treeDocumentId = docId,
                 backend = backend,
             )
         }
