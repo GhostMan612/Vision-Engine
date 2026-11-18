@@ -673,6 +673,32 @@ is wiring only:
    by construction; the `ParcelFileDescriptor` hop over Binder
    to the app process is the standard ContentProvider
    mechanism. Test APK only, never ships.
+10. Descriptor-opener seam (host-gate attempt 3, P0 preflight,
+    2026-11-17): `MediaPipeline` and
+    `AndroidMetadataExtractor` take a defaulted constructor
+    parameter `openDescriptor: (Uri) ->
+    ParcelFileDescriptor? = { uri ->
+    resolver.openFileDescriptor(uri, "r") }`, and all four
+    descriptor-open sites call it instead of the resolver
+    directly. Justification: reliable observation of
+    caller-owned descriptor closure is not possible test-only.
+    A `ContentResolver` subclass cannot intercept the opens —
+    `openFileDescriptor(Uri, String)` is `public final` in
+    AOSP `ContentResolver.java` (L3133; the
+    `CancellationSignal` overload is final at L3226), and
+    `ContentResolver` has no public `getContext()` — so the
+    first attempt at a tracking resolver subclass would not
+    compile. The resolver also returns a different
+    `ParcelFileDescriptor` wrapper than the provider's
+    instance (canary-proven), so provider-side validity is not
+    a closure signal under Robolectric's Parcel transport, and
+    Robolectric exposes no public API to track the descriptors
+    a pipeline receives. With the default, production behavior
+    is unchanged (same resolver call, same mode, same sites);
+    tests inject a tracking lambda that records every
+    descriptor the pipeline actually receives and delegates to
+    the real resolver, and `allDescriptorsClosed()` checks
+    those caller-owned descriptors.
 
 ### Decided questions (see §10)
 
