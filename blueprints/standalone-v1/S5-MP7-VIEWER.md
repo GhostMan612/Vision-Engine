@@ -756,6 +756,49 @@ is wiring only:
     corrupt thumbnail bytes are null, not only the failed
     status and reason. Test-only; no production decoding
     change and no file-signature restriction.
+13. App-layer fixes (host-gate attempt 7, 2026-11-17):
+    (a) Fixture: `ve_minimal.mp4` was missing from
+    `vision-app/src/test/resources/fixtures` (only
+    `ve_thumb.jpg` was there), so `ViewerScreenTest` setUp
+    threw `IllegalStateException("missing fixture")` and all
+    six screen tests failed before running. The 150-byte
+    fixture is copied byte-identical from the vision-android
+    test resources (md5
+    `19b91b1099a564c87d30fc868a2009f7`); the screen test's fake
+    provider gets the same `ProviderInfo` / `attachInfo`
+    initialization as the corrected `UriPipelineTest`, so
+    `openFileDescriptor` reaches its `openFile`.
+    (b) Load-Job ownership: `openFolder` / `loadMore` stored
+    the caller's `Job` as `loadJob`, so `onFoldersChanged`
+    cancelling it cancelled the caller's scope (in tests, the
+    `runBlocking` parent). `loadJob` now holds the `Job` of a
+    `coroutineScope` owned by the load invocation, a child of
+    the caller; cancelling it stops only the Viewer load. The
+    load body moves to `openFolderLocked` unchanged apart
+    from that split; `onFoldersChanged`, `onViewerHidden`
+    and `onCleared` are unchanged and now cancel only the
+    owned `Job`. Three regression tests pin it: folder
+    changes after a completed load leave the calling scope
+    active, and a folder change during a slow load stops the
+    load (records published, thumbs pending) with records
+    preserved. (c) Screen-test corrections found while
+    verifying the tests can pass past setup: strict legacy
+    decoding in `ViewerScreenTest` (attempt-6 mechanism) so
+    the corrupt thumbnail fails; a fifth grid row `gone.jpg`
+    with no provider file, whose probe is genuinely
+    `unreadable`, so the 'Could not read this file' marker
+    renders (bad.jpg probes `partial`, so no four-row record
+    could show it); `onNodeWithText("Photo")` requires
+    exactly one matching node per the Compose source, so the
+    kind-badge assertion becomes
+    `onAllNodesWithText("Photo").assertCountEquals(3)`.
+    Known adjacent wart, not fixed here: the generic
+    `catch (e: Exception)` blocks in the discovery/load
+    paths still swallow `CancellationException` (the work
+    still stops via the generation guards plus
+    `ensureActive` checkpoints, but a load cancelled during
+    discovery can surface as an error instead of a clean
+    cancellation).
 
 ### Decided questions (see §10)
 
