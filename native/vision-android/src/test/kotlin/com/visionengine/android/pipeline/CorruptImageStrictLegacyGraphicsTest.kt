@@ -5,16 +5,29 @@
 package com.visionengine.android.pipeline
 
 import com.visionengine.android.thumbs.PhotoThumbs
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowBitmapFactory
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
-class CorruptImageNativeGraphicsTest {
+@GraphicsMode(GraphicsMode.Mode.LEGACY)
+class CorruptImageStrictLegacyGraphicsTest {
+    @Before
+    fun strictDecoding() {
+        ShadowBitmapFactory.setAllowInvalidImageData(false)
+    }
+
+    @After
+    fun restoreDecoding() {
+        ShadowBitmapFactory.setAllowInvalidImageData(true)
+    }
+
     @Test
     fun decodeThumbnailRejectsBadJpgBytes() {
         val decoded = PhotoThumbs.decodeThumbnail(

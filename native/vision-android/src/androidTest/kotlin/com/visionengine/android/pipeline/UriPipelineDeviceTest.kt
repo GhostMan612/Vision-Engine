@@ -90,6 +90,7 @@ class UriPipelineDeviceTest {
         val thumb = pipeline.thumbnailFor(records.single())
         assertEquals(ThumbStatus.failed, thumb.info.status)
         assertEquals("decode failed", thumb.info.reason)
+        assertNull(thumb.bytes)
     }
 
     @Test

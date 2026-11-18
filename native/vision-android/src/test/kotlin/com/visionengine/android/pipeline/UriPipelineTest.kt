@@ -23,6 +23,7 @@ import com.visionengine.core.ThumbStatus
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -34,9 +35,11 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowBitmapFactory
 import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.LEGACY)
 class UriPipelineTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
@@ -104,6 +107,7 @@ class UriPipelineTest {
 
     @Before
     fun stage() {
+        ShadowBitmapFactory.setAllowInvalidImageData(false)
         dir = temporaryFolder.newFolder("VE_URI")
         stageAsset("ve_thumb.jpg", "IMG_b.jpg")
         stageAsset("ve_minimal.mp4", "VID_a.mp4")
@@ -136,6 +140,11 @@ class UriPipelineTest {
             context.contentResolver,
             openDescriptor = trackingOpener,
         )
+    }
+
+    @After
+    fun restoreDecoding() {
+        ShadowBitmapFactory.setAllowInvalidImageData(true)
     }
 
     @Test
@@ -362,7 +371,7 @@ class UriPipelineTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @GraphicsMode(GraphicsMode.Mode.LEGACY)
     fun uriDescriptorClosesOnDecodeFailure() {
         val records = pipeline.loadPage(
             listOf(uriSource("bad.jpg", MediaKind.photo, "image/jpeg")),
