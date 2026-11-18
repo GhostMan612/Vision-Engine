@@ -452,7 +452,7 @@ is wiring only:
   first page's thumbnail cache (a fresh instance does not).
   Descriptors are asserted closed (`fileDescriptor.valid ==
   false`) on every success and failure path.
-- `ViewerViewModelTest.kt` (vision-app, Robolectric) — 14 tests
+- `ViewerViewModelTest.kt` (vision-app, Robolectric) — 20 tests
   with a fake pipeline + scripted discovery: healthy open with
   counts, lost grant blocks load, empty folder, discovery
   failure, discovery `SecurityException` → grant lost,
@@ -464,18 +464,26 @@ is wiring only:
   bitmap retention bound (15 records → 12 retained, oldest
   evicted, evicted record restores on demand),
   tab-hide cancels in-flight work (records stay, thumbs
-  pending).
+  pending), folder changes leave the calling scope active
+  (lost and missing cases) and cancel an in-flight load with
+  records preserved (3 ownership regressions), plus 3
+  cancellation-propagation regressions (latch-gated
+  cancellation during discovery, page loading, and thumbnail
+  fetching: no error set, loading false, calling scope
+  survives, records pending where the load never completed
+  them).
 - `ViewerScreenTest.kt` (vision-app, Robolectric + Compose) — 6
   tests with the real pipeline + fake provider: empty state,
-  lost-grant state, grid + photo detail (corrected dims, six
-  "—", provenance counts 3 exif / 2 filesystem, Strip button
-  displayed + disabled, Back returns to grid), video detail
-  opens (rotation-tag badge asserted), empty folder,
+  lost-grant state, grid + photo detail (corrected dims, five
+  "—", provenance counts 4 exif / 2 filesystem, Make "THUMB",
+  Strip button displayed + disabled, Back returns to grid),
+  video detail opens (rotation-tag badge asserted), empty folder,
   all-unsupported cells + counts.
 - `UriPipelineDeviceTest.kt` + `TestDocsProvider` (instrumented)
   — 4 tests: URI photo probe + thumb on device, URI video probe
-  + thumb unavailable on device, corrupt photo unreadable on
-  device, sources untouched. The test provider is declared in a
+  + thumb unavailable on device, corrupt photo partial on
+  device (probe `partial`, thumb `failed`, bytes null), sources
+  untouched. The test provider is declared in a
   new `src/androidTest/AndroidManifest.xml` (`exported="true"`,
   test APK only, never ships).
 - `AppRootTest.kt` — 1 new test: the Viewer tab renders the
@@ -527,7 +535,7 @@ is wiring only:
 ### Host-gate-only (not run here)
 
 - All Robolectric + Compose tests above (UriPipelineTest 10,
-  ViewerViewModelTest 14, ViewerScreenTest 6, AppRootTest 1
+  ViewerViewModelTest 20, ViewerScreenTest 6, AppRootTest 1
   new + 1 existing, PipelineTest 7 incl. the renamed test),
   the vision-android unit suite, and `lintDebug`.
 - The instrumented `UriPipelineDeviceTest` (4 tests) — runs on
@@ -843,6 +851,25 @@ is wiring only:
     reads exactly as "SYNTHETIC"). Correct production
     behavior; test-only correction, no fixture, generator,
     or JPEG change.
+17. Cancellation propagation (attempt 11, pre-device
+    hardening, 2026-11-18): the three generic
+    `catch (e: Exception)` handlers in `ViewerViewModel`
+    (`openFolderLocked` discovery, `loadNextPageLocked`
+    page fetch, `loadNextPageLocked` thumbnail fetch) now
+    explicitly rethrow `CancellationException` before the
+    generic catch. The discovery handler clears `_loading`
+    when the generation still matches, so a load cancelled
+    during discovery stops with loading false and no false
+    read-error; the page and thumbnail handlers rely on
+    `loadNextPage`'s generation-guarded `finally` for the
+    loading flag, and a thumbnail cancelled mid-fetch is
+    never marked failed. The `SecurityException` handling
+    and ordinary failure behavior are unchanged. Three
+    deterministic regression tests (latch-gated discovery,
+    page, and thumbnail cancellation) pin it: no error set,
+    loading false, calling scope survives, records pending
+    where the load never completed them. `ViewerViewModelTest`
+    grows 17 → 20 tests; total new tests 50 → 53.
 
 ### Decided questions (see §10)
 

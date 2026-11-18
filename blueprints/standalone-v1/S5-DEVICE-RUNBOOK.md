@@ -59,8 +59,9 @@ Run, from the worktree's `native/` directory:
 Expected: `UriPipelineDeviceTest` 4/4 PASS — URI photo probe +
 thumb on device (orientation 6, 16×24 corrected, 256×384 thumb,
 cache hit on second call), URI video probe + thumb unavailable
-on the trackless fixture (duration 0), corrupt photo unreadable
-+ thumb failed, sources untouched (snapshot identical). The suite
+on the trackless fixture (duration 0), corrupt photo partial
+(metadata `partial`, thumb `failed`, bytes null), sources
+untouched (snapshot identical). The suite
 stages bundled synthetic fixtures in the instrumentation
 (test) context's private `ve_mp7` directory — NOT the target
 app's private dir — so the test provider's file read does not
