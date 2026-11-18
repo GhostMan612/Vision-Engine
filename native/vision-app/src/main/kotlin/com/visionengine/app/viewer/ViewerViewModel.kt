@@ -265,9 +265,10 @@ class ViewerViewModel(
             if (generation != loadGeneration) {
                 return
             }
-            val bitmap = if (fetched.bytes != null) {
+            val bytes = fetched.bytes
+            val bitmap = if (bytes != null) {
                 withContext(Dispatchers.IO) {
-                    decodeThumbBytes(fetched.bytes)
+                    decodeThumbBytes(bytes)
                 }
             } else {
                 null
@@ -276,12 +277,12 @@ class ViewerViewModel(
             if (generation != loadGeneration) {
                 return
             }
-            val status = if (fetched.bytes != null && bitmap == null) {
+            val status = if (bytes != null && bitmap == null) {
                 ThumbStatus.failed
             } else {
                 fetched.info.status
             }
-            val reason = if (fetched.bytes != null && bitmap == null) {
+            val reason = if (bytes != null && bitmap == null) {
                 "decode failed"
             } else {
                 fetched.info.reason
@@ -315,9 +316,10 @@ class ViewerViewModel(
                 activePipeline.thumbnailFor(viewerRecord.record)
             }
             currentCoroutineContext()[Job]?.ensureActive()
-            val bitmap = if (fetched.bytes != null) {
+            val bytes = fetched.bytes
+            val bitmap = if (bytes != null) {
                 withContext(Dispatchers.IO) {
-                    decodeThumbBytes(fetched.bytes)
+                    decodeThumbBytes(bytes)
                 }
             } else {
                 null

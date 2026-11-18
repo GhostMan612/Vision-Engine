@@ -302,7 +302,7 @@ class UriPipelineTest {
 
     private fun allDescriptorsClosed(): Boolean {
         return provider.opened.isNotEmpty() &&
-            provider.opened.all { !it.fileDescriptor.valid }
+            provider.opened.all { !it.fileDescriptor.valid() }
     }
 
     private fun stageAsset(asset: String, name: String) {
