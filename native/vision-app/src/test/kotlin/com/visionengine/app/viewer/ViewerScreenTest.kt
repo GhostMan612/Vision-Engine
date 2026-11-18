@@ -20,6 +20,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.visionengine.android.saf.DisplayNameSource
 import com.visionengine.android.saf.FolderState
@@ -252,17 +253,42 @@ class ViewerScreenTest {
             .onNodeWithText("Could not read this file")
             .assertIsDisplayed()
         composeRule.onNodeWithText("IMG_b.jpg").performClick()
-        composeRule.onNodeWithText("Width").assertIsDisplayed()
-        composeRule.onNodeWithText("16").assertIsDisplayed()
-        composeRule.onNodeWithText("Height").assertIsDisplayed()
-        composeRule.onNodeWithText("24").assertIsDisplayed()
-        composeRule.onNodeWithText("Orientation").assertIsDisplayed()
-        composeRule.onNodeWithText("6").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Width")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("16")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Height")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("24")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Orientation")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("6")
+            .performScrollTo()
+            .assertIsDisplayed()
         composeRule
             .onNodeWithText("Raw 24×16 · orientation tag 6")
+            .performScrollTo()
             .assertIsDisplayed()
-        composeRule.onNodeWithText("File size").assertIsDisplayed()
-        composeRule.onNodeWithText("194 B").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("File size")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("194 B")
+            .performScrollTo()
+            .assertIsDisplayed()
         composeRule
             .onAllNodesWithText("—")
             .assertCountEquals(6)
@@ -274,11 +300,15 @@ class ViewerScreenTest {
             .assertCountEquals(2)
         composeRule
             .onNodeWithText("Strip GPS — Phase 3")
+            .performScrollTo()
             .assertIsDisplayed()
         composeRule
             .onNodeWithText("Strip GPS — Phase 3")
             .assertIsNotEnabled()
-        composeRule.onNodeWithText("Back").performClick()
+        composeRule
+            .onNodeWithText("Back")
+            .performScrollTo()
+            .performClick()
         composeRule.onNodeWithText("IMG_b.jpg").assertIsDisplayed()
     }
 
@@ -292,8 +322,12 @@ class ViewerScreenTest {
         composeRule.onNodeWithText("Duration").assertIsDisplayed()
         composeRule
             .onNodeWithText("rotation tag 0", substring = true)
+            .performScrollTo()
             .assertIsDisplayed()
-        composeRule.onNodeWithText("Back").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Back")
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
