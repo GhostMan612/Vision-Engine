@@ -830,6 +830,19 @@ is wiring only:
     the size known, the existing assertions hold as
     written: "194 B", six unknown values, three exif and
     two filesystem provenance nodes.
+16. Fixture Make tag (host-gate attempt 10, 2026-11-18):
+    `tools/make_fixtures.py` `build_thumb_jpeg()` writes
+    Make = `b"THUMB\x00"` into EXIF tag 0x010F, so the
+    thumbnail fixture has four known EXIF fields (Make,
+    Orientation, Width, Height), not three. The screen
+    test counts five unknown values, four exif and two
+    filesystem provenance nodes, and asserts Make /
+    "THUMB" positively. AndroidX ExifInterface strips the
+    trailing NUL (proven by the existing ExifReaderTest,
+    which asserts the ve_exif.jpg Make `b"SYNTHETIC\x00"`
+    reads exactly as "SYNTHETIC"). Correct production
+    behavior; test-only correction, no fixture, generator,
+    or JPEG change.
 
 ### Decided questions (see §10)
 
