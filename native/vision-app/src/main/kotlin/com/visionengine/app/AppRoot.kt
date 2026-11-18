@@ -119,6 +119,12 @@ fun AppRoot(
     val folders = deriveFolderStates(entries, persistedUris, lastDiscovery)
     var repickTarget by remember { mutableStateOf<String?>(null) }
     var tab by remember { mutableStateOf(0) }
+    fun selectTab(next: Int) {
+        if (tab == 2 && next != 2) {
+            viewer.onViewerHidden()
+        }
+        tab = next
+    }
     val scope = rememberCoroutineScope()
     val pickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -152,13 +158,13 @@ fun AppRoot(
                 Text(text = state.appName)
                 Text(text = if (state.ready) "Native foundation ready" else "Starting")
                 Row {
-                    Button(onClick = { tab = 0 }) {
+                    Button(onClick = { selectTab(0) }) {
                         Text(text = "Folders")
                     }
-                    Button(onClick = { tab = 1 }) {
+                    Button(onClick = { selectTab(1) }) {
                         Text(text = "Renamer")
                     }
-                    Button(onClick = { tab = 2 }) {
+                    Button(onClick = { selectTab(2) }) {
                         Text(text = "Viewer")
                     }
                 }

@@ -64,6 +64,30 @@ private fun labeled(
     field: DetailField,
 ): DetailField = DetailField(label, field.value, field.provenance)
 
+fun photoOrientationBadge(photo: PhotoMeta): String? {
+    val orientation = photo.orientation.value ?: return null
+    val rawWidth = photo.widthRaw.value
+    val rawHeight = photo.heightRaw.value
+    val raw = if (rawWidth != null && rawHeight != null) {
+        "$rawWidth×$rawHeight"
+    } else {
+        UNKNOWN_VALUE
+    }
+    return "Raw $raw · orientation tag $orientation"
+}
+
+fun videoRotationBadge(video: VideoMeta): String? {
+    val rotation = video.rotation.value ?: return null
+    val rawWidth = video.widthRaw.value
+    val rawHeight = video.heightRaw.value
+    val raw = if (rawWidth != null && rawHeight != null) {
+        "$rawWidth×$rawHeight"
+    } else {
+        UNKNOWN_VALUE
+    }
+    return "Raw $raw · rotation tag $rotation"
+}
+
 fun photoDetailFields(photo: PhotoMeta): List<DetailField> {
     return listOf(
         labeled(

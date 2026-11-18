@@ -25,10 +25,12 @@ import com.visionengine.core.ThumbStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import java.util.Collections
 
 data class ViewerRecord(
     val record: MediaRecord,
@@ -54,6 +56,7 @@ class ViewerViewModel(
 ) : ViewModel() {
     companion object {
         const val PAGE_SIZE = 50
+        const val MAX_RETAINED_BITMAPS = 12
     }
 
     private val _selectedGrant = MutableStateFlow<GrantEntry?>(null)
@@ -83,9 +86,13 @@ class ViewerViewModel(
         _selectedRecord.asStateFlow()
 
     private var loadJob: Job? = null
+    @Volatile
     private var loadGeneration: Int = 0
     private var lastSources: List<MediaSource> = emptyList()
     private var loadedCount: Int = 0
+    private var pipeline: ViewerPipeline? = null
+    private val restoringThumbs: MutableSet<String> =
+        Collections.synchronizedSet(mutableSetOf())
 
     fun onFoldersChanged(folders: List<FolderState>) {
         val selected = _selectedGrant.value ?: return
@@ -154,6 +161,7 @@ class ViewerViewModel(
             return
         }
         lastSources = outcome.sources
+        pipeline = pipelineFactory(resolver)
         _counts.value = ViewerCounts(
             photos = outcome.sources.count { it.kind == MediaKind.photo },
             videos = outcome.sources.count { it.kind == MediaKind.video },
@@ -200,10 +208,28 @@ class ViewerViewModel(
         resolver: ContentResolver,
         generation: Int,
     ) {
-        val pipeline = pipelineFactory(resolver)
+        val activePipeline = pipeline ?: pipelineFactory(resolver).also {
+            pipeline = it
+        }
+        var published = 0
         val page = try {
             withContext(Dispatchers.IO) {
-                pipeline.loadPage(lastSources, loadedCount, PAGE_SIZE)
+                activePipeline.loadPage(
+                    lastSources,
+                    loadedCount,
+                    PAGE_SIZE,
+                ) { record ->
+                    if (generation == loadGeneration) {
+                        published++
+                        _records.value = _records.value +
+                            ViewerRecord(
+                                record,
+                                ThumbStatus.pending,
+                                null,
+                                null,
+                            )
+                    }
+                }
             }
         } catch (e: Exception) {
             if (generation == loadGeneration) {
@@ -215,20 +241,16 @@ class ViewerViewModel(
         if (generation != loadGeneration) {
             return
         }
+        loadedCount += published
+        _hasMore.value = loadedCount < lastSources.size
         if (page.isEmpty()) {
             _hasMore.value = false
             return
         }
-        loadedCount += page.size
-        _hasMore.value = loadedCount < lastSources.size
-        val staged = page.map {
-            ViewerRecord(it, ThumbStatus.pending, null, null)
-        }
-        _records.value = _records.value + staged
         for (index in page.indices) {
             val fetched = try {
                 withContext(Dispatchers.IO) {
-                    pipeline.thumbnailFor(page[index])
+                    activePipeline.thumbnailFor(page[index])
                 }
             } catch (e: Exception) {
                 ThumbFetch(
@@ -276,6 +298,43 @@ class ViewerViewModel(
         _selectedRecord.value = null
     }
 
+    fun onViewerHidden() {
+        loadJob?.cancel()
+        loadGeneration++
+        _loading.value = false
+    }
+
+    suspend fun restoreThumb(viewerRecord: ViewerRecord) {
+        val id = viewerRecord.record.source.id
+        if (!restoringThumbs.add(id)) {
+            return
+        }
+        try {
+            val activePipeline = pipeline ?: return
+            val fetched = withContext(Dispatchers.IO) {
+                activePipeline.thumbnailFor(viewerRecord.record)
+            }
+            currentCoroutineContext()[Job]?.ensureActive()
+            val bitmap = if (fetched.bytes != null) {
+                withContext(Dispatchers.IO) {
+                    decodeThumbBytes(fetched.bytes)
+                }
+            } else {
+                null
+            }
+            if (bitmap != null) {
+                updateRecord(
+                    id,
+                    fetched.info.status,
+                    bitmap,
+                    fetched.info.reason,
+                )
+            }
+        } finally {
+            restoringThumbs.remove(id)
+        }
+    }
+
     fun dismissError() {
         _error.value = null
     }
@@ -310,6 +369,37 @@ class ViewerViewModel(
                 thumbReason = reason,
             )
         }
+        if (bitmap != null) {
+            enforceBitmapCap(sourceId)
+        }
+    }
+
+    private fun enforceBitmapCap(keepId: String) {
+        val selectedId = _selectedRecord.value?.record?.source?.id
+        var retained = _records.value.count { it.thumbBitmap != null }
+        if (retained <= MAX_RETAINED_BITMAPS) {
+            return
+        }
+        for (viewerRecord in _records.value) {
+            if (retained <= MAX_RETAINED_BITMAPS) {
+                return
+            }
+            val id = viewerRecord.record.source.id
+            if (viewerRecord.thumbBitmap == null ||
+                id == keepId ||
+                id == selectedId
+            ) {
+                continue
+            }
+            _records.value = _records.value.map {
+                if (it.record.source.id == id) {
+                    it.copy(thumbBitmap = null)
+                } else {
+                    it
+                }
+            }
+            retained--
+        }
     }
 
     private fun decodeThumbBytes(bytes: ByteArray): Bitmap? {
@@ -329,6 +419,7 @@ class ViewerViewModel(
         _selectedRecord.value = null
         lastSources = emptyList()
         loadedCount = 0
+        pipeline = null
     }
 }
 

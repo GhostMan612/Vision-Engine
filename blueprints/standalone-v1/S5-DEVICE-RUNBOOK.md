@@ -61,8 +61,23 @@ thumb on device (orientation 6, 16×24 corrected, 256×384 thumb,
 cache hit on second call), URI video probe + thumb unavailable
 on the trackless fixture (duration 0), corrupt photo unreadable
 + thumb failed, sources untouched (snapshot identical). The suite
-stages bundled synthetic fixtures in app-private `ve_mp7`; it
-touches no user media and no DCIM.
+stages bundled synthetic fixtures in the instrumentation
+(test) context's private `ve_mp7` directory — NOT the target
+app's private dir — so the test provider's file read does not
+depend on the test process sharing the app UID.
+`TestDocsProvider` has no `android:process`, so it runs in the
+test APK's default process, the SAME process as the
+instrumented test code, and the static
+`TestDocsProvider.root` sharing is valid by construction, not
+cross-process. The cross-process hop is the
+`ParcelFileDescriptor` over Binder to the app process, the
+standard ContentProvider mechanism. The provider fails loud
+(`FileNotFoundException` "no root") if the root is unset.
+
+The 4 instrumented cases validate URI processing on device.
+They do NOT replace the real picked-folder smoke in Step 3 —
+the smoke over a genuinely picked folder is still required
+evidence, and G2 stays open until both pass.
 
 Also re-run the S1 MP6 suite in the same session (regression):
 `ExtractorDeviceTest` 6/6, `ThumbsDeviceTest` 6/6,

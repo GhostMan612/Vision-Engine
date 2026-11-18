@@ -60,11 +60,14 @@ class MediaPipeline(
         sources: List<MediaSource>,
         offset: Int,
         limit: Int,
+        onRecord: ((MediaRecord) -> Unit)?,
     ): List<MediaRecord> {
         val page = pageOf(sources, offset = offset, limit = limit)
         val records = mutableListOf<MediaRecord>()
         for (index in page.indices) {
-            records.add(recordFor(page[index], offset + index))
+            val record = recordFor(page[index], offset + index)
+            onRecord?.invoke(record)
+            records.add(record)
         }
         return records
     }

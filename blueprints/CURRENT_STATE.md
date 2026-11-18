@@ -70,14 +70,23 @@
   photo cap, 512 video maxSide, 100 / 32 MB cache); new
   `ViewerPipeline` interface, `DetailFields.kt` (11 photo / 10
   video fields, corrected dims, `—` for unknown, provenance
-  chip per row), `ViewerViewModel` (page size 50, generation-
-  guarded cancellation, grant-lost keeps records), `ViewerScreen`
+  chip per row, raw-tag badge), `ViewerViewModel` (page size 50,
+  generation-guarded cancellation, grant-lost keeps records,
+  one retained pipeline across pages, progressive per-record
+  publishing, retained Bitmaps capped at 12 with restore on
+  demand, tab-hide cancellation), `ViewerScreen`
   (third tab, grid → detail, Strip GPS button disabled as
   Phase 3), instrumented `UriPipelineDeviceTest` (4 tests) +
-  test provider. 29 new tests (6 core JVM + 8 URI pipeline +
-  10 ViewModel + 6 screen, incl. 1 renamed PipelineTest case);
-  vision-core JUnitCore OK (99) on this VM; pytest 30 passed.
-  Host Gradle gate + device evidence PENDING — see
+  test provider (fixtures staged via the instrumentation
+  context's private dir). 41 new tests (11 core JVM + 10 URI
+  pipeline + 14 ViewModel + 6 screen, incl. 1 renamed
+  PipelineTest case); vision-core JUnitCore OK (104) on this
+  VM; pytest 30 passed. Independent audit requested changes
+  (P0 missing `ensureActive` import — the first standalone
+  check had missed it — plus P1 progressive publishing /
+  shared pipeline / bitmap bound / tab-hide cancellation and
+  P2 raw-tag badge); all addressed in the amended head, host
+  gate + device evidence still PENDING — see
   `blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md`. G2 stays OPEN.
 - **Remaining limitations (2026-11-17):** no Moto G coverage for
   the S1 run; S3 revoke/re-pick unverified; S4 stage (b)

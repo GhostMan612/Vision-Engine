@@ -28,9 +28,10 @@ class UriPipelineDeviceTest {
 
     @Before
     fun stage() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        pipeline = MediaPipeline(context.contentResolver)
-        val base = context.getDir("ve_mp7", Context.MODE_PRIVATE)
+        val testContext = InstrumentationRegistry.getInstrumentation().context
+        val targetContext = ApplicationProvider.getApplicationContext<Context>()
+        pipeline = MediaPipeline(targetContext.contentResolver)
+        val base = testContext.getDir("ve_mp7", Context.MODE_PRIVATE)
         work = File(base, "run-${System.currentTimeMillis()}")
         work.mkdirs()
         TestDocsProvider.root = work

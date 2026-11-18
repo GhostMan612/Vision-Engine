@@ -115,6 +115,46 @@ class UriPipelineTest {
     }
 
     @Test
+    fun loadPageInvokesOnRecordPerRecordInOrder() {
+        val sources = listOf(
+            uriSource("IMG_b.jpg", MediaKind.photo, "image/jpeg"),
+            uriSource("VID_a.mp4", MediaKind.video, "video/mp4"),
+            uriSource("bad.jpg", MediaKind.photo, "image/jpeg"),
+        )
+        val published = mutableListOf<String>()
+        val records = pipeline.loadPage(sources, 0, 10) { record ->
+            published.add(record.source.displayName)
+        }
+        assertEquals(
+            listOf("IMG_b.jpg", "VID_a.mp4", "bad.jpg"),
+            published,
+        )
+        assertEquals(
+            records.map { it.source.displayName },
+            published,
+        )
+    }
+
+    @Test
+    fun secondLoadPageSharesThumbnailCache() {
+        val sources = listOf(
+            uriSource("IMG_b.jpg", MediaKind.photo, "image/jpeg"),
+        )
+        val records = pipeline.loadPage(sources, 0, 10)
+        val first = pipeline.thumbnailFor(records.single())
+        assertEquals(ThumbStatus.ready, first.info.status)
+        assertEquals(0, pipeline.cache.hits)
+        val again = pipeline.loadPage(sources, 0, 10)
+        val second = pipeline.thumbnailFor(again.single())
+        assertEquals(first.bytes, second.bytes)
+        assertEquals(1, pipeline.cache.hits)
+        val fresh = MediaPipeline(context.contentResolver)
+        val third = fresh.thumbnailFor(records.single())
+        assertEquals(ThumbStatus.ready, third.info.status)
+        assertEquals(0, fresh.cache.hits)
+    }
+
+    @Test
     fun uriPhotoProbesOrientationAndCorrectedDimensions() {
         val records = pipeline.loadPage(
             listOf(uriSource("IMG_b.jpg", MediaKind.photo, "image/jpeg")),

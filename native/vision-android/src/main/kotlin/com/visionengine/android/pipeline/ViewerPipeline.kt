@@ -12,6 +12,7 @@ interface ViewerPipeline {
         sources: List<MediaSource>,
         offset: Int,
         limit: Int,
+        onRecord: ((MediaRecord) -> Unit)? = null,
     ): List<MediaRecord>
 
     fun thumbnailFor(record: MediaRecord): ThumbFetch

@@ -27,6 +27,9 @@ import com.visionengine.core.videoMetaFromMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -52,14 +55,57 @@ class ViewerViewModelTest {
             sources: List<MediaSource>,
             offset: Int,
             limit: Int,
+            onRecord: ((MediaRecord) -> Unit)?,
         ): List<MediaRecord> {
-            return records.drop(offset).take(limit)
+            val page = records.drop(offset).take(limit)
+            page.forEach { onRecord?.invoke(it) }
+            return page
         }
 
         override fun thumbnailFor(record: MediaRecord): ThumbFetch {
             if (thumbDelayMs > 0L) {
                 Thread.sleep(thumbDelayMs)
             }
+            if (record.kind == MediaKind.unsupported) {
+                return ThumbFetch(
+                    ThumbInfo(
+                        ThumbStatus.unavailable,
+                        reason = "unsupported type",
+                    ),
+                    null,
+                )
+            }
+            return ThumbFetch(
+                ThumbInfo(ThumbStatus.ready),
+                thumbBytes,
+            )
+        }
+    }
+
+    private class GatedPipeline(
+        val records: List<MediaRecord>,
+        val thumbBytes: ByteArray?,
+    ) : ViewerPipeline {
+        val firstPublished = CountDownLatch(1)
+        val releaseGate = CountDownLatch(1)
+
+        override fun loadPage(
+            sources: List<MediaSource>,
+            offset: Int,
+            limit: Int,
+            onRecord: ((MediaRecord) -> Unit)?,
+        ): List<MediaRecord> {
+            val page = records.drop(offset).take(limit)
+            if (page.isNotEmpty()) {
+                onRecord?.invoke(page[0])
+                firstPublished.countDown()
+                releaseGate.await(5, TimeUnit.SECONDS)
+                page.drop(1).forEach { onRecord?.invoke(it) }
+            }
+            return page
+        }
+
+        override fun thumbnailFor(record: MediaRecord): ThumbFetch {
             if (record.kind == MediaKind.unsupported) {
                 return ThumbFetch(
                     ThumbInfo(
@@ -319,6 +365,105 @@ class ViewerViewModelTest {
         assertEquals(first, model.selectedRecord.value)
         model.clearSelection()
         assertNull(model.selectedRecord.value)
+    }
+
+    @Test
+    fun firstRecordPublishedBeforePageCompletes() = runBlocking {
+        val pipeline = GatedPipeline(
+            listOf(
+                fakeRecord("IMG_a.jpg", MediaKind.photo),
+                fakeRecord("VID_b.mp4", MediaKind.video),
+                fakeRecord("note.txt", MediaKind.unsupported),
+            ),
+            thumbBytes,
+        )
+        val model = viewModel(pipeline)
+        val job = launch {
+            model.openFolder(healthyFolder(), context.contentResolver)
+        }
+        withTimeout(5_000) {
+            while (model.records.value.isEmpty()) {
+                delay(10)
+            }
+        }
+        assertEquals(1, model.records.value.size)
+        assertEquals(
+            "IMG_a.jpg",
+            model.records.value[0].record.source.displayName,
+        )
+        assertTrue(model.loading.value)
+        pipeline.releaseGate.countDown()
+        job.join()
+        assertEquals(3, model.records.value.size)
+        assertFalse(model.loading.value)
+    }
+
+    @Test
+    fun pipelineFactoryCalledOnceAcrossPages() = runBlocking {
+        val names = (1..55).map { "IMG_%02d.jpg".format(it) }
+        val records = names.map { fakeRecord(it, MediaKind.photo) }
+        val rows = names.map {
+            safDocRow("primary:Pictures/$it", it, "image/jpeg")
+        }
+        var factoryCalls = 0
+        val model = ViewerViewModel(
+            pipelineFactory = {
+                factoryCalls++
+                FakeViewerPipeline(records, thumbBytes)
+            },
+            discoveryFactory = { scriptedDiscovery(rows) },
+        )
+        model.openFolder(healthyFolder(), context.contentResolver)
+        assertEquals(50, model.records.value.size)
+        model.loadMore(context.contentResolver)
+        assertEquals(55, model.records.value.size)
+        assertEquals(1, factoryCalls)
+    }
+
+    @Test
+    fun bitmapRetentionBoundEvictsOldestAndRestores() = runBlocking {
+        val names = (1..15).map { "IMG_%02d.jpg".format(it) }
+        val records = names.map { fakeRecord(it, MediaKind.photo) }
+        val rows = names.map {
+            safDocRow("primary:Pictures/$it", it, "image/jpeg")
+        }
+        val model = viewModel(
+            FakeViewerPipeline(records, thumbBytes),
+            rows = rows,
+        )
+        model.openFolder(healthyFolder(), context.contentResolver)
+        assertEquals(15, model.records.value.size)
+        val retained = model.records.value.count { it.thumbBitmap != null }
+        assertEquals(ViewerViewModel.MAX_RETAINED_BITMAPS, retained)
+        val evicted = model.records.value.first { it.thumbBitmap == null }
+        assertEquals(ThumbStatus.ready, evicted.thumbStatus)
+        model.restoreThumb(evicted)
+        val restored = model.records.value.first {
+            it.record.source.id == evicted.record.source.id
+        }
+        assertNotNull(restored.thumbBitmap)
+        assertTrue(
+            model.records.value.count { it.thumbBitmap != null } <=
+                ViewerViewModel.MAX_RETAINED_BITMAPS,
+        )
+    }
+
+    @Test
+    fun viewerHiddenCancelsInFlightLoad() = runBlocking {
+        val model = viewModel(mixedPipeline(thumbDelayMs = 300L))
+        val job = launch {
+            model.openFolder(healthyFolder(), context.contentResolver)
+        }
+        delay(50)
+        model.onViewerHidden()
+        job.join()
+        assertFalse(model.loading.value)
+        assertEquals(3, model.records.value.size)
+        assertTrue(
+            model.records.value.all {
+                it.thumbStatus == ThumbStatus.pending
+            },
+        )
     }
 
     @Test

@@ -431,34 +431,47 @@ is wiring only:
   seam as `renamerViewModel`). This is the S5 extension the S4
   spec anticipated ("S5 extends it"); no S3/S4 logic changed.
 
-### Tests (29 new; 1 renamed)
+### Tests (41 new; 1 renamed)
 
-- `DetailFieldsTest.kt` (vision-core, JVM) — 6 tests: 11/10
+- `DetailFieldsTest.kt` (vision-core, JVM) — 11 tests: 11/10
   fields in spec order, corrected dims (24×16 raw → 16×24),
   rotation-corrected video dims, unknown + provenance,
-  duration/size format vectors.
-- `UriPipelineTest.kt` (vision-android, Robolectric) — 8 tests
+  duration/size format vectors, raw-tag badge vectors (photo
+  "Raw 24×16 · orientation tag 6", video
+  "Raw 1920×1080 · rotation tag 90", null when the tag is
+  absent).
+- `UriPipelineTest.kt` (vision-android, Robolectric) — 10 tests
   with a fake ContentProvider serving staged fixtures:
   URI photo probe (orientation 6, 16×24), URI photo thumb
   decode + cache hit, URI video probe, URI video thumb
   unavailable on the trackless fixture, descriptor closure on
   decode failure, inaccessible source stays unreadable,
-  over-cap thumb stays unavailable, file-path regression.
+  over-cap thumb stays unavailable, file-path regression,
+  `loadPage` invokes the per-record callback in source order,
+  a second `loadPage` on the same pipeline instance hits the
+  first page's thumbnail cache (a fresh instance does not).
   Descriptors are asserted closed (`fileDescriptor.valid ==
   false`) on every success and failure path.
-- `ViewerViewModelTest.kt` (vision-app, Robolectric) — 10 tests
+- `ViewerViewModelTest.kt` (vision-app, Robolectric) — 14 tests
   with a fake pipeline + scripted discovery: healthy open with
   counts, lost grant blocks load, empty folder, discovery
   failure, discovery `SecurityException` → grant lost,
   cancellation stops without thumbs, second open supersedes
   first, select/clear, folders-changed lost (records kept) and
-  missing (reset).
+  missing (reset), first record published before the page
+  finishes (gated pipeline), one pipeline instance across
+  pages (factory called once for a 55-record two-page load),
+  bitmap retention bound (15 records → 12 retained, oldest
+  evicted, evicted record restores on demand),
+  tab-hide cancels in-flight work (records stay, thumbs
+  pending).
 - `ViewerScreenTest.kt` (vision-app, Robolectric + Compose) — 6
   tests with the real pipeline + fake provider: empty state,
   lost-grant state, grid + photo detail (corrected dims, six
   "—", provenance counts 3 exif / 2 filesystem, Strip button
   displayed + disabled, Back returns to grid), video detail
-  opens, empty folder, all-unsupported cells + counts.
+  opens (rotation-tag badge asserted), empty folder,
+  all-unsupported cells + counts.
 - `UriPipelineDeviceTest.kt` + `TestDocsProvider` (instrumented)
   — 4 tests: URI photo probe + thumb on device, URI video probe
   + thumb unavailable on device, corrupt photo unreadable on
@@ -480,31 +493,129 @@ is wiring only:
 
 ### Verification on this VM (host gate is the arbiter)
 
-- vision-core JUnitCore: OK (99 tests) — 93 pre-existing + 6 new.
-- pytest: 30 passed. flake8 hard-select clean.
+- vision-core JUnitCore: OK (104 tests) — 93 pre-existing + 11
+  new (6 original + 5 raw-tag badge).
+- pytest: 30 passed. flake8 hard-select clean (no `.py` touched
+  by this amendment).
 - Standalone kotlinc checks over all five Android source sets:
-  no real errors in the new/changed files. One real bug caught
-  and fixed here: cross-module smart cast on `record.photo` /
-  `record.video` in `ViewerDetail` (Kotlin forbids smart-casting
-  a public property from another module) — fixed with local
-  vals, plus a defensive local for the delegated `error` state.
-  Everything else in the filtered output is missing-Android-SDK
-  cascade noise, at the same level as the pre-existing files.
+  the first check claimed no real errors and MISSED a real
+  one — `ViewerViewModel.kt` called `Job.ensureActive()` without
+  `import kotlinx.coroutines.ensureActive`. The independent audit
+  caught it (P0); the amendment adds the import and proves it
+  here two ways: a minimal file importing
+  `kotlinx.coroutines.ensureActive` and calling it on a `Job`
+  compiles clean, and a full kotlinc pass over all changed files
+  reports zero `kotlinx` / `ensureActive` errors. The remaining
+  errors in that pass are missing-Android-SDK cascade noise
+  (unresolved `android.*` / `androidx.*` / Robolectric symbols
+  and their knock-ons), at the same level as the pre-existing
+  files; the one candidate that looked real
+  (`ViewerScreen.kt:161`, suspend call inside `LaunchedEffect`)
+  is cascade from the unresolved Compose symbol, proven by a
+  minimal pattern file that compiles clean. The host Gradle gate
+  remains the arbiter for the Android sources.
 - No new dependencies: `git diff` on all three
   `build.gradle.kts` files is empty. No `INTERNET` permission;
   both main manifests `git diff` empty. The only new manifest
   is the androidTest one (test provider).
 - Genesis headers: exactly 4 `//` lines on all 10 new `.kt`
   files. No TODOs. No mojibake. No mtime-as-EXIF.
+  `tools/verify_reference.py` still fails identically (28
+  files, same list) on this branch and on clean main `9c3a2aa`
+  — pre-existing, not this PR's scope.
 
 ### Host-gate-only (not run here)
 
-- All Robolectric + Compose tests above (UriPipelineTest 8,
-  ViewerViewModelTest 10, ViewerScreenTest 6, AppRootTest 1
+- All Robolectric + Compose tests above (UriPipelineTest 10,
+  ViewerViewModelTest 14, ViewerScreenTest 6, AppRootTest 1
   new + 1 existing, PipelineTest 7 incl. the renamed test),
   the vision-android unit suite, and `lintDebug`.
 - The instrumented `UriPipelineDeviceTest` (4 tests) — runs on
   the B160V via `S5-DEVICE-RUNBOOK.md`.
+
+### Audit fixes (amendment, 2026-11-17 — independent audit, CHANGES REQUESTED)
+
+- **P0 compilation:** `ViewerViewModel.kt` called
+  `currentCoroutineContext()[Job]?.ensureActive()` at four sites
+  without `import kotlinx.coroutines.ensureActive`
+  (`ensureActive` is a kotlinx-coroutines extension on `Job`).
+  Import added; no other coroutine import was missing (audit
+  of the file: `Dispatchers`, `Job`,
+  `currentCoroutineContext`, `withContext`, `StateFlow` /
+  `MutableStateFlow` all present). Proven on this VM as
+  described in "Verification on this VM" above.
+- **P1.1 progressive publishing (spec §4 Step 5.2):**
+  `ViewerPipeline.loadPage` / `MediaPipeline.loadPage` gained
+  an optional per-record callback
+  (`onRecord: ((MediaRecord) -> Unit)? = null`), invoked inside
+  the existing sequential loop right after each probe. The
+  ViewModel appends each record to `_records` as it arrives, so
+  the first record is visible without waiting for the other 49.
+  Existing 3-argument call sites compile unchanged (default
+  parameter); every `ViewerPipeline` implementation must invoke
+  the callback for each record it returns. A local `published`
+  counter (not a shared increment) keeps `loadedCount` exact
+  under mid-page cancellation; the callback skips appends when
+  its generation is stale (`loadGeneration` is `@Volatile` so
+  the check sees a superseding open from the IO thread).
+- **P1.2 shared pipeline:** the ViewModel retains ONE
+  `ViewerPipeline` per folder open (`pipeline =
+  pipelineFactory(resolver)` in `openFolder`, reused by every
+  page, cleared in `resetRunState`), so `MediaPipeline`'s
+  `ThumbnailCache` survives paging. The injectable factory /
+  `ViewerPipeline` seam is unchanged.
+- **P1.3 bound retained Bitmaps:** decoded `Bitmap`s retained
+  in `_records` are capped at `MAX_RETAINED_BITMAPS = 12`
+  (3-column grid, roughly one screenful; a 256×384 thumb is
+  ~393 KB, so 12 is ~4.7 MB worst case). On attach,
+  `enforceBitmapCap` evicts the oldest retained Bitmaps other
+  than the just-attached record and the selected record; an
+  evicted record keeps `ThumbStatus.ready` with a null Bitmap
+  (its encoded bytes stay in the FNV cache) and re-decodes on
+  demand via `restoreThumb` (cache hit, guarded by an
+  in-flight set), triggered by the grid cell when it composes
+  a ready-but-bitmapless record after loading finishes. An
+  evicted record never blanks: the cell shows its loading
+  placeholder until the restore lands.
+- **P1.4 tab-leave cancellation:** `ViewerViewModel.onViewerHidden()`
+  cancels the in-flight load job, bumps the generation, and
+  resets `_loading`; completed records persist. `AppRoot` calls
+  it from a `selectTab` helper when the tab switches away from
+  Viewer. This is the ONLY AppRoot change beyond the tab switch
+  itself and the reviewed S3/S4 integration correction for this
+  amendment. No S3/S4 logic changed.
+- **P1.5 regression tests:** progressive first-record
+  visibility (gated pipeline), shared cache (factory called
+  once across a 55-record two-page load; second `loadPage` on
+  one pipeline instance hits the first page's cache), bitmap
+  retention bound (15 records → 12 retained, oldest evicted,
+  evicted record restores), tab-hide cancellation (in-flight
+  work stops, records stay, thumbs pending). All host-gate-only
+  except the core badge tests.
+- **P2 raw-tag badge (BP-02 / S5):** `DetailFields.kt` gains
+  `photoOrientationBadge` / `videoRotationBadge` ("Raw 24×16 ·
+  orientation tag 6", "Raw 1920×1080 · rotation tag 90",
+  "Raw — · … tag N" when raw dims are missing, null when the
+  tag itself is absent). `ViewerDetail` renders the badge under
+  the field table. Headline dims stay the corrected getters
+  only.
+- **Instrumented test scrutiny:** `UriPipelineDeviceTest`
+  stages fixtures via the instrumentation (test) context's
+  private dir (`InstrumentationRegistry.getInstrumentation()
+  .context.getDir(...)`) instead of the target context's
+  app-private dir, so the provider's file read no longer
+  depends on the test process sharing the app UID.
+  `TestDocsProvider` has no `android:process`, so it runs in
+  the test APK's default process — the SAME process as the
+  instrumented test code — and the static
+  `TestDocsProvider.root` sharing is valid by construction, not
+  cross-process. The cross-process hop is the
+  `ParcelFileDescriptor` over Binder to the app process, the
+  standard ContentProvider mechanism. The provider still fails
+  loud (`FileNotFoundException` "no root") if the root is
+  unset. The 4 instrumented cases validate URI processing on
+  device; they do NOT replace the real picked-folder smoke
+  (runbook keeps both).
 
 ### Deviations from this spec
 
@@ -550,12 +661,18 @@ is wiring only:
    for deterministic cancellation tests.
 8. The ViewModel decodes thumb JPEG bytes to `Bitmap` on IO
    (`BitmapFactory.decodeByteArray`) and holds them as
-   transient per-page presentation state. The FNV-keyed
-   `ThumbnailCache` remains the only cache.
+   transient per-page presentation state, now bounded at
+   `MAX_RETAINED_BITMAPS = 12` with oldest-first eviction
+   (selected + just-attached records exempt) and restore on
+   demand via `restoreThumb` — see "Audit fixes" above. The
+   FNV-keyed `ThumbnailCache` remains the only cache.
 9. The instrumented test provider is `exported="true"` in the
-   androidTest manifest: the test code runs in the target app
-   process while the provider runs in the test APK process, so
-   cross-process access needs it. Test APK only, never ships.
+   androidTest manifest: the provider runs in the test APK's
+   default process, the same process as the instrumented test
+   code, so the static `TestDocsProvider.root` sharing is valid
+   by construction; the `ParcelFileDescriptor` hop over Binder
+   to the app process is the standard ContentProvider
+   mechanism. Test APK only, never ships.
 
 ### Decided questions (see §10)
 

@@ -138,6 +138,68 @@ class DetailFieldsTest {
     }
 
     @Test
+    fun photoBadgeShowsRawDimsAndOrientationTag() {
+        assertEquals(
+            "Raw 24×16 · orientation tag 6",
+            photoOrientationBadge(thumbLikePhoto()),
+        )
+    }
+
+    @Test
+    fun photoBadgeShowsUnknownRawDimsWhenTagPresent() {
+        val photo = thumbLikePhoto().copy(
+            widthRaw = MetaField(null, Provenance.unknown),
+            heightRaw = MetaField(null, Provenance.unknown),
+        )
+        assertEquals(
+            "Raw — · orientation tag 6",
+            photoOrientationBadge(photo),
+        )
+    }
+
+    @Test
+    fun photoBadgeIsNullWithoutOrientation() {
+        assertEquals(null, photoOrientationBadge(unknownPhoto()))
+    }
+
+    @Test
+    fun videoBadgeShowsRawDimsAndRotationTag() {
+        val video = VideoMeta(
+            durationMs = MetaField(8340L, Provenance.container),
+            widthRaw = MetaField(1920L, Provenance.container),
+            heightRaw = MetaField(1080L, Provenance.container),
+            rotation = MetaField(90L, Provenance.container),
+            creationTime = MetaField(null, Provenance.unknown),
+            locationLatitude = MetaField(null, Provenance.unknown),
+            locationLongitude = MetaField(null, Provenance.unknown),
+            codec = MetaField("video/mp4", Provenance.container),
+            fileSizeBytes = MetaField(150L, Provenance.filesystem),
+            mime = MetaField("video/mp4", Provenance.filesystem),
+        )
+        assertEquals(
+            "Raw 1920×1080 · rotation tag 90",
+            videoRotationBadge(video),
+        )
+    }
+
+    @Test
+    fun videoBadgeIsNullWithoutRotation() {
+        val video = VideoMeta(
+            durationMs = MetaField(8340L, Provenance.container),
+            widthRaw = MetaField(1920L, Provenance.container),
+            heightRaw = MetaField(1080L, Provenance.container),
+            rotation = MetaField(null, Provenance.unknown),
+            creationTime = MetaField(null, Provenance.unknown),
+            locationLatitude = MetaField(null, Provenance.unknown),
+            locationLongitude = MetaField(null, Provenance.unknown),
+            codec = MetaField("video/mp4", Provenance.container),
+            fileSizeBytes = MetaField(150L, Provenance.filesystem),
+            mime = MetaField("video/mp4", Provenance.filesystem),
+        )
+        assertEquals(null, videoRotationBadge(video))
+    }
+
+    @Test
     fun formatDurationMsVectors() {
         assertEquals("0 ms", formatDurationMs(0L))
         assertEquals("999 ms", formatDurationMs(999L))

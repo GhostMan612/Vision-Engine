@@ -39,7 +39,9 @@ import com.visionengine.core.ExtractStatus
 import com.visionengine.core.MediaKind
 import com.visionengine.core.ThumbStatus
 import com.visionengine.core.photoDetailFields
+import com.visionengine.core.photoOrientationBadge
 import com.visionengine.core.videoDetailFields
+import com.visionengine.core.videoRotationBadge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -151,6 +153,14 @@ fun ViewerScreen(
                     records,
                     key = { it.record.source.id },
                 ) { viewerRecord ->
+                    if (viewerRecord.thumbStatus == ThumbStatus.ready &&
+                        viewerRecord.thumbBitmap == null &&
+                        !loading
+                    ) {
+                        LaunchedEffect(viewerRecord.record.source.id) {
+                            viewerViewModel.restoreThumb(viewerRecord)
+                        }
+                    }
                     ViewerCell(
                         viewerRecord = viewerRecord,
                         onClick = {
@@ -271,6 +281,14 @@ fun ViewerDetail(
                 }
                 Text(text = field.provenance.name)
             }
+        }
+        val badge = when {
+            photo != null -> photoOrientationBadge(photo)
+            video != null -> videoRotationBadge(video)
+            else -> null
+        }
+        if (badge != null) {
+            Text(text = badge)
         }
         if (record.photo != null) {
             Button(onClick = {}, enabled = false) {

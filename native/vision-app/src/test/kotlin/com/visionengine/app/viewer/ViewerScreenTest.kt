@@ -234,6 +234,9 @@ class ViewerScreenTest {
         composeRule.onNodeWithText("24").assertIsDisplayed()
         composeRule.onNodeWithText("Orientation").assertIsDisplayed()
         composeRule.onNodeWithText("6").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Raw 24×16 · orientation tag 6")
+            .assertIsDisplayed()
         composeRule.onNodeWithText("File size").assertIsDisplayed()
         composeRule.onNodeWithText("194 B").assertIsDisplayed()
         composeRule
@@ -263,6 +266,9 @@ class ViewerScreenTest {
         openGrid(model)
         composeRule.onNodeWithText("VID_a.mp4").performClick()
         composeRule.onNodeWithText("Duration").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("rotation tag 0", substring = true)
+            .assertIsDisplayed()
         composeRule.onNodeWithText("Back").assertIsDisplayed()
     }
 
