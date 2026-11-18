@@ -819,6 +819,17 @@ is wiring only:
     (`onAllNodesWithText`, `assertCountEquals`) need no
     scrolling: they count nodes in the tree, not displayed
     nodes.
+15. Discovery-row file size (host-gate attempt 9,
+    2026-11-17): the shared `safDocRow()` test helper sets
+    `COLUMN_SIZE` to null, and `folderRows()` used it for
+    `IMG_b.jpg` without an override, so the detail rendered
+    the unknown marker for File size instead of "194 B".
+    The `IMG_b.jpg` row only overrides `COLUMN_SIZE` with
+    the staged fixture's actual length (194 bytes). No
+    production change; the shared helper is untouched. With
+    the size known, the existing assertions hold as
+    written: "194 B", six unknown values, three exif and
+    two filesystem provenance nodes.
 
 ### Decided questions (see §10)
 
