@@ -723,11 +723,39 @@ is wiring only:
     still probe `unreadable`, and a corrupt file's thumbnail
     still fails. The same correction is applied to the
     never-run device test (`uriCorruptPhotoPartialOnDevice`).
-    Corrupt-image rejection is verified only under native
+    Corrupt-image rejection was first attempted under native
     graphics (`CorruptImageNativeGraphicsTest`,
     class-level `@GraphicsMode(NATIVE)` with a good-fixture
-    control); the legacy Robolectric graphics shadow decodes
-    the 6 garbage bytes to a 256×256 bitmap.
+    control); host-gate attempt 6 (2026-11-17) showed native
+    graphics still manufactures a 256×256 bitmap from the 6
+    garbage bytes, so that approach is superseded by item 12
+    below — the legacy shadow decodes garbage to 256×256 only
+    while invalid-image acceptance stays at its default.
+12. Strict legacy BitmapFactory decoding (host-gate attempt 6,
+    2026-11-17): corrupt-image rejection is verified under
+    `@GraphicsMode(LEGACY)` with
+    `ShadowBitmapFactory.setAllowInvalidImageData(false)`.
+    Verified against Robolectric 4.17: `ShadowBitmapFactory`
+    is the legacy shadow only — its picker selects it for
+    LEGACY and `ShadowNativeBitmapFactory` for NATIVE, and
+    the switch exists only on the legacy shadow, so it cannot
+    affect native mode. With the switch off, `decodeByteArray`
+    returns null and sets `outWidth`/`outHeight` to -1 for
+    undecodable data, which `PhotoThumbs` already maps to a
+    null thumbnail. The switch is set in `@Before` and
+    restored to `true` in `@After` in both
+    `CorruptImageStrictLegacyGraphicsTest` (renamed from the
+    native-graphics class) and `UriPipelineTest`
+    (class-level LEGACY; `uriDescriptorClosesOnDecodeFailure`
+    moves from NATIVE to LEGACY and keeps its
+    `ThumbStatus.failed` assertion); Robolectric's `@Resetter`
+    also restores the default after each test. The good
+    fixture still decodes to 256×384 in both classes, so the
+    strict mode is a control, not a weakened bar. The device
+    test `uriCorruptPhotoPartialOnDevice` now also asserts the
+    corrupt thumbnail bytes are null, not only the failed
+    status and reason. Test-only; no production decoding
+    change and no file-signature restriction.
 
 ### Decided questions (see §10)
 
