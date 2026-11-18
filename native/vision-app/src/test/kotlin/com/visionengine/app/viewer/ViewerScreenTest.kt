@@ -116,7 +116,10 @@ class ViewerScreenTest {
                 "primary:Pictures/IMG_b.jpg",
                 "IMG_b.jpg",
                 "image/jpeg",
-            ),
+            ) + (
+                DocumentsContract.Document.COLUMN_SIZE to
+                    File(dir, "IMG_b.jpg").length()
+                ),
             safDocRow(
                 "primary:Pictures/VID_a.mp4",
                 "VID_a.mp4",
