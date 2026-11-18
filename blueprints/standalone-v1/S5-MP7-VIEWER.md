@@ -798,7 +798,27 @@ is wiring only:
     still stops via the generation guards plus
     `ensureActive` checkpoints, but a load cancelled during
     discovery can surface as an error instead of a clean
-    cancellation).
+    cancellation). Pre-device acceptance requirement
+    (attempt 8, 2026-11-17): the handlers must explicitly
+    rethrow `CancellationException` before the generic
+    catch, with regression coverage proving a load
+    cancelled during discovery stops cleanly (no error
+    set, loading false) while the calling scope survives.
+    Required before B160V device acceptance; not part of
+    the scrolling fix.
+14. Detail-screen scrolling (host-gate attempt 8,
+    2026-11-17): `ViewerDetail` is a vertically scrollable
+    `Column` with the thumbnail before the metadata fields
+    and the raw-tag badge, so the field and badge nodes sit
+    below the viewport. The screen tests scroll each detail
+    visibility assertion into view with `performScrollTo()`
+    before `assertIsDisplayed()` (including the disabled
+    Strip GPS control), and scroll Back into view before
+    clicking it or asserting it is displayed. Test-only;
+    production layout unchanged. The count assertions
+    (`onAllNodesWithText`, `assertCountEquals`) need no
+    scrolling: they count nodes in the tree, not displayed
+    nodes.
 
 ### Decided questions (see §10)
 
