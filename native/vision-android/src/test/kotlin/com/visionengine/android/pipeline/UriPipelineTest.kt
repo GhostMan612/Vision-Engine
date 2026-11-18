@@ -18,6 +18,7 @@ import com.visionengine.android.thumbs.PhotoThumbs
 import com.visionengine.core.ExtractStatus
 import com.visionengine.core.MediaKind
 import com.visionengine.core.MediaSource
+import com.visionengine.core.Provenance
 import com.visionengine.core.ThumbStatus
 import java.io.File
 import java.io.FileInputStream
@@ -32,6 +33,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(RobolectricTestRunner::class)
@@ -157,7 +159,7 @@ class UriPipelineTest {
     }
 
     @Test
-    fun exifInterfaceConstructionPathsAgreeOnFixture() {
+    fun exifInterfaceFdConstructorFailsUnderRobolectric() {
         val file = File(dir, "IMG_b.jpg")
         val outcomes = mutableListOf<String>()
         fun record(label: String, block: () -> ExifInterface) {
@@ -172,7 +174,7 @@ class UriPipelineTest {
                         exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH),
                 )
             } catch (e: Exception) {
-                outcomes.add("$label: ${e.javaClass.simpleName}: ${e.message}")
+                outcomes.add("$label: ${e.javaClass.simpleName}")
             }
         }
         record("path") { ExifInterface(file.absolutePath) }
@@ -193,12 +195,33 @@ class UriPipelineTest {
         assertEquals(
             listOf(
                 "path: orientation=6 width=24 height=16",
-                "stream-fd: orientation=6 width=24 height=16",
-                "provider-fd: orientation=6 width=24 height=16",
+                "stream-fd: NullPointerException",
+                "provider-fd: NullPointerException",
                 "input-stream: orientation=6 width=24 height=16",
             ),
             outcomes,
         )
+    }
+
+    @Test
+    fun exifInterfaceFromProviderDescriptorStreamReadsFixture() {
+        val uri = DocumentsContract.buildDocumentUriUsingTree(
+            treeUri,
+            "primary:Pictures/IMG_b.jpg",
+        )
+        val descriptor = context.contentResolver.openFileDescriptor(uri, "r")
+            ?: throw AssertionError("no descriptor")
+        try {
+            val exif = FileInputStream(descriptor.fileDescriptor).use { stream ->
+                ExifInterface(stream)
+            }
+            assertEquals("6", exif.getAttribute(ExifInterface.TAG_ORIENTATION))
+            assertEquals("24", exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH))
+            assertEquals("16", exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH))
+        } finally {
+            descriptor.close()
+        }
+        assertFalse(descriptor.fileDescriptor.valid())
     }
 
     @Test
@@ -217,17 +240,6 @@ class UriPipelineTest {
         } finally {
             descriptor.close()
         }
-    }
-
-    @Test
-    fun decodeThumbnailRejectsBadJpgBytesDirectly() {
-        val decoded = PhotoThumbs.decodeThumbnail(
-            byteArrayOf(1, 2, 3, 4, 5, 6),
-            null,
-            256,
-            64L * 1024L * 1024L,
-        )
-        assertNull(decoded)
     }
 
     @Test
@@ -296,6 +308,9 @@ class UriPipelineTest {
         assertEquals(1, records.size)
         assertEquals(ExtractStatus.ok, records.single().status)
         assertEquals(6L, records.single().photo?.orientation?.value)
+        assertEquals(Provenance.exif, records.single().photo?.orientation?.provenance)
+        assertEquals(24L, records.single().photo?.widthRaw?.value)
+        assertEquals(16L, records.single().photo?.heightRaw?.value)
         assertEquals(16L, records.single().photo?.width)
         assertEquals(24L, records.single().photo?.height)
         assertTrue(allDescriptorsClosed())
@@ -347,13 +362,14 @@ class UriPipelineTest {
     }
 
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun uriDescriptorClosesOnDecodeFailure() {
         val records = pipeline.loadPage(
             listOf(uriSource("bad.jpg", MediaKind.photo, "image/jpeg")),
             0,
             10,
         )
-        assertEquals(ExtractStatus.unreadable, records.single().status)
+        assertEquals(ExtractStatus.partial, records.single().status)
         val thumb = pipeline.thumbnailFor(records.single())
         assertEquals(ThumbStatus.failed, thumb.info.status)
         assertEquals("decode failed", thumb.info.reason)

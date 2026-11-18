@@ -11,6 +11,7 @@ import android.os.ParcelFileDescriptor
 import androidx.exifinterface.media.ExifInterface
 import com.visionengine.core.ExtractStatus
 import java.io.File
+import java.io.FileInputStream
 
 class AndroidMetadataExtractor(
     private val resolver: ContentResolver,
@@ -41,8 +42,10 @@ class AndroidMetadataExtractor(
     fun probePhotoUri(uri: Uri, sizeBytes: Long?, mime: String?): PhotoResult {
         return try {
             openDescriptor(uri)?.use { descriptor ->
-                val exif = ExifInterface(descriptor.fileDescriptor)
-                ExifReader.readPhoto(exif, sizeBytes, mime)
+                FileInputStream(descriptor.fileDescriptor).use { stream ->
+                    val exif = ExifInterface(stream)
+                    ExifReader.readPhoto(exif, sizeBytes, mime)
+                }
             } ?: PhotoResult(
                 emptyPhoto(),
                 ExtractStatus.unreadable,

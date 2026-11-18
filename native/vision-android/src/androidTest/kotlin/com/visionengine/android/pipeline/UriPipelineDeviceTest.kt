@@ -81,12 +81,12 @@ class UriPipelineDeviceTest {
     }
 
     @Test
-    fun uriCorruptPhotoUnreadableOnDevice() {
+    fun uriCorruptPhotoPartialOnDevice() {
         val sources = listOf(
             uriSource("bad.jpg", MediaKind.photo, "image/jpeg"),
         )
         val records = pipeline.loadPage(sources, 0, 10)
-        assertEquals(ExtractStatus.unreadable, records.single().status)
+        assertEquals(ExtractStatus.partial, records.single().status)
         val thumb = pipeline.thumbnailFor(records.single())
         assertEquals(ThumbStatus.failed, thumb.info.status)
         assertEquals("decode failed", thumb.info.reason)
