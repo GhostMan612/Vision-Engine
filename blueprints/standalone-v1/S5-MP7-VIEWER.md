@@ -699,6 +699,35 @@ is wiring only:
     descriptor the pipeline actually receives and delegates to
     the real resolver, and `allDescriptorsClosed()` checks
     those caller-owned descriptors.
+11. Stream-based URI photo probe (host-gate attempt 5,
+    2026-11-17): `probePhotoUri` constructs `ExifInterface`
+    from an `InputStream` over the descriptor
+    (`FileInputStream(descriptor.fileDescriptor).use {
+    ExifInterface(it) }`) instead of from the
+    `FileDescriptor` directly — the four-path diagnostic
+    proved `ExifInterface(FileDescriptor)` throws
+    `NullPointerException` under Robolectric on both ordinary
+    and ContentProvider descriptors, while the path and
+    input-stream paths read orientation 6 / 24×16. The seam
+    and descriptor lifecycle are unchanged; the file-path
+    probe is untouched. Corrupt-but-present files probe as
+    `partial`, not `unreadable`, through either constructor:
+    androidx ExifInterface 1.4.1 `loadAttributes` swallows
+    format errors and `addDefaultValuesForCompatibility`
+    injects 0-valued width/length/orientation tags, which
+    `ExifReader` maps to unknown (orientation 0
+    illegitimate, dims ≤ 0 illegitimate), so `readPhoto`
+    yields `partial`; the `unreadable` expectation was true
+    only under Robolectric's broken FD constructor.
+    Inaccessible sources (no descriptor, provider throws)
+    still probe `unreadable`, and a corrupt file's thumbnail
+    still fails. The same correction is applied to the
+    never-run device test (`uriCorruptPhotoPartialOnDevice`).
+    Corrupt-image rejection is verified only under native
+    graphics (`CorruptImageNativeGraphicsTest`,
+    class-level `@GraphicsMode(NATIVE)` with a good-fixture
+    control); the legacy Robolectric graphics shadow decodes
+    the 6 garbage bytes to a 256×256 bitmap.
 
 ### Decided questions (see §10)
 
