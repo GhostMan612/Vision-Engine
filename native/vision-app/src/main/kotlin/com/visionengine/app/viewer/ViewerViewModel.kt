@@ -22,6 +22,7 @@ import com.visionengine.core.MediaRecord
 import com.visionengine.core.MediaSource
 import com.visionengine.core.ThumbInfo
 import com.visionengine.core.ThumbStatus
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -143,6 +144,11 @@ class ViewerViewModel(
             withContext(Dispatchers.IO) {
                 discoveryFactory(resolver).discover(treeUri)
             }
+        } catch (e: CancellationException) {
+            if (generation == loadGeneration) {
+                _loading.value = false
+            }
+            throw e
         } catch (e: SecurityException) {
             if (generation == loadGeneration) {
                 _grantLost.value = true
@@ -238,6 +244,8 @@ class ViewerViewModel(
                     }
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (generation == loadGeneration) {
                 _error.value = "Could not read this folder."
@@ -259,6 +267,8 @@ class ViewerViewModel(
                 withContext(Dispatchers.IO) {
                     activePipeline.thumbnailFor(page[index])
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 ThumbFetch(
                     ThumbInfo(

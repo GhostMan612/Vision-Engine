@@ -5,6 +5,8 @@
 package com.visionengine.app.viewer
 
 import android.content.Context
+import android.database.Cursor
+import android.database.MatrixCursor
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.visionengine.android.pipeline.ThumbFetch
@@ -108,6 +110,80 @@ class ViewerViewModelTest {
         }
 
         override fun thumbnailFor(record: MediaRecord): ThumbFetch {
+            if (record.kind == MediaKind.unsupported) {
+                return ThumbFetch(
+                    ThumbInfo(
+                        ThumbStatus.unavailable,
+                        reason = "unsupported type",
+                    ),
+                    null,
+                )
+            }
+            return ThumbFetch(
+                ThumbInfo(ThumbStatus.ready),
+                thumbBytes,
+            )
+        }
+    }
+
+    private class BlockingPagePipeline(
+        val records: List<MediaRecord>,
+        val thumbBytes: ByteArray?,
+    ) : ViewerPipeline {
+        val pageStarted = CountDownLatch(1)
+        val releasePage = CountDownLatch(1)
+
+        override fun loadPage(
+            sources: List<MediaSource>,
+            offset: Int,
+            limit: Int,
+            onRecord: ((MediaRecord) -> Unit)?,
+        ): List<MediaRecord> {
+            pageStarted.countDown()
+            releasePage.await(5, TimeUnit.SECONDS)
+            val page = records.drop(offset).take(limit)
+            page.forEach { onRecord?.invoke(it) }
+            return page
+        }
+
+        override fun thumbnailFor(record: MediaRecord): ThumbFetch {
+            if (record.kind == MediaKind.unsupported) {
+                return ThumbFetch(
+                    ThumbInfo(
+                        ThumbStatus.unavailable,
+                        reason = "unsupported type",
+                    ),
+                    null,
+                )
+            }
+            return ThumbFetch(
+                ThumbInfo(ThumbStatus.ready),
+                thumbBytes,
+            )
+        }
+    }
+
+    private class GatedThumbPipeline(
+        val records: List<MediaRecord>,
+        val thumbBytes: ByteArray?,
+    ) : ViewerPipeline {
+        val thumbStarted = CountDownLatch(1)
+        val releaseThumb = CountDownLatch(1)
+
+        override fun loadPage(
+            sources: List<MediaSource>,
+            offset: Int,
+            limit: Int,
+            onRecord: ((MediaRecord) -> Unit)?,
+        ): List<MediaRecord> {
+            val page = records.drop(offset).take(limit)
+            page.forEach { onRecord?.invoke(it) }
+            return page
+        }
+
+        override fun thumbnailFor(record: MediaRecord): ThumbFetch {
+            thumbStarted.countDown()
+            releaseThumb.await(5, TimeUnit.SECONDS)
             if (record.kind == MediaKind.unsupported) {
                 return ThumbFetch(
                     ThumbInfo(
@@ -526,6 +602,112 @@ class ViewerViewModelTest {
         assertTrue(currentCoroutineContext()[Job]?.isActive == true)
         assertTrue(model.grantLost.value)
         assertFalse(model.loading.value)
+        assertEquals(3, model.records.value.size)
+        assertTrue(
+            model.records.value.all {
+                it.thumbStatus == ThumbStatus.pending
+            },
+        )
+    }
+
+    @Test
+    fun cancellationDuringDiscoveryStopsCleanlyWithoutError() = runBlocking {
+        val discoveryStarted = CountDownLatch(1)
+        val releaseDiscovery = CountDownLatch(1)
+        val blockingQuery: (
+            Uri,
+            Uri,
+            Array<String>,
+        ) -> Cursor? = { _, _, projection ->
+            discoveryStarted.countDown()
+            releaseDiscovery.await(5, TimeUnit.SECONDS)
+            val cursor = MatrixCursor(projection)
+            for (row in folderRows()) {
+                cursor.addRow(projection.map { row[it] })
+            }
+            cursor
+        }
+        val model = viewModel(
+            mixedPipeline(),
+            discoveryFactory = { SafDiscovery(blockingQuery) },
+        )
+        val job = launch {
+            model.openFolder(healthyFolder(), context.contentResolver)
+        }
+        withTimeout(5_000) {
+            while (discoveryStarted.count > 0L) {
+                delay(10)
+            }
+        }
+        assertTrue(model.loading.value)
+        job.cancel()
+        releaseDiscovery.countDown()
+        job.join()
+        assertTrue(currentCoroutineContext()[Job]?.isActive == true)
+        assertFalse(model.loading.value)
+        assertNull(model.error.value)
+        assertTrue(model.records.value.isEmpty())
+        assertNull(model.counts.value)
+    }
+
+    @Test
+    fun cancellationDuringPageLoadStopsCleanlyWithoutError() = runBlocking {
+        val pipeline = BlockingPagePipeline(
+            listOf(
+                fakeRecord("IMG_a.jpg", MediaKind.photo),
+                fakeRecord("VID_b.mp4", MediaKind.video),
+                fakeRecord("note.txt", MediaKind.unsupported),
+            ),
+            thumbBytes,
+        )
+        val model = viewModel(pipeline)
+        val job = launch {
+            model.openFolder(healthyFolder(), context.contentResolver)
+        }
+        withTimeout(5_000) {
+            while (pipeline.pageStarted.count > 0L) {
+                delay(10)
+            }
+        }
+        job.cancel()
+        pipeline.releasePage.countDown()
+        job.join()
+        assertTrue(currentCoroutineContext()[Job]?.isActive == true)
+        assertFalse(model.loading.value)
+        assertNull(model.error.value)
+        assertEquals(3, model.records.value.size)
+        assertTrue(
+            model.records.value.all {
+                it.thumbStatus == ThumbStatus.pending
+            },
+        )
+    }
+
+    @Test
+    fun cancellationDuringThumbnailFetchKeepsRecordPending() = runBlocking {
+        val pipeline = GatedThumbPipeline(
+            listOf(
+                fakeRecord("IMG_a.jpg", MediaKind.photo),
+                fakeRecord("VID_b.mp4", MediaKind.video),
+                fakeRecord("note.txt", MediaKind.unsupported),
+            ),
+            thumbBytes,
+        )
+        val model = viewModel(pipeline)
+        val job = launch {
+            model.openFolder(healthyFolder(), context.contentResolver)
+        }
+        withTimeout(5_000) {
+            while (pipeline.thumbStarted.count > 0L) {
+                delay(10)
+            }
+        }
+        job.cancel()
+        pipeline.releaseThumb.countDown()
+        job.join()
+        assertTrue(currentCoroutineContext()[Job]?.isActive == true)
+        assertFalse(model.loading.value)
+        assertNull(model.error.value)
         assertEquals(3, model.records.value.size)
         assertTrue(
             model.records.value.all {
