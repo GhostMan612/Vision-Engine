@@ -7,6 +7,7 @@ package com.visionengine.android.pipeline
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
@@ -107,11 +108,37 @@ class UriPipelineTest {
         provider.files["primary:Pictures/IMG_b.jpg"] = File(dir, "IMG_b.jpg")
         provider.files["primary:Pictures/VID_a.mp4"] = File(dir, "VID_a.mp4")
         provider.files["primary:Pictures/bad.jpg"] = File(dir, "bad.jpg")
+        val info = ProviderInfo().apply {
+            authority = "com.example.docs"
+            grantUriPermissions = true
+        }
+        provider.attachInfo(context, info)
         ShadowContentResolver.registerProviderInternal(
             "com.example.docs",
             provider,
         )
         pipeline = MediaPipeline(context.contentResolver)
+    }
+
+    @Test
+    fun openFileDescriptorReachesFakeProvider() {
+        val uri = DocumentsContract.buildDocumentUriUsingTree(
+            treeUri,
+            "primary:Pictures/IMG_b.jpg",
+        )
+        val openedBefore = provider.opened.size
+        val descriptor = context.contentResolver.openFileDescriptor(uri, "r")
+            ?: throw AssertionError("openFileDescriptor returned null")
+        assertTrue(descriptor.fileDescriptor.valid())
+        val bytes = java.io.FileInputStream(descriptor.fileDescriptor).readBytes()
+        assertEquals(
+            File(dir, "IMG_b.jpg").readBytes().toList(),
+            bytes.toList(),
+        )
+        assertEquals(openedBefore + 1, provider.opened.size)
+        assertTrue(provider.opened.contains(descriptor))
+        descriptor.close()
+        assertFalse(descriptor.fileDescriptor.valid())
     }
 
     @Test
