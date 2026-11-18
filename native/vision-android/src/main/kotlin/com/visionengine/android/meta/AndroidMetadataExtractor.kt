@@ -7,6 +7,7 @@ package com.visionengine.android.meta
 import android.content.ContentResolver
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.exifinterface.media.ExifInterface
 import com.visionengine.core.ExtractStatus
 import java.io.File
