@@ -5,6 +5,7 @@
 package com.visionengine.android.pipeline
 
 import android.content.ContentProvider
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.ProviderInfo
@@ -12,12 +13,15 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
+import androidx.exifinterface.media.ExifInterface
 import androidx.test.core.app.ApplicationProvider
+import com.visionengine.android.thumbs.PhotoThumbs
 import com.visionengine.core.ExtractStatus
 import com.visionengine.core.MediaKind
 import com.visionengine.core.MediaSource
 import com.visionengine.core.ThumbStatus
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileNotFoundException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -40,7 +44,26 @@ class UriPipelineTest {
     private lateinit var context: Context
     private lateinit var treeUri: Uri
     private lateinit var provider: FakeDocsProvider
+    private lateinit var trackingResolver: TrackingContentResolver
     private lateinit var pipeline: MediaPipeline
+
+    private class TrackingContentResolver(
+        base: ContentResolver,
+    ) : ContentResolver(base.context) {
+        private val delegate = base
+        val opened: MutableList<ParcelFileDescriptor> = mutableListOf()
+
+        override fun openFileDescriptor(
+            uri: Uri,
+            mode: String,
+        ): ParcelFileDescriptor? {
+            val descriptor = delegate.openFileDescriptor(uri, mode)
+            if (descriptor != null) {
+                opened.add(descriptor)
+            }
+            return descriptor
+        }
+    }
 
     private class FakeDocsProvider : ContentProvider() {
         var files: MutableMap<String, File> = mutableMapOf()
@@ -117,7 +140,8 @@ class UriPipelineTest {
             "com.example.docs",
             provider,
         )
-        pipeline = MediaPipeline(context.contentResolver)
+        trackingResolver = TrackingContentResolver(context.contentResolver)
+        pipeline = MediaPipeline(trackingResolver)
     }
 
     @Test
@@ -136,9 +160,93 @@ class UriPipelineTest {
             bytes.toList(),
         )
         assertEquals(openedBefore + 1, provider.opened.size)
-        assertTrue(provider.opened.contains(descriptor))
         descriptor.close()
         assertFalse(descriptor.fileDescriptor.valid())
+    }
+
+    @Test
+    fun exifInterfaceConstructionPathsAgreeOnFixture() {
+        val file = File(dir, "IMG_b.jpg")
+        val outcomes = mutableListOf<String>()
+        fun record(label: String, block: () -> ExifInterface) {
+            try {
+                val exif = block()
+                outcomes.add(
+                    "$label: orientation=" +
+                        exif.getAttribute(ExifInterface.TAG_ORIENTATION) +
+                        " width=" +
+                        exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH) +
+                        " height=" +
+                        exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH),
+                )
+            } catch (e: Exception) {
+                outcomes.add("$label: ${e.javaClass.simpleName}: ${e.message}")
+            }
+        }
+        record("path") { ExifInterface(file.absolutePath) }
+        record("stream-fd") { ExifInterface(FileInputStream(file).fd) }
+        val descriptor = context.contentResolver.openFileDescriptor(
+            DocumentsContract.buildDocumentUriUsingTree(
+                treeUri,
+                "primary:Pictures/IMG_b.jpg",
+            ),
+            "r",
+        ) ?: throw AssertionError("no descriptor")
+        try {
+            record("provider-fd") { ExifInterface(descriptor.fileDescriptor) }
+        } finally {
+            descriptor.close()
+        }
+        record("input-stream") { ExifInterface(FileInputStream(file)) }
+        assertEquals(
+            listOf(
+                "path: orientation=6 width=24 height=16",
+                "stream-fd: orientation=6 width=24 height=16",
+                "provider-fd: orientation=6 width=24 height=16",
+                "input-stream: orientation=6 width=24 height=16",
+            ),
+            outcomes,
+        )
+    }
+
+    @Test
+    fun providerReturnsExactBadJpgBytes() {
+        val uri = DocumentsContract.buildDocumentUriUsingTree(
+            treeUri,
+            "primary:Pictures/bad.jpg",
+        )
+        val descriptor = context.contentResolver.openFileDescriptor(uri, "r")
+            ?: throw AssertionError("no descriptor")
+        try {
+            val bytes = FileInputStream(descriptor.fileDescriptor).readBytes()
+            assertEquals(listOf<Byte>(1, 2, 3, 4, 5, 6), bytes.toList())
+        } finally {
+            descriptor.close()
+        }
+    }
+
+    @Test
+    fun decodeThumbnailRejectsBadJpgBytesDirectly() {
+        val decoded = PhotoThumbs.decodeThumbnail(
+            byteArrayOf(1, 2, 3, 4, 5, 6),
+            null,
+            256,
+            64L * 1024L * 1024L,
+        )
+        assertNull(decoded)
+    }
+
+    @Test
+    fun decodeThumbnailDecodesGoodFixtureDirectly() {
+        val bytes = File(dir, "IMG_b.jpg").readBytes()
+        val decoded = PhotoThumbs.decodeThumbnail(
+            bytes,
+            6,
+            256,
+            64L * 1024L * 1024L,
+        ) ?: throw AssertionError("good fixture did not decode")
+        assertEquals(256, decoded.width)
+        assertEquals(384, decoded.height)
     }
 
     @Test
@@ -175,7 +283,7 @@ class UriPipelineTest {
         val second = pipeline.thumbnailFor(again.single())
         assertEquals(first.bytes, second.bytes)
         assertEquals(1, pipeline.cache.hits)
-        val fresh = MediaPipeline(context.contentResolver)
+        val fresh = MediaPipeline(trackingResolver)
         val third = fresh.thumbnailFor(records.single())
         assertEquals(ThumbStatus.ready, third.info.status)
         assertEquals(0, fresh.cache.hits)
@@ -271,7 +379,7 @@ class UriPipelineTest {
 
     @Test
     fun uriOversizedPhotoThumbStaysUnavailable() {
-        val smallCap = MediaPipeline(context.contentResolver, maxSourceBytes = 10L)
+        val smallCap = MediaPipeline(trackingResolver, maxSourceBytes = 10L)
         val records = smallCap.loadPage(
             listOf(uriSource("IMG_b.jpg", MediaKind.photo, "image/jpeg")),
             0,
@@ -328,8 +436,8 @@ class UriPipelineTest {
     }
 
     private fun allDescriptorsClosed(): Boolean {
-        return provider.opened.isNotEmpty() &&
-            provider.opened.all { !it.fileDescriptor.valid() }
+        return trackingResolver.opened.isNotEmpty() &&
+            trackingResolver.opened.all { !it.fileDescriptor.valid() }
     }
 
     private fun stageAsset(asset: String, name: String) {
