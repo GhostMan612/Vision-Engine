@@ -11,7 +11,11 @@ import androidx.exifinterface.media.ExifInterface
 import com.visionengine.core.ExtractStatus
 import java.io.File
 
-class AndroidMetadataExtractor(private val resolver: ContentResolver) {
+class AndroidMetadataExtractor(
+    private val resolver: ContentResolver,
+    private val openDescriptor: (Uri) -> ParcelFileDescriptor? =
+        { uri -> resolver.openFileDescriptor(uri, "r") },
+) {
     fun probePhotoFile(path: String, mime: String?): PhotoResult {
         val file = File(path)
         if (!file.isFile) {
@@ -35,7 +39,7 @@ class AndroidMetadataExtractor(private val resolver: ContentResolver) {
 
     fun probePhotoUri(uri: Uri, sizeBytes: Long?, mime: String?): PhotoResult {
         return try {
-            resolver.openFileDescriptor(uri, "r")?.use { descriptor ->
+            openDescriptor(uri)?.use { descriptor ->
                 val exif = ExifInterface(descriptor.fileDescriptor)
                 ExifReader.readPhoto(exif, sizeBytes, mime)
             } ?: PhotoResult(
@@ -95,7 +99,7 @@ class AndroidMetadataExtractor(private val resolver: ContentResolver) {
         mime: String?,
     ): VideoResult {
         val descriptor = try {
-            resolver.openFileDescriptor(uri, "r")
+            openDescriptor(uri)
         } catch (e: Exception) {
             null
         } ?: return VideoResult(

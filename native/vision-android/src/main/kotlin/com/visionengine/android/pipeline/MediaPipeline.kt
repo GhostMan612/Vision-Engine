@@ -53,8 +53,10 @@ class MediaPipeline(
     val cache: ThumbnailCache = ThumbnailCache(),
     val maxDimension: Int = 256,
     val maxSourceBytes: Long = 64L * 1024L * 1024L,
+    private val openDescriptor: (Uri) -> ParcelFileDescriptor? =
+        { uri -> resolver.openFileDescriptor(uri, "r") },
 ) : ViewerPipeline {
-    private val extractor = AndroidMetadataExtractor(resolver)
+    private val extractor = AndroidMetadataExtractor(resolver, openDescriptor)
 
     override fun loadPage(
         sources: List<MediaSource>,
@@ -253,7 +255,7 @@ class MediaPipeline(
     private fun readPhotoSourceBytes(uri: Uri): ByteArray? {
         val descriptor: ParcelFileDescriptor
         try {
-            descriptor = resolver.openFileDescriptor(uri, "r") ?: return null
+            descriptor = openDescriptor(uri) ?: return null
         } catch (e: Exception) {
             return null
         }
@@ -322,7 +324,7 @@ class MediaPipeline(
         cachedThumbFetch(key)?.let { return it }
         val descriptor: ParcelFileDescriptor
         try {
-            descriptor = resolver.openFileDescriptor(uri, "r") ?: return ThumbFetch(
+            descriptor = openDescriptor(uri) ?: return ThumbFetch(
                 ThumbInfo(ThumbStatus.unavailable, reason = "unreadable"),
                 null,
             )

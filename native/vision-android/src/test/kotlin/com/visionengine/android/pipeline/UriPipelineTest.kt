@@ -5,7 +5,6 @@
 package com.visionengine.android.pipeline
 
 import android.content.ContentProvider
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.ProviderInfo
@@ -44,26 +43,10 @@ class UriPipelineTest {
     private lateinit var context: Context
     private lateinit var treeUri: Uri
     private lateinit var provider: FakeDocsProvider
-    private lateinit var trackingResolver: TrackingContentResolver
+    private lateinit var trackingOpener: (Uri) -> ParcelFileDescriptor?
+    private val openedDescriptors: MutableList<ParcelFileDescriptor> =
+        mutableListOf()
     private lateinit var pipeline: MediaPipeline
-
-    private class TrackingContentResolver(
-        base: ContentResolver,
-    ) : ContentResolver(base.context) {
-        private val delegate = base
-        val opened: MutableList<ParcelFileDescriptor> = mutableListOf()
-
-        override fun openFileDescriptor(
-            uri: Uri,
-            mode: String,
-        ): ParcelFileDescriptor? {
-            val descriptor = delegate.openFileDescriptor(uri, mode)
-            if (descriptor != null) {
-                opened.add(descriptor)
-            }
-            return descriptor
-        }
-    }
 
     private class FakeDocsProvider : ContentProvider() {
         var files: MutableMap<String, File> = mutableMapOf()
@@ -140,8 +123,17 @@ class UriPipelineTest {
             "com.example.docs",
             provider,
         )
-        trackingResolver = TrackingContentResolver(context.contentResolver)
-        pipeline = MediaPipeline(trackingResolver)
+        trackingOpener = { uri ->
+            val descriptor = context.contentResolver.openFileDescriptor(uri, "r")
+            if (descriptor != null) {
+                openedDescriptors.add(descriptor)
+            }
+            descriptor
+        }
+        pipeline = MediaPipeline(
+            context.contentResolver,
+            openDescriptor = trackingOpener,
+        )
     }
 
     @Test
@@ -184,7 +176,7 @@ class UriPipelineTest {
             }
         }
         record("path") { ExifInterface(file.absolutePath) }
-        record("stream-fd") { ExifInterface(FileInputStream(file).fd) }
+        record("stream-fd") { FileInputStream(file).use { ExifInterface(it.fd) } }
         val descriptor = context.contentResolver.openFileDescriptor(
             DocumentsContract.buildDocumentUriUsingTree(
                 treeUri,
@@ -197,7 +189,7 @@ class UriPipelineTest {
         } finally {
             descriptor.close()
         }
-        record("input-stream") { ExifInterface(FileInputStream(file)) }
+        record("input-stream") { FileInputStream(file).use { ExifInterface(it) } }
         assertEquals(
             listOf(
                 "path: orientation=6 width=24 height=16",
@@ -218,7 +210,9 @@ class UriPipelineTest {
         val descriptor = context.contentResolver.openFileDescriptor(uri, "r")
             ?: throw AssertionError("no descriptor")
         try {
-            val bytes = FileInputStream(descriptor.fileDescriptor).readBytes()
+            val bytes = FileInputStream(descriptor.fileDescriptor).use {
+                it.readBytes()
+            }
             assertEquals(listOf<Byte>(1, 2, 3, 4, 5, 6), bytes.toList())
         } finally {
             descriptor.close()
@@ -283,7 +277,10 @@ class UriPipelineTest {
         val second = pipeline.thumbnailFor(again.single())
         assertEquals(first.bytes, second.bytes)
         assertEquals(1, pipeline.cache.hits)
-        val fresh = MediaPipeline(trackingResolver)
+        val fresh = MediaPipeline(
+            context.contentResolver,
+            openDescriptor = trackingOpener,
+        )
         val third = fresh.thumbnailFor(records.single())
         assertEquals(ThumbStatus.ready, third.info.status)
         assertEquals(0, fresh.cache.hits)
@@ -379,7 +376,11 @@ class UriPipelineTest {
 
     @Test
     fun uriOversizedPhotoThumbStaysUnavailable() {
-        val smallCap = MediaPipeline(trackingResolver, maxSourceBytes = 10L)
+        val smallCap = MediaPipeline(
+            context.contentResolver,
+            maxSourceBytes = 10L,
+            openDescriptor = trackingOpener,
+        )
         val records = smallCap.loadPage(
             listOf(uriSource("IMG_b.jpg", MediaKind.photo, "image/jpeg")),
             0,
@@ -436,8 +437,8 @@ class UriPipelineTest {
     }
 
     private fun allDescriptorsClosed(): Boolean {
-        return trackingResolver.opened.isNotEmpty() &&
-            trackingResolver.opened.all { !it.fileDescriptor.valid() }
+        return openedDescriptors.isNotEmpty() &&
+            openedDescriptors.all { !it.fileDescriptor.valid() }
     }
 
     private fun stageAsset(asset: String, name: String) {
