@@ -24,6 +24,7 @@ import com.visionengine.core.ThumbInfo
 import com.visionengine.core.ThumbStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -116,12 +117,19 @@ class ViewerViewModel(
     }
 
     suspend fun openFolder(folder: FolderState, resolver: ContentResolver) {
-        val current = currentCoroutineContext()[Job]
-        if (loadJob != null && loadJob !== current) {
-            loadJob?.cancel()
-        }
-        loadJob = current
+        loadJob?.cancel()
         val generation = ++loadGeneration
+        coroutineScope {
+            loadJob = coroutineContext[Job]
+            openFolderLocked(folder, resolver, generation)
+        }
+    }
+
+    private suspend fun openFolderLocked(
+        folder: FolderState,
+        resolver: ContentResolver,
+        generation: Int,
+    ) {
         resetRunState()
         _selectedGrant.value = folder.entry
         if (folder.state == GrantState.LOST) {
@@ -185,13 +193,12 @@ class ViewerViewModel(
         if (loadedCount >= lastSources.size) {
             return
         }
-        val current = currentCoroutineContext()[Job]
-        if (loadJob != null && loadJob !== current) {
-            loadJob?.cancel()
+        loadJob?.cancel()
+        coroutineScope {
+            loadJob = coroutineContext[Job]
+            _loading.value = true
+            loadNextPage(resolver, loadGeneration)
         }
-        loadJob = current
-        _loading.value = true
-        loadNextPage(resolver, loadGeneration)
     }
 
     private suspend fun loadNextPage(resolver: ContentResolver, generation: Int) {

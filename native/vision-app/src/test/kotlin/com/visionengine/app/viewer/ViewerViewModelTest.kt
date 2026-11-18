@@ -24,6 +24,8 @@ import com.visionengine.core.ThumbInfo
 import com.visionengine.core.ThumbStatus
 import com.visionengine.core.photoMetaFromMap
 import com.visionengine.core.videoMetaFromMap
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -486,5 +488,49 @@ class ViewerViewModelTest {
         assertNull(model.selectedGrant.value)
         assertTrue(model.records.value.isEmpty())
         assertNull(model.counts.value)
+    }
+
+    @Test
+    fun foldersChangedToLostDoesNotCancelCallingScope() = runBlocking {
+        val model = viewModel(mixedPipeline())
+        model.openFolder(healthyFolder(), context.contentResolver)
+        assertEquals(3, model.records.value.size)
+        model.onFoldersChanged(listOf(lostFolder()))
+        assertTrue(currentCoroutineContext()[Job]?.isActive == true)
+        assertTrue(model.grantLost.value)
+        assertFalse(model.loading.value)
+        assertEquals(3, model.records.value.size)
+    }
+
+    @Test
+    fun foldersChangedToMissingDoesNotCancelCallingScope() = runBlocking {
+        val model = viewModel(mixedPipeline())
+        model.openFolder(healthyFolder(), context.contentResolver)
+        assertEquals(3, model.records.value.size)
+        model.onFoldersChanged(emptyList())
+        assertTrue(currentCoroutineContext()[Job]?.isActive == true)
+        assertNull(model.selectedGrant.value)
+        assertTrue(model.records.value.isEmpty())
+        assertNull(model.counts.value)
+    }
+
+    @Test
+    fun foldersChangedToLostCancelsInFlightLoad() = runBlocking {
+        val model = viewModel(mixedPipeline(thumbDelayMs = 300L))
+        val job = launch {
+            model.openFolder(healthyFolder(), context.contentResolver)
+        }
+        delay(50)
+        model.onFoldersChanged(listOf(lostFolder()))
+        job.join()
+        assertTrue(currentCoroutineContext()[Job]?.isActive == true)
+        assertTrue(model.grantLost.value)
+        assertFalse(model.loading.value)
+        assertEquals(3, model.records.value.size)
+        assertTrue(
+            model.records.value.all {
+                it.thumbStatus == ThumbStatus.pending
+            },
+        )
     }
 }

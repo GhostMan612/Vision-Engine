@@ -7,6 +7,7 @@ package com.visionengine.app.viewer
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
@@ -29,15 +30,19 @@ import com.visionengine.app.renamer.scriptedDiscovery
 import java.io.File
 import java.io.FileNotFoundException
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowBitmapFactory
 import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.LEGACY)
 class ViewerScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -126,6 +131,11 @@ class ViewerScreenTest {
                 "note.txt",
                 "text/plain",
             ),
+            safDocRow(
+                "primary:Pictures/gone.jpg",
+                "gone.jpg",
+                "image/jpeg",
+            ),
         )
     }
 
@@ -153,12 +163,13 @@ class ViewerScreenTest {
         setScreen(model, listOf(healthyFolder()))
         composeRule.onNodeWithText("Select").performClick()
         composeRule.waitUntil(5_000) {
-            model.records.value.size == 4 && !model.loading.value
+            model.records.value.size == 5 && !model.loading.value
         }
     }
 
     @Before
     fun setUp() {
+        ShadowBitmapFactory.setAllowInvalidImageData(false)
         context = ApplicationProvider.getApplicationContext()
         treeUri = Uri.parse(
             "content://com.example.docs/tree/primary%3APictures",
@@ -171,10 +182,20 @@ class ViewerScreenTest {
         provider.files["primary:Pictures/IMG_b.jpg"] = File(dir, "IMG_b.jpg")
         provider.files["primary:Pictures/VID_a.mp4"] = File(dir, "VID_a.mp4")
         provider.files["primary:Pictures/bad.jpg"] = File(dir, "bad.jpg")
+        val info = ProviderInfo().apply {
+            authority = "com.example.docs"
+            grantUriPermissions = true
+        }
+        provider.attachInfo(context, info)
         ShadowContentResolver.registerProviderInternal(
             "com.example.docs",
             provider,
         )
+    }
+
+    @After
+    fun tearDown() {
+        ShadowBitmapFactory.setAllowInvalidImageData(true)
     }
 
     @Test
@@ -220,7 +241,10 @@ class ViewerScreenTest {
         composeRule.onNodeWithText("VID_a.mp4").assertIsDisplayed()
         composeRule.onNodeWithText("bad.jpg").assertIsDisplayed()
         composeRule.onNodeWithText("note.txt").assertIsDisplayed()
-        composeRule.onNodeWithText("Photo").assertIsDisplayed()
+        composeRule.onNodeWithText("gone.jpg").assertIsDisplayed()
+        composeRule
+            .onAllNodesWithText("Photo")
+            .assertCountEquals(3)
         composeRule.onNodeWithText("Video").assertIsDisplayed()
         composeRule.onNodeWithText("Unsupported").assertIsDisplayed()
         composeRule.onNodeWithText("Thumb failed").assertIsDisplayed()
