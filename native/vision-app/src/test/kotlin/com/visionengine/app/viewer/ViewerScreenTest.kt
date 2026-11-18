@@ -281,6 +281,14 @@ class ViewerScreenTest {
             .performScrollTo()
             .assertIsDisplayed()
         composeRule
+            .onNodeWithText("Make")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("THUMB")
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
             .onNodeWithText("Raw 24×16 · orientation tag 6")
             .performScrollTo()
             .assertIsDisplayed()
@@ -294,10 +302,10 @@ class ViewerScreenTest {
             .assertIsDisplayed()
         composeRule
             .onAllNodesWithText("—")
-            .assertCountEquals(6)
+            .assertCountEquals(5)
         composeRule
             .onAllNodesWithText("exif")
-            .assertCountEquals(3)
+            .assertCountEquals(4)
         composeRule
             .onAllNodesWithText("filesystem")
             .assertCountEquals(2)
