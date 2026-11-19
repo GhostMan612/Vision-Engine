@@ -32,9 +32,19 @@
 - [x] MP3 SAF discovery (2026-09-15): SafDiscovery + MimeTypes + 17/17
   Robolectric tests; test-scoped junit/robolectric reuse pinned versions;
   NO MP4, NO Viewer, NO permissions
-- [ ] MP6 pipeline (authorized 2026-09-15): MediaPipeline + 7/7 JVM tests
-  + instrumented device suite authored+compiled; device run BLOCKED (no
-  device on adb — rerun per runbook); NO Viewer, NO MP7
+- [x] MP6 pipeline (authorized 2026-09-15): MediaPipeline + 7/7 JVM tests
+  + instrumented device suite authored+compiled; device run DONE
+  2026-11-17 — 13/13 PASS on BLU B160V, Android 14
+  (ExtractorDeviceTest 6/6, ThumbsDeviceTest 6/6,
+  PipelineDeviceTest 1/1), Gradle BUILD SUCCESSFUL in 1m 32s,
+  instrumented XML reports independently checked. Hardware
+  substitution: the S1 spec named the Moto G; the run used the BLU
+  B160V instead — no Moto G coverage is claimed. ACCEPTED
+  2026-11-17 for the tested BLU B160V hardware scope (run head
+  commit `18c45c6`; observed second run BUILD SUCCESSFUL in 25s,
+  watched in full by the operator, no folder picker appeared);
+  see `blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md` §7 and
+  §13. NO Viewer, NO MP7
 - [x] MP4 extraction (2026-09-15): readers + extractor + 15/15 JVM tests;
   instrumented device suite 6/6 PASS on Moto G (agent-run); NO MP5, NO Viewer
 - [x] MP5 thumbnails (2026-09-15): PhotoThumbs + VideoFrames + cache
@@ -47,6 +57,35 @@
 - [x] 2B triage (2026-09-15): 4 device failures classified (fixture SOF, orient-0, status rule, duration assert) — host green (26/26 app), device rerun pending
 - [x] 2B device validation CLOSED 2026-09-15: Moto G 5/5 PASS (human-pasted), single-lane build clean
 - [ ] 2C pipeline (authorized 2026-09-15): media_library + lister + thumbs + orchestrator + device suite (in progress)
+
+## Standalone v1 (2026-11-15–17, main `18c45c6`)
+
+- [x] **S1 — MP6 device re-run:** 13/13 PASS on BLU B160V
+      2026-11-17 (BUILD SUCCESSFUL, 1m 32s, XML checked); Moto G →
+      B160V hardware substitution recorded, no Moto G coverage
+      claimed. ACCEPTED 2026-11-17 for the tested BLU B160V
+      hardware scope (head commit `18c45c6`; observed second run
+      BUILD SUCCESSFUL in 25s, watched in full, no picker).
+- [x] **S2 — Native rename port (PR #4, merged 2026-11-16,
+      `4ef05e7`):** `vision-core` rename package green on JVM (38
+      rename tests incl. 6 golden replays), host gate green.
+- [~] **S3 — SAF picker + grants (PR #5, merged 2026-11-16,
+      `2223beb`):** picker + persisted grants + folder list UI
+      merged; host gate green; grant + discovery proven on B160V;
+      reboot + reinstall survival verified with the S4B/S4C runs.
+      Revoke-then-re-pick NOT verified — open item.
+- [x] **S4 — Renamer screen (PR #6, merged 2026-11-17,
+      `5ea6c2c`, + PR #7 fix, merged 2026-11-17, `b0d2b36`):**
+      preview → execute → honest manifest → undo on a real folder;
+      host gate green; S4B synthetic + S4C real-media rename/Undo
+      passed on B160V at PR #7 head `4c444db` (hashes identical,
+      41.5 MB MP4 byte-identical, grants + manifests survived
+      reinstall). Stage (c) live DCIM NOT run — separate Glenn
+      go-ahead required.
+- [x] **PR #8 — Python safety residuals (merged 2026-11-17,
+      `18c45c6`):** exclusive manifest, alias guard,
+      dependency-aware undo, 12 adapted safety tests; pytest 30
+      passed (18 + 12), CI pass.
 - [ ] Viewer UI (grid → detail, orientation-correct, unknown-as-—, provenance chips)
 - [ ] Moto G smoke (operator-supplied shots, never committed)
 

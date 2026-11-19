@@ -1,0 +1,23 @@
+{
+  "prefixes": ["IMG_", "VID_"],
+  "caseSensitive": true,
+  "recursive": false,
+  "entries": [
+    {"path": "/t/IMG_20260905_110523079_HDR.jpg", "name": "IMG_20260905_110523079_HDR.jpg"},
+    {"path": "/t/VID_20260902_200800398.mp4", "name": "VID_20260902_200800398.mp4"},
+    {"path": "/t/MY_IMG_foo.jpg", "name": "MY_IMG_foo.jpg"},
+    {"path": "/t/20200101_plain.jpg", "name": "20200101_plain.jpg"}
+  ],
+  "existing": [
+    "/t/IMG_20260905_110523079_HDR.jpg",
+    "/t/VID_20260902_200800398.mp4",
+    "/t/MY_IMG_foo.jpg",
+    "/t/20200101_plain.jpg"
+  ],
+  "expectedPlanned": [
+    ["/t/IMG_20260905_110523079_HDR.jpg", "/t/20260905_110523079_HDR.jpg"],
+    ["/t/VID_20260902_200800398.mp4", "/t/20260902_200800398.mp4"]
+  ],
+  "expectedCollisions": [],
+  "expectedCounts": {"scanned": 4, "planned": 2, "skippedNoPrefix": 2, "skippedIsDir": 0, "skippedEmptyResult": 0, "collisions": 0}
+}

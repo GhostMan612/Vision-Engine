@@ -1,8 +1,19 @@
 # S1 — MP6 device re-run (spec)
 
-> Status: SPEC for operator review. Authorizes NOTHING to run — the run
-> itself is Glenn-side, on Glenn's laptop with Glenn's Moto G on adb.
-> No code changes in this slice. No claim below says the run happened.
+> Status: ACCEPTED 2026-11-17 for the tested BLU B160V hardware
+> scope — see §7 and §13. The run happened on the BLU B160V
+> (hardware substitution for the Moto G named below); 13/13 PASS,
+> Gradle BUILD SUCCESSFUL (first run 1m 32s, observed rerun 25s).
+> The operator's self-containment confirmation (§5.4 item 3 / §7 /
+> §8) was received 2026-11-17: the operator watched the entire
+> second run and no folder picker appeared at any point. The
+> original Moto G requirement is satisfied through the explicitly
+> documented B160V substitution, not through a claim of Moto G
+> testing. No additional S1 device run is required for this
+> substituted hardware acceptance. No code changes in this slice.
+> The original spec text is preserved below; run results are
+> recorded in §7 and §13, and superseded claims are marked, not
+> erased.
 
 Labels used throughout: **FACT** (verified in repo/docs), **REPO
 EVIDENCE** (file:line or gate result), **RECOMMENDATION** (judgment),
@@ -68,6 +79,8 @@ platform-truth leg before MP7 (Viewer) builds on it.
   (device visibility), not a defect in the suite — but that is not
   proven until the run completes. The runbook agrees: "Re-run as soon
   as the device reappears; no code changes needed."
+  **Resolved 2026-11-17:** the run completed 13/13 with no test
+  failure — the block was environmental, not a suite defect.
 
 ### 3.2 The runbook (already written — this spec does not rewrite it)
 
@@ -174,6 +187,18 @@ adb devices
    touched (all suites are fully self-contained; none should).
 4. The `adb devices` output from §5.2 (proves which device ran).
 
+**What was actually pasted back (2026-11-17):** a summary, not the
+full §5.4 paste-back — per-suite counts (Extractor 6/6, Thumbs 6/6,
+Pipeline 1/1), `BUILD SUCCESSFUL`, 1m 32s, device BLU B160V
+Android 14 (ADB serial `7040016025040287`), instrumented XML
+reports independently checked. The head commit (`18c45c6`) and the
+§5.4 item 3 confirmation line ("no folder picker appeared and no
+DCIM was touched") were then confirmed by the operator the same
+day (see §13). **Not yet archived in GitHub:** the full terminal
+output and the `adb devices` output were supplied in the operator
+conversation but are not yet archived in the repo (per GPT's
+independent review, 2026-11-17).
+
 ### 5.5 After the run — state update (separate, small commit or handoff note)
 
 - [ ] `blueprints/CURRENT_STATE.md` MP6 entry updated with the run
@@ -220,21 +245,51 @@ at the time)". Each step is cheap, reversible, and Glenn-side.
 ## 7. Acceptance criteria — checklist
 
 - [ ] `adb devices` listed the Moto G as `device` before the run
-      (§5.2).
-- [ ] The §3.2 command ran to completion from
-      `C:\vision engine\native` (not cancelled).
-- [ ] Terminal output shows `BUILD SUCCESSFUL` and all 13 tests ran:
+      (§5.2). **Not met as written:** the run used the BLU B160V
+      (hardware substitution, recorded in §13); the `adb devices`
+      output was supplied in the operator conversation but is not
+      yet archived in GitHub (per GPT's independent review,
+      2026-11-17). **Covered by the 2026-11-17 acceptance
+      decision:** the Moto G requirement is satisfied through the
+      explicitly documented B160V substitution, not a claim of
+      Moto G testing.
+- [x] The §3.2 command ran to completion from
+      `C:\vision engine\native` (not cancelled). **2026-11-17:** run
+      completed in 1m 32s per the operator report (exact command
+      line not pasted).
+- [x] Terminal output shows `BUILD SUCCESSFUL` and all 13 tests ran:
       `ExtractorDeviceTest` 6, `ThumbsDeviceTest` 6,
-      `PipelineDeviceTest` 1.
+      `PipelineDeviceTest` 1. **2026-11-17:** per the operator
+      report; instrumented XML reports independently checked.
 - [ ] Paste-back delivered per §5.4 (full output, head commit,
       no-picker/no-DCIM confirmation, `adb devices` output).
-- [ ] All 13 tests passed (0 failures, 0 skipped).
-- [ ] No folder picker appeared during the run; no DCIM touched
-      (confirmation line present).
-- [ ] `blueprints/CURRENT_STATE.md` MP6 entry updated with the
-      result (date, device, head, 13/13).
-- [ ] No file outside the state docs (§5.5) was modified by this
-      slice.
+      **Partial 2026-11-17:** a summary was delivered (counts,
+      BUILD SUCCESSFUL, durations, device); the head commit was
+      then confirmed as `18c45c6`, and the no-picker/no-DCIM
+      confirmation was given (see §13). The full terminal output
+      and the `adb devices` output were supplied in the operator
+      conversation but are not yet archived in GitHub (per GPT's
+      independent review, 2026-11-17).
+- [x] All 13 tests passed (0 failures, 0 skipped).
+      **2026-11-17, BLU B160V.**
+- [x] No folder picker appeared during the run; no DCIM touched
+      (confirmation line present). **CONFIRMED 2026-11-17:** the
+      operator watched the entire second run on the BLU B160V and
+      no folder picker appeared at any point. DCIM isolation is
+      supported by source inspection: the suites stage bundled
+      synthetic fixtures in app-private directories (`ve_mp4`,
+      `ve_mp5`, `ve_mp6`) and the inspected test execution paths
+      contain no DCIM access, user-media renaming, or
+      folder-picker launch — recorded as source-code evidence of
+      isolation, not a complete filesystem-access trace.
+- [x] `blueprints/CURRENT_STATE.md` MP6 entry updated with the
+      result (date, device, head, 13/13). **Done by the 2026-11-17
+      documentation-reconciliation PR; updated by the same PR
+      once the head commit (`18c45c6`) and the operator
+      confirmation were received.**
+- [x] No file outside the state docs (§5.5) was modified by this
+      slice. **The run itself modified no repo file; the state
+      update is this docs PR.**
 
 ## 8. Gates
 
@@ -295,6 +350,9 @@ without re-running.
 1. **When does the run happen?** It needs Glenn's laptop + Moto G
    together. Is there a day/time to schedule it, or does it happen
    opportunistically?
+   **Answered in part 2026-11-17:** the run happened on the BLU
+   B160V (not the Moto G). No Moto G run is scheduled; no Moto G
+   coverage is claimed.
 2. **Gradle path:** Is the runbook's `gradle-9.3.1` wrapper-dist path
    (§3.2) still valid on the laptop, or has Gradle been upgraded
    since September? If upgraded, should the runbook be corrected to
@@ -313,3 +371,49 @@ without re-running.
    its own commit on `main`, or ride along with the next code PR?
    (House session-end law says update the state docs every session;
    the PR #1 lane deliberately deferred that to the spec PR.)
+   **Answered 2026-11-17:** it landed as its own documentation
+   PR (docs-only, no code).
+
+## 13. Run result — 2026-11-17 (BLU B160V)
+
+- **Device:** BLU B160V, Android 14, ADB serial
+  `7040016025040287`. **Hardware substitution:** the S1 spec named
+  the Moto G; the run used the BLU B160V instead. No Moto G
+  coverage is claimed anywhere from this run.
+- **Result:** `ExtractorDeviceTest` 6/6 PASS, `ThumbsDeviceTest`
+  6/6 PASS, `PipelineDeviceTest` 1/1 PASS — **13 passed, 0 failed,
+  0 skipped**. Gradle `BUILD SUCCESSFUL`; test execution completed
+  in 1m 32s. Instrumented XML reports independently checked.
+- **Counts corroborated in-repo:** `grep -c '@Test'` on the three
+  device test files returns 6, 6, and 1.
+- **Head commit (confirmed 2026-11-17):** `18c45c6` — the run was
+  made from consolidated main at
+  `18c45c68aa8a832b179aa6511dde2fa53c2f1514`.
+- **Run location:** `C:\Users\612co\vision-engine-main-20261117\native`
+  — a fresh worktree at `18c45c6`, not the divergent original
+  checkout `C:\vision engine`.
+- **Observed rerun:** a second run on the same device was
+  `BUILD SUCCESSFUL` in 25 seconds; the operator watched the
+  entire second run.
+- **Operator confirmation (2026-11-17):** no Android folder picker
+  appeared at any point during the test. DCIM isolation evidence:
+  source inspection confirms the instrumented suites stage
+  bundled synthetic fixtures in app-private test directories
+  (`ve_mp4`, `ve_mp5`, `ve_mp6`); the inspected test execution
+  paths contain no DCIM access, user-media renaming, or
+  folder-picker launch. This is source-code evidence of
+  isolation, not a complete filesystem-access trace.
+- **Acceptance decision (2026-11-17):** S1 MP6 accepted for the
+  tested BLU B160V hardware scope. The original Moto G
+  requirement is satisfied through an explicitly documented
+  B160V substitution, not through a claim of Moto G testing. No
+  additional S1 device run is required for this substituted
+  hardware acceptance.
+- **Evidence not yet archived in GitHub:** per the operator
+  conversation (GPT independent review, 2026-11-17), the original
+  and repeat terminal transcripts, the ADB device listing, and the
+  XML audit were supplied there; they are not yet archived in the
+  repo. The exact head commit is recorded above.
+- **Status:** ACCEPTED 2026-11-17 (BLU B160V scope). Recorded in
+  `blueprints/CURRENT_STATE.md` and `blueprints/CHECKLIST.md` by
+  the 2026-11-17 documentation-reconciliation PR.

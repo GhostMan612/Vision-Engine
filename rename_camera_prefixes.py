@@ -272,7 +272,7 @@ def write_manifest(report: RenameReport, manifest_path: Path, executed: bool = F
     every row, which made --undo try to restore renames that never happened.
     """
     renamed_keys = {(op.src, op.dst) for op in report.renamed_ops}
-    with manifest_path.open("w", newline="", encoding="utf-8") as f:
+    with manifest_path.open("x", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=MANIFEST_FIELDNAMES)
         writer.writeheader()
         for op in report.planned:
@@ -292,12 +292,18 @@ def write_manifest(report: RenameReport, manifest_path: Path, executed: bool = F
 
 
 def undo_from_manifest(manifest_path: Path, logger: logging.Logger, dry_run: bool = True) -> Tuple[int, List[str]]:
-    """Restore original names from a manifest CSV. Returns (restored_count, errors)."""
+    """Restore original names from a manifest CSV. Returns (restored_count, errors).
+
+    Rows restore in dependency order, not plain reverse manifest order: a
+    row whose original name is still occupied by another pending row waits
+    until that row vacates it. Plain reversal restores only 1 of 2 chain
+    rows (the first hit reports the original as already existing).
+    """
     restored = 0
     errors: List[str] = []
     with manifest_path.open("r", newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
-    # Reverse order so later renames undo first (safest if names overlapped).
+    pending = {}
     for row in reversed(rows):
         if row.get("status") and row["status"] != "renamed":
             # A dry-run ("planned") or skipped row was never renamed; there
@@ -305,26 +311,39 @@ def undo_from_manifest(manifest_path: Path, logger: logging.Logger, dry_run: boo
             # manifest from undoing renames that never happened.
             errors.append(f"SKIP (not a completed rename): {row['new_name']} (status={row['status']})")
             continue
-        new_path = Path(row["new_path"])
-        orig_path = Path(row["original_path"])
-        # Manifest stores absolute paths; fall back to names if paths moved.
-        src = new_path if new_path.exists() else Path(orig_path.parent) / row["new_name"]
-        if not src.exists():
-            errors.append(f"SKIP (not found): {row['new_name']}")
-            continue
-        if orig_path.exists():
-            errors.append(f"SKIP (original already exists): {row['original_name']}")
-            continue
-        if dry_run:
-            logger.info(f"WOULD RESTORE: {src.name} -> {orig_path.name}")
-            restored += 1
-        else:
+        pending[row["new_path"]] = row
+    vacated: set[str] = set()
+    while pending:
+        ready = [row for row in reversed(list(pending.values()))
+                 if row["original_path"] not in pending]
+        if not ready:
+            errors.append("SKIP: cyclic undo dependencies; manual recovery required")
+            break
+        for row in ready:
             try:
-                os.rename(src, orig_path)
-                logger.info(f"RESTORED: {src.name} -> {orig_path.name}")
-                restored += 1
+                new_path = Path(row["new_path"])
+                orig_path = Path(row["original_path"])
+                # Manifest stores absolute paths; fall back to names if paths moved.
+                src = new_path if new_path.exists() else Path(orig_path.parent) / row["new_name"]
+                if not src.exists():
+                    errors.append(f"SKIP (not found): {row['new_name']}")
+                    continue
+                if orig_path.exists() and str(orig_path) not in vacated:
+                    errors.append(f"SKIP (original already exists): {row['original_name']}")
+                    continue
+                if dry_run:
+                    logger.info(f"WOULD RESTORE: {src.name} -> {orig_path.name}")
+                    vacated.add(str(src))
+                    restored += 1
+                else:
+                    os.rename(src, orig_path)
+                    logger.info(f"RESTORED: {src.name} -> {orig_path.name}")
+                    vacated.add(str(src))
+                    restored += 1
             except OSError as exc:
-                errors.append(f"ERROR restoring {src.name}: {exc}")
+                errors.append(f"ERROR restoring {row.get('new_name', '?')}: {exc}")
+            finally:
+                pending.pop(row.get("new_path", ""), None)
     return restored, errors
 
 
@@ -422,20 +441,39 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not args.verbose and len(report.planned) > preview_n:
             logger.info(f"  ... and {len(report.planned) - preview_n} more (use --verbose to list all)")
 
+    manifest_path = Path(args.manifest) if args.manifest else None
+    if manifest_path is not None:
+        planned_paths = {os.path.normcase(os.path.abspath(path))
+                         for op in report.planned for path in (op.src, op.dst)}
+        if os.path.normcase(os.path.abspath(manifest_path)) in planned_paths:
+            logger.error("ERROR: manifest path aliases a planned media source/destination")
+            return 2
+        if os.path.lexists(manifest_path):
+            logger.error(f"ERROR: manifest already exists, refusing to overwrite: {manifest_path}")
+            return 2
+
     # The manifest is written AFTER the dry-run/execute decision, so its
     # status column can tell the truth: "planned" on a dry run, "renamed"
     # / "skipped" per op after execution.
     if not args.execute:
-        if args.manifest:
-            write_manifest(report, Path(args.manifest), executed=False)
+        if manifest_path is not None:
+            try:
+                write_manifest(report, manifest_path, executed=False)
+            except OSError as exc:
+                logger.error(f"ERROR: cannot create a new manifest without overwrite: {exc}")
+                return 2
             logger.info(f"Manifest written: {args.manifest}")
         logger.info("DRY-RUN only — nothing was changed. Re-run with --execute to rename.")
         blocked = bool(report.skipped_collision or report.skipped_empty_result or report.skipped_symlink)
         return 2 if blocked else 0
 
     if not report.planned:
-        if args.manifest:
-            write_manifest(report, Path(args.manifest), executed=False)
+        if manifest_path is not None:
+            try:
+                write_manifest(report, manifest_path, executed=False)
+            except OSError as exc:
+                logger.error(f"ERROR: cannot create a new manifest without overwrite: {exc}")
+                return 2
             logger.info(f"Manifest written: {args.manifest}")
         blocked = bool(report.skipped_collision or report.skipped_empty_result or report.skipped_symlink)
         if blocked:
@@ -446,9 +484,14 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     logger.info(f"Executing {len(report.planned)} renames (metadata-preserving os.rename)...")
     report = execute_plan(report, logger)
-    if args.manifest:
-        write_manifest(report, Path(args.manifest), executed=True)
-        logger.info(f"Manifest written: {args.manifest}")
+    if manifest_path is not None:
+        try:
+            write_manifest(report, manifest_path, executed=True)
+        except OSError as exc:
+            logger.error(f"ERROR: manifest refresh failed (review recovery manually): {exc}")
+            report.errors.append(f"manifest refresh failed: {exc}")
+        else:
+            logger.info(f"Manifest written: {args.manifest}")
     logger.info(f"DONE: renamed={report.renamed}/{report.to_rename} "
                 f"errors={len(report.errors)} collision_skips={len(report.skipped_collision)}")
     for e in report.errors:

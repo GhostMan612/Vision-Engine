@@ -1,7 +1,9 @@
 # ADR-005 — Native Android platform + migration shape
 
-> Status: PROPOSED 2026-09-15 (records GQ8=NO and the authorized target;
-> implementation awaits a migration kickoff authorization).
+> Status: RECORDED AS PROPOSED 2026-09-15. Subsequent repository evidence
+> documents MP0–MP6 implementation; this heading was stale.
+> Formal decision acceptance/signature is not independently established.
+> Native migration IN PROGRESS; MP6 device verification BLOCKED, MP7 not begun.
 > Full analysis: `blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md`.
 
 ## Decision

@@ -29,3 +29,19 @@
 - [x] D2 device evidence 2026-09-15: Moto G shared-folder probe COMPLETE
   (RAW_RENAME WORKS, undo 2/2, cleaned; human-pasted reports).
 - [ ] Full DCIM round-trip — deferred until explicitly tasked (never probed).
+
+## 2026-11-17 note (main `18c45c6`) — no checkpoint flips
+
+- S1's platform-truth leg is done: the MP6 device suite ran 13/13
+  PASS on BLU B160V (hardware substitution for the Moto G named in
+  the S1 spec; no Moto G coverage claimed). This feeds S5/MP7
+  readiness, but it flips no checkpoint on its own.
+- G2 stays open: the Viewer (S5) is not built and there is no
+  real-shot smoke yet.
+- G5 stays open: the full DCIM round-trip is still deferred, and
+  S4 stage (c) live DCIM was explicitly not run.
+- S1 is now ACCEPTED for the tested BLU B160V hardware scope
+  (2026-11-17): the operator confirmation was received — no
+  folder picker appeared during the watched second run — and the
+  run head commit is `18c45c6`. See
+  `blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md` §7 and §13.

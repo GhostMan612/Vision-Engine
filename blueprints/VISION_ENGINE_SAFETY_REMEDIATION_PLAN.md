@@ -1,5 +1,13 @@
 # Vision Engine — Archival Safety, Parity, CI and Governance Remediation
 
+> **Historical audit — 2026-10-13.** Preserved verbatim below for the record.
+> Packages A–C of this plan were resolved by PRs #1 and #2. The remaining
+> Python safety residuals (exclusive manifest creation, manifest alias guard,
+> dependency-aware undo, adapted safety tests, parity chain assertion) were
+> closed by the PR that added this header. Packages D–E and the licensing
+> decision in this plan were **not** adopted by that PR; do not read this
+> document as current status — see `blueprints/CURRENT_STATE.md`.
+
 **Plan version:** 2026-10-13 · **Target:** `GhostMan612/Vision-Engine`, `main` · **Mode:** local-only, reviewable, SHA-guarded overlay · **GitHub remote:** no changes made.
 
 ## 1. Executive decision and scope

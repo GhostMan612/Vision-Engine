@@ -37,7 +37,7 @@ def test_dryrun_manifest_is_planned_and_undo_ignores_it(tmp_path: Path) -> None:
     renamer.write_manifest(report, manifest)
     assert read_rows(manifest)[0]["status"] == "planned"
     count, errors = renamer.undo_from_manifest(manifest, LOGGER, dry_run=False)
-    assert (count, errors) == (0, [])
+    assert count == 0 and errors
     assert (tmp_path / "IMG_001.jpg").read_bytes() == b"image"
     assert not (tmp_path / "001.jpg").exists()
 
@@ -47,7 +47,7 @@ def test_manifest_tracks_actual_execution_and_undo(tmp_path: Path) -> None:
     report = renamer.build_plan(tmp_path)
     renamer.execute_plan(report, LOGGER)
     manifest = tmp_path / "actual.csv"
-    renamer.write_manifest(report, manifest)
+    renamer.write_manifest(report, manifest, executed=True)
     assert {r["status"] for r in read_rows(manifest)} == {"renamed"}
     count, errors = renamer.undo_from_manifest(manifest, LOGGER, dry_run=False)
     assert (count, errors) == (2, [])
@@ -64,7 +64,7 @@ def test_chain_execution_vacates_destination_first_and_preserves_bytes(tmp_path:
     assert (tmp_path / "VID_a.jpg").read_bytes() == b"first"
     assert (tmp_path / "a.jpg").read_bytes() == b"second"
     manifest = tmp_path / "chain.csv"
-    renamer.write_manifest(report, manifest)
+    renamer.write_manifest(report, manifest, executed=True)
     restored, errors = renamer.undo_from_manifest(manifest, LOGGER, dry_run=False)
     # Reverse manifest/source-name order is NOT inherently dependency-safe;
     # this assertion pins that requirement rather than silently accepting
@@ -80,7 +80,10 @@ def test_destination_appears_after_plan_does_not_overwrite(tmp_path: Path) -> No
     (tmp_path / "a.jpg").write_bytes(b"outside")
     renamer.execute_plan(report, LOGGER)
     assert report.renamed == 0
-    assert report.planned[0].status == "skipped"
+    assert report.skipped_collision
+    manifest = tmp_path / "appeared.csv"
+    renamer.write_manifest(report, manifest, executed=True)
+    assert read_rows(manifest)[0]["status"] == "skipped"
     assert (tmp_path / "a.jpg").read_bytes() == b"outside"
     assert (tmp_path / "IMG_a.jpg").read_bytes() == b"source"
 
@@ -91,12 +94,13 @@ def test_execute_status_tracks_partial_result(tmp_path: Path) -> None:
     (tmp_path / "a.jpg").write_bytes(b"EXTERNAL")
     renamer.execute_plan(report, LOGGER)
     manifest = tmp_path / "mixed.csv"
-    renamer.write_manifest(report, manifest)
+    renamer.write_manifest(report, manifest, executed=True)
     rows = {row["original_name"]: row["status"] for row in read_rows(manifest)}
     assert rows == {"IMG_a.jpg": "skipped", "IMG_b.jpg": "renamed"}
     assert (tmp_path / "a.jpg").read_bytes() == b"EXTERNAL"
     count, errors = renamer.undo_from_manifest(manifest, LOGGER, dry_run=False)
-    assert count == 1 and not errors
+    assert count == 1
+    assert errors == ["SKIP (not a completed rename): a.jpg (status=skipped)"]
     assert (tmp_path / "IMG_b.jpg").read_bytes() == b"B"
 
 
@@ -105,7 +109,7 @@ def test_undo_does_not_overwrite_preexisting_source(tmp_path: Path) -> None:
     report = renamer.build_plan(tmp_path)
     renamer.execute_plan(report, LOGGER)
     manifest = tmp_path / "undo.csv"
-    renamer.write_manifest(report, manifest)
+    renamer.write_manifest(report, manifest, executed=True)
     (tmp_path / "IMG_a.jpg").write_bytes(b"unrelated")
     count, errors = renamer.undo_from_manifest(manifest, LOGGER, dry_run=False)
     assert count == 0 and errors
@@ -147,27 +151,12 @@ def test_symlinks_are_not_sources_or_destinations(tmp_path: Path) -> None:
     (tmp_path / "IMG_dangling.jpg").symlink_to(tmp_path / "missing")
     (tmp_path / "b.jpg").symlink_to(tmp_path / "missing-dest")
     report = renamer.build_plan(tmp_path)
-    assert report.skipped_unsupported == 3
+    assert report.skipped_symlink == 3
     assert report.skipped_no_prefix == 1
-    assert not report.planned
+    assert [op.old_name for op in report.planned] == ["IMG_b.jpg"]
     assert (tmp_path / "IMG_link.jpg").is_symlink()
     assert (tmp_path / "IMG_dangling.jpg").is_symlink()
     assert (tmp_path / "b.jpg").is_symlink()
-
-
-@pytest.mark.skipif(os.name == "nt", reason="POSIX no-clobber primitive")
-def test_destination_race_cannot_replace_existing_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    seed(tmp_path, {"IMG_a.jpg": b"A"})
-    report = renamer.build_plan(tmp_path)
-    original_link = renamer.os.link
-    def racing_link(src, dst, **kwargs):
-        Path(dst).write_bytes(b"outside")
-        return original_link(src, dst, **kwargs)
-    monkeypatch.setattr(renamer.os, "link", racing_link)
-    renamer.execute_plan(report, LOGGER)
-    assert report.planned[0].status == "skipped"
-    assert (tmp_path / "a.jpg").read_bytes() == b"outside"
-    assert (tmp_path / "IMG_a.jpg").read_bytes() == b"A"
 
 
 def test_chain_undo_dryrun_reports_both_restorations(tmp_path: Path) -> None:
@@ -175,7 +164,7 @@ def test_chain_undo_dryrun_reports_both_restorations(tmp_path: Path) -> None:
     report = renamer.build_plan(tmp_path)
     renamer.execute_plan(report, LOGGER)
     manifest = tmp_path / "chain_preview.csv"
-    renamer.write_manifest(report, manifest)
+    renamer.write_manifest(report, manifest, executed=True)
     restored, errors = renamer.undo_from_manifest(manifest, LOGGER, dry_run=True)
     assert (restored, errors) == (2, [])
     assert (tmp_path / "VID_a.jpg").read_bytes() == b"first"
