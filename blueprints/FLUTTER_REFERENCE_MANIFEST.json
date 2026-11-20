@@ -1,7 +1,12 @@
 {
-  "tag": "flutter-final",
+  "tag": "flutter-final-v2",
   "scope": "all git-tracked files except this manifest (tree is curated by .gitignore; build/.dart_tool/logs/IDE state are untracked by policy)",
   "files": [
+    {
+      "path": ".github/workflows/python-app.yml",
+      "bytes": 1508,
+      "sha256": "fc9154d676168f6fd8f8888aa4e5ee94c66fbc4cd32ecb5f04f3554b3f728def"
+    },
     {
       "path": ".gitignore",
       "bytes": 352,
@@ -59,8 +64,18 @@
     },
     {
       "path": "SESSION_HANDOFF.md",
-      "bytes": 15596,
-      "sha256": "f51df42d4f461d62dcfcec9d2fafd09c2846367a72e4995d4e09df93a80806a2"
+      "bytes": 22708,
+      "sha256": "5415b2005569b0614865d372f63102d895df34b624a3359b247d22ee405b95ae"
+    },
+    {
+      "path": "VISION_ENGINE_OVERLAY_README.md",
+      "bytes": 4346,
+      "sha256": "102aaaeb4e5f743b75bfbc59320c0a4e27d62d9c0c3d5710d47222e283ee0a02"
+    },
+    {
+      "path": "Vision_Engine_Remediation_Plan.md",
+      "bytes": 11680,
+      "sha256": "afa7d7bb6667c61748b6554eb69f9566d11f77cc903db7e7709c2b765e9994fa"
     },
     {
       "path": "app/.gitignore",
@@ -210,7 +225,7 @@
     {
       "path": "app/integration_test/pipeline_device_test.dart",
       "bytes": 4511,
-      "sha256": "f840afdde1f75b8c1f2f31c785bebef90a827f5329c617efe6e3a205d8cb9c50"
+      "sha256": "8523e1db18f4b7d79dd7b3203f2cc880747db61ccc9bc63a0a5f4aded65c20f0"
     },
     {
       "path": "app/lib/adapters/local_rename_adapter.dart",
@@ -319,18 +334,23 @@
     },
     {
       "path": "blueprints/CHECKLIST.md",
-      "bytes": 3133,
-      "sha256": "afb2860d634b7e8db97d35fc2cd87ca1ccc8d2c95460df9cc7004b94b6e96bc5"
+      "bytes": 7201,
+      "sha256": "082fde4ab18cb77ab2164eef0c61b508c2d9e3f93e7247daaf578dab377e3eac"
     },
     {
       "path": "blueprints/CHECKPOINTS.md",
-      "bytes": 2042,
-      "sha256": "381b50b9707db1cf5c3b58c5025b302afaf8c447cc7f37bf7a9479a60b7494f8"
+      "bytes": 3187,
+      "sha256": "606d6fcfc3193335952dedd64e634d6a914d7050f4e936732ce472d0f022dfa1"
     },
     {
       "path": "blueprints/CURRENT_STATE.md",
-      "bytes": 8060,
-      "sha256": "3ed7c50350902b56a4c815a20cf6246b856eacde9e12f7d541b00f45c59615c9"
+      "bytes": 19137,
+      "sha256": "5b0dd1d588e68b76130426049c7295bc4324def168e199f543d4673873f5c08a"
+    },
+    {
+      "path": "blueprints/FLUTTER_REFERENCE_BASELINE.md",
+      "bytes": 8083,
+      "sha256": "099bf0bcb354837ce1fd5ebc0ecfd1f8318c81ffe55220a63f37bf78f08cc764"
     },
     {
       "path": "blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md",
@@ -349,13 +369,18 @@
     },
     {
       "path": "blueprints/ROADMAP.md",
-      "bytes": 3977,
-      "sha256": "9d6cf91d95c37958042fa196d17423d8040296d55a9db2310f5bf92feb8bb557"
+      "bytes": 5399,
+      "sha256": "b5383cc036e934d51b9c55a5d780cdf83bee596062831f651b8dbb8a718cec8e"
     },
     {
       "path": "blueprints/VISION_ENGINE_MASTER_BLUEPRINT.md",
       "bytes": 6551,
       "sha256": "b7a768bc157c635c87ac589ed1e320fb9adef6ac3f7b0e7aba710a0fdfadfed8"
+    },
+    {
+      "path": "blueprints/VISION_ENGINE_SAFETY_REMEDIATION_PLAN.md",
+      "bytes": 12217,
+      "sha256": "e8c18a4a35a7797b35b9b50a4a83eaf5431c10eb9c28d20eec6dd1b000363236"
     },
     {
       "path": "blueprints/blueprint-sections/BP-01-core-renamer.md",
@@ -404,8 +429,58 @@
     },
     {
       "path": "blueprints/decisions/ADR-005-native-android-platform.md",
-      "bytes": 3706,
-      "sha256": "1235a725eb95fac50ad2ee33d3889d4c692ffb661880d478813f733a77ffa8b3"
+      "bytes": 3928,
+      "sha256": "1bed68c8ce96bbaa6e325677e7a449f9a37ee9b1b7f17c7cc8b0cc63af1ad20f"
+    },
+    {
+      "path": "blueprints/standalone-v1/CHECKLIST.md",
+      "bytes": 7969,
+      "sha256": "1ed73b5b5f282504e67d67c926fb6b3a452f40a0283b36e8015f204a4bc255ba"
+    },
+    {
+      "path": "blueprints/standalone-v1/README.md",
+      "bytes": 13986,
+      "sha256": "dff68d34e38295f70db6859db9efee7cbd8cbaade5db83d1e61ab1070d706e2f"
+    },
+    {
+      "path": "blueprints/standalone-v1/RECOMMENDATIONS.md",
+      "bytes": 20257,
+      "sha256": "3ef3b14964508ee3c05be0c055513c0660d19e4668e23ea7b49e63143a9a50ea"
+    },
+    {
+      "path": "blueprints/standalone-v1/S1-MP6-DEVICE-RERUN.md",
+      "bytes": 23193,
+      "sha256": "7605f0d4b1ae49bd5b51279c4eef01073eaec842a149ad4b7d0c66eb61614363"
+    },
+    {
+      "path": "blueprints/standalone-v1/S2-NATIVE-RENAME-PORT.md",
+      "bytes": 31555,
+      "sha256": "98367b210a2ab113e3b602573e13edf981e6a54848dcfce0b4812c706337d7c8"
+    },
+    {
+      "path": "blueprints/standalone-v1/S3-SAF-PICKER-GRANTS.md",
+      "bytes": 31972,
+      "sha256": "75f6103ad350813fde9dd43082e57f0fbe24f8a84d425d9f5ca398f0e021041b"
+    },
+    {
+      "path": "blueprints/standalone-v1/S4-RENAMER-SCREEN.md",
+      "bytes": 36990,
+      "sha256": "bd5fbacb5061e7ca34f7dec19b69a91e8b40103af9622a434a7f4259e755afae"
+    },
+    {
+      "path": "blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md",
+      "bytes": 7644,
+      "sha256": "c9c86fe9a9f60824cf2b45a6453485f76ced3561ad56a8794dc92e9768b1103f"
+    },
+    {
+      "path": "blueprints/standalone-v1/S5-MP7-VIEWER.md",
+      "bytes": 51097,
+      "sha256": "4e4a245e838a2acb35adfe298fa381b15458e5f53ae2a24c44a56ea3de5c5897"
+    },
+    {
+      "path": "blueprints/standalone-v1/S6-MP8-MP9-PARITY-RETIREMENT.md",
+      "bytes": 22458,
+      "sha256": "e110e65ebc98a1fe683b9f0c0d5729c8f4241d30baa30956f0622940a019e0d1"
     },
     {
       "path": "docs/android-metadata-matrix.md",
@@ -428,9 +503,634 @@
       "sha256": "6cf00ee01b84046123fb91a62004aef613571d35dd5f3939fa37c24f08fea456"
     },
     {
+      "path": "docs/device-validation-mp4.md",
+      "bytes": 1453,
+      "sha256": "6174f196c5c67cf3c5c20fe1bb3eabfa2172c7f514e320c6aef65c300aef655a"
+    },
+    {
+      "path": "docs/device-validation-mp5.md",
+      "bytes": 1520,
+      "sha256": "d517a442d70e4423b36d2d0e6061b54ab10dc8b2eeb9d27216fab035f5d7f82f"
+    },
+    {
+      "path": "docs/device-validation-mp6.md",
+      "bytes": 1933,
+      "sha256": "2ff2c7d90091559cf0499c8b0f2f0bd5fc164a85ce74b5fdacad8caedce53690"
+    },
+    {
       "path": "docs/extraction-boundary.md",
       "bytes": 5509,
       "sha256": "362c0d0d7f8816366748b506e277aa04dad3844743db7f363430e9a044eda00e"
+    },
+    {
+      "path": "muse.md",
+      "bytes": 30625,
+      "sha256": "de85b1d2d672df728c8474e8090a8638b2a48e0f58327341b2ad7c81718faa35"
+    },
+    {
+      "path": "native/.gitignore",
+      "bytes": 317,
+      "sha256": "fac80b990d9be44a8579412b9faa74fbd64aa69bb350cb933e3ec47ec9cbc119"
+    },
+    {
+      "path": "native/README.md",
+      "bytes": 7715,
+      "sha256": "6be77f4d9ae82af4b666828041011bc81b71c7c95ee9cb7ddea0e65b69061183"
+    },
+    {
+      "path": "native/build.gradle.kts",
+      "bytes": 269,
+      "sha256": "037853aae08909e0ca99d7b8df470c2506472389d5e5a9378bb25566a3dae462"
+    },
+    {
+      "path": "native/gradle.properties",
+      "bytes": 52,
+      "sha256": "835ea69251bc5957e2e5d689e3b6b8067729d9120cc52b5ec343f1783044c52c"
+    },
+    {
+      "path": "native/gradle/wrapper/gradle-wrapper.jar",
+      "bytes": 53636,
+      "sha256": "16caeaf66d57a0d1d2087fef6a97efa62de8da69afa5b908f40db35afc4342da"
+    },
+    {
+      "path": "native/gradle/wrapper/gradle-wrapper.properties",
+      "bytes": 207,
+      "sha256": "594a00250ef7a36609a01f3263bf5ed63963afaf9ca9f82f2cd1de0f6f056383"
+    },
+    {
+      "path": "native/gradlew",
+      "bytes": 4971,
+      "sha256": "ec56c02543666d92d9ac5ae7fcc48f88ce4de0deb8b7f9b39928ca46f68c1b2b"
+    },
+    {
+      "path": "native/gradlew.bat",
+      "bytes": 2404,
+      "sha256": "c13c6e91b9a517783976de213d46398c661ea9e17651376d7301e839eaedcc62"
+    },
+    {
+      "path": "native/settings.gradle.kts",
+      "bytes": 396,
+      "sha256": "fcb0fb3a2630c50dfb047b66ed872b2d16fa9bcddba87c44ef2ad648b8fbdc89"
+    },
+    {
+      "path": "native/vision-android/README.md",
+      "bytes": 345,
+      "sha256": "a51b8f17adaed4aa8afc7f0f7fa2c4926d6a9a779ebc39e16d2cc591a5211294"
+    },
+    {
+      "path": "native/vision-android/build.gradle.kts",
+      "bytes": 1132,
+      "sha256": "44c2e2cb81d7513856b1dc451e940304e869cf35afd2fc7aff6208a73efda986"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/AndroidManifest.xml",
+      "bytes": 367,
+      "sha256": "bec6659851dcb88233a378f0a225f5260ec571ec01312f06fc3720b65189a6c0"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/assets/fixtures/ve_exif.jpg",
+      "bytes": 324,
+      "sha256": "a99ebefe39116a82a0b7e0fc8e608f0034b2483cd3c98b4e8738eaa77cfa6adc"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/assets/fixtures/ve_minimal.mp4",
+      "bytes": 150,
+      "sha256": "db64f1fd6e1e8a01a247d8664dc96480d6b409e154482dd1eb2dc1dc704da29c"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/assets/fixtures/ve_plain.png",
+      "bytes": 454,
+      "sha256": "afc297ae08e6d0a82d3d4541565f7f3e9b63e929bfda3d55ea0f2e0b5d2c566e"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/assets/fixtures/ve_thumb.jpg",
+      "bytes": 194,
+      "sha256": "38902e21ce82345ea2eacb6bbd678f49a80ca3d17c7518d219d316e2f61e5223"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/kotlin/com/visionengine/android/meta/ExtractorDeviceTest.kt",
+      "bytes": 5527,
+      "sha256": "925f30e34117dc0f8a46f2d2b5291c99a53a3d2fc2708b5a9c7c6139c0afe863"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/kotlin/com/visionengine/android/pipeline/PipelineDeviceTest.kt",
+      "bytes": 5043,
+      "sha256": "78f8570d1b298f78d55a3acaeb2d65af43c500ff0b55e70e83f7382a090605d7"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/kotlin/com/visionengine/android/pipeline/TestDocsProvider.kt",
+      "bytes": 1855,
+      "sha256": "269d8e253acf40a302f595bfc4fe8c51b6592483bccb2bf2debfec1f1274f304"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/kotlin/com/visionengine/android/pipeline/UriPipelineDeviceTest.kt",
+      "bytes": 5638,
+      "sha256": "43e7edb6c3a1d74b8edc3c86402bec49673d9d53f4a6b9a8d36b72678f652c47"
+    },
+    {
+      "path": "native/vision-android/src/androidTest/kotlin/com/visionengine/android/thumbs/ThumbsDeviceTest.kt",
+      "bytes": 4275,
+      "sha256": "a188f411c0e13cad747c3c84b8ddcb090c47f4fb3de9ea0660cf1aff27b09e5f"
+    },
+    {
+      "path": "native/vision-android/src/main/AndroidManifest.xml",
+      "bytes": 72,
+      "sha256": "343d5be1ac17cdd45d1a2f2ddc616c509290e655869125a9422a96d88aa66066"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/meta/AndroidMetadataExtractor.kt",
+      "bytes": 4843,
+      "sha256": "418165be44194092000fcd713aae595585b6bb6a19fdbc632ea19589d906df0f"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/meta/ExifReader.kt",
+      "bytes": 5195,
+      "sha256": "b11dbfc04ea3c711dbca77cdce015d634d8141534c162b516e961bf841555aa8"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/meta/VideoReader.kt",
+      "bytes": 5245,
+      "sha256": "ce02ce00ec98c3eee6baf8fdaf1f1e84fe970281cc7335a53e7ef61c76cf92b6"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/pipeline/MediaPipeline.kt",
+      "bytes": 12441,
+      "sha256": "70f0378f46fcf61bef49d021d76f0c84846c463f46f0d2212c1a19d30b43a096"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/pipeline/ViewerPipeline.kt",
+      "bytes": 638,
+      "sha256": "d545e70ee17476b77ac795750b05c2118b30e8fcbaf1201e441f3d49b41b5d79"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/saf/FolderDisplayName.kt",
+      "bytes": 1631,
+      "sha256": "739d204cb00f760b700fdd36c84b9e6bc9f6358bc0347a5b8c02949d16637945"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/saf/GrantHealth.kt",
+      "bytes": 719,
+      "sha256": "2ef1f91e2f7e76941b9bbf6757f5dc46aa32ff70d6320bec5cb72802dfb4e97d"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/saf/GrantModel.kt",
+      "bytes": 2867,
+      "sha256": "e6b8dbce584108b3934523df0266f5311030ad4a5d4a8f378015bfd1bd1eebda"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/saf/GrantStore.kt",
+      "bytes": 4294,
+      "sha256": "768ea60f09ccecc8c647b2e6cc4ba090316520182278db8835340bf6dcb34ed4"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/saf/SafDiscovery.kt",
+      "bytes": 7097,
+      "sha256": "a8d7180eb99de6b0c068736429f36360d6fe586a423e14872096a2d7736ecee8"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/saf/SafPicker.kt",
+      "bytes": 1004,
+      "sha256": "9df42510e6eeb1be5fabd8c73176beaea5fa655c9376359b59a9a05bd24095b9"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/thumbs/PhotoThumbs.kt",
+      "bytes": 4517,
+      "sha256": "7f5fda12470258d610abe9e82ce1c486a42bdedb4cccef119b18d2cde6de8741"
+    },
+    {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/thumbs/VideoFrames.kt",
+      "bytes": 4029,
+      "sha256": "a5926b090ce7d99725522f68b04c045f4d1c2e211cdfde83ece336f64b68cec3"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/meta/ExifReaderTest.kt",
+      "bytes": 4323,
+      "sha256": "00039a114e723193b572939e6bf6d387b8831ba772ced16f58a1165c3ecfbd04"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/meta/ExtractorLifecycleTest.kt",
+      "bytes": 3623,
+      "sha256": "f63643f43cbf8992e6af1ce6532af73d4546274d1c801fa82ffd052bb6929a35"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/meta/VideoReaderTest.kt",
+      "bytes": 4909,
+      "sha256": "dce8f9cc673b7b56c9daf14e34539e6ce383b71d3aca34254aa26c3b28321ba3"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/pipeline/CorruptImageStrictLegacyGraphicsTest.kt",
+      "bytes": 1790,
+      "sha256": "cdaf28b953d267eeea0419f91e67cd5251440889b1a8a031c0ec0cd4ed125f73"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/pipeline/PipelineTest.kt",
+      "bytes": 7768,
+      "sha256": "7bb9d1ccdded5f98d3ecfe3601902e5cfbff2e7d0579b66752ab09b17efe5e85"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/pipeline/UriPipelineTest.kt",
+      "bytes": 17798,
+      "sha256": "320380211c04af699c46f533400fd5042eb0faabf1b6bce7ebce67dbb2ab8641"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/saf/DiscoveryTest.kt",
+      "bytes": 11355,
+      "sha256": "9b4bf1384fd3b5dc0b9d46863a0162908bdda54aeda48c09ad18b1d028bff83c"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/saf/GrantModelTest.kt",
+      "bytes": 4982,
+      "sha256": "bf43acae837a928d50b562e5d3cf8be80f0315594f34d1970259cfbafcad0a3a"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/thumbs/PhotoThumbsTest.kt",
+      "bytes": 4026,
+      "sha256": "d0ad5ebb4b32ad43f16121f5480eea6834333fc0563572a7cfbb876539517506"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/thumbs/VideoFramesTest.kt",
+      "bytes": 1773,
+      "sha256": "2073d64f26e80de8ba9be98d8fd32158936365c8212d740188129350df212054"
+    },
+    {
+      "path": "native/vision-android/src/test/resources/fixtures/ve_exif.jpg",
+      "bytes": 324,
+      "sha256": "a99ebefe39116a82a0b7e0fc8e608f0034b2483cd3c98b4e8738eaa77cfa6adc"
+    },
+    {
+      "path": "native/vision-android/src/test/resources/fixtures/ve_minimal.mp4",
+      "bytes": 150,
+      "sha256": "db64f1fd6e1e8a01a247d8664dc96480d6b409e154482dd1eb2dc1dc704da29c"
+    },
+    {
+      "path": "native/vision-android/src/test/resources/fixtures/ve_plain.png",
+      "bytes": 454,
+      "sha256": "afc297ae08e6d0a82d3d4541565f7f3e9b63e929bfda3d55ea0f2e0b5d2c566e"
+    },
+    {
+      "path": "native/vision-android/src/test/resources/fixtures/ve_thumb.jpg",
+      "bytes": 194,
+      "sha256": "38902e21ce82345ea2eacb6bbd678f49a80ca3d17c7518d219d316e2f61e5223"
+    },
+    {
+      "path": "native/vision-app/build.gradle.kts",
+      "bytes": 2021,
+      "sha256": "dd6dd2382106e7c497bb8ef0ec2f29c6cb4d77518e8da286b1933abb02b61deb"
+    },
+    {
+      "path": "native/vision-app/src/main/AndroidManifest.xml",
+      "bytes": 560,
+      "sha256": "835d994bfaf06da9f27340a69246ad04835282ca9caad8f1f6711857efcb216a"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/AppRoot.kt",
+      "bytes": 9544,
+      "sha256": "dbc917589b06cf6dfa114be637b72b3daa7b435bb2f5ca36208213371f68a934"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/MainActivity.kt",
+      "bytes": 654,
+      "sha256": "1bd06006c8ae166c0a612f5fedaef154848dd95956bd522d39166617b02e94a5"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/MainViewModel.kt",
+      "bytes": 5944,
+      "sha256": "5bae3d15a76b2094007c7cfc14cac14361572f3df71de6dbd98d92260bca51aa"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/renamer/RenameExecution.kt",
+      "bytes": 15328,
+      "sha256": "cd9946c02c1b61a4ece6175908c189b881611cc72cb79728e637b4f1ef671404"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/renamer/RenamerScreen.kt",
+      "bytes": 10068,
+      "sha256": "b85a7a50671d5cd046bb46960d9e149e6ea7fcd046f0f9396f522a8a3569ac35"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/renamer/RenamerViewModel.kt",
+      "bytes": 16333,
+      "sha256": "f23ef8010f84e7ccceacd05f65c6801a264732a1e869d9a379efc4a4df53a02c"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/renamer/SafRenameBackend.kt",
+      "bytes": 2896,
+      "sha256": "fc59a7a7d89d06340ffd3cd0058acec0176eb9ebfa109d1c370df34563a69850"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/viewer/ViewerScreen.kt",
+      "bytes": 11039,
+      "sha256": "37a9ee810249b2696aeb6e2420953d3de4e314410542dbe9238154e6a647ae4c"
+    },
+    {
+      "path": "native/vision-app/src/main/kotlin/com/visionengine/app/viewer/ViewerViewModel.kt",
+      "bytes": 15074,
+      "sha256": "922c67b9ab51fed5f7ae43ad24cbf1fd78dedc309e51ebd0600fd36c0bafb473"
+    },
+    {
+      "path": "native/vision-app/src/main/res/values/themes.xml",
+      "bytes": 109,
+      "sha256": "6e31947704a0c7c3593f166c08b9d7db49b9fe98de6e420e30ca7247aea4639e"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/AppRootTest.kt",
+      "bytes": 2768,
+      "sha256": "e9ceea9a993502d4e3959adb2ac3ed25803dc44c23acf5e93ed53c44f10b1870"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/MainViewModelTest.kt",
+      "bytes": 1041,
+      "sha256": "a6443ee1d50fb9cbad5a07d278adf345956104a42f680d4c4a7bac02d2657862"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/renamer/FakeRenameBackend.kt",
+      "bytes": 2322,
+      "sha256": "6d657e3684f87c51f9e3224fee975db8fca422f46d6989ad52897d7ecdd215fa"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/renamer/RenameExecutionTest.kt",
+      "bytes": 23334,
+      "sha256": "0e737f6f3a5a0be8e973c54cb79e9ec7da02ee256cc5f9892347e02ec58ecaa4"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/renamer/RenamerScreenTest.kt",
+      "bytes": 7703,
+      "sha256": "b8081d658819a5af003ad352a90c3c58c4cd7aaf6df48e6f1771532258d9baab"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/renamer/RenamerViewModelTest.kt",
+      "bytes": 10434,
+      "sha256": "9f7543b858e01b6e212234b307c257d544029ee480fe4eca446fe9f6f6eaa41a"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/renamer/SafRenameBackendTest.kt",
+      "bytes": 6362,
+      "sha256": "940a6a12f012df55e2b32d51bcb0335cc22c249599a84d443ac310481b4c6cac"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/renamer/SafTestFixtures.kt",
+      "bytes": 1590,
+      "sha256": "74387bce3fadb364a3b8b1f5274693c41a9142cfa1730394e46528cb157e1583"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/viewer/ViewerScreenTest.kt",
+      "bytes": 13752,
+      "sha256": "0d397e19d560d56f2129abecc3eed631e2076f404c078c2103c5f238b97a2214"
+    },
+    {
+      "path": "native/vision-app/src/test/kotlin/com/visionengine/app/viewer/ViewerViewModelTest.kt",
+      "bytes": 25193,
+      "sha256": "5526bee0825ccd5641c353bd35a2c882a6421fc8eadeb0cb498bec592a360e6d"
+    },
+    {
+      "path": "native/vision-app/src/test/resources/fixtures/ve_minimal.mp4",
+      "bytes": 150,
+      "sha256": "db64f1fd6e1e8a01a247d8664dc96480d6b409e154482dd1eb2dc1dc704da29c"
+    },
+    {
+      "path": "native/vision-app/src/test/resources/fixtures/ve_thumb.jpg",
+      "bytes": 194,
+      "sha256": "38902e21ce82345ea2eacb6bbd678f49a80ca3d17c7518d219d316e2f61e5223"
+    },
+    {
+      "path": "native/vision-core/README.md",
+      "bytes": 311,
+      "sha256": "48029b2f1570512f28c168187ea7aa6338a3a3b795438ea5e2fe9473b366f438"
+    },
+    {
+      "path": "native/vision-core/build.gradle.kts",
+      "bytes": 371,
+      "sha256": "0e8559fa9f77d1d33eafda0e44e5859801a65234795b4d231df003495c84532c"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/Cache.kt",
+      "bytes": 2287,
+      "sha256": "d36b8e510ff45cb9b45761b673b9fc8ce29ccf47a96c2bfa6729b27e25205b0d"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/DetailFields.kt",
+      "bytes": 5149,
+      "sha256": "02a5d473d2f84df6f9e5c8da12981d447de18ed1dc213f2467f285e0d06d32a2"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/ExtractStatus.kt",
+      "bytes": 352,
+      "sha256": "73b2b52940e7939dcd548c7dd22ffda7ccbea9c9c2417c684377bb21e28e5a9c"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/Fields.kt",
+      "bytes": 3960,
+      "sha256": "6af75d62402566a8abce82f11b234e046d3d654d0d7597c99ba9877907863b93"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/MediaKind.kt",
+      "bytes": 333,
+      "sha256": "b9248b6a1e03835cc2837092c2f7418448799a83df6406804b1f2f7fb6893a69"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/MediaRecord.kt",
+      "bytes": 3795,
+      "sha256": "a738357f5a82f802a2772c15348816c4581913b8041fe7cfba8aca481a112d86"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/MediaSource.kt",
+      "bytes": 1797,
+      "sha256": "13eb55b530c179cc98d3c1a77bf0ba7b55e4beea0377b848738cc881c1b4e131"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/MetaField.kt",
+      "bytes": 442,
+      "sha256": "21b100402fd665f43a430389755e1d8a2f2d05830e547779984dabf7cbdf16ea"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/MimeTypes.kt",
+      "bytes": 2505,
+      "sha256": "f939642e6d9215b6403d79c8769a3720dd654d132a16965bcbbcaa3217c6584c"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/Ordering.kt",
+      "bytes": 1364,
+      "sha256": "732d790a90d5bbdef6d79aba0833fbd8512c7a374d0b281d87b4b39a2b4a33bd"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/PhotoMeta.kt",
+      "bytes": 1461,
+      "sha256": "1bf76a01854dc6bccab0d9d4baedb0dd878e2f89e8b68b406a1c5192a80682db"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/Provenance.kt",
+      "bytes": 554,
+      "sha256": "0d101b5b986552895196cc5eeb38fa6d1def5989591e6cf592616e9fa182ac75"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/StatusRules.kt",
+      "bytes": 1152,
+      "sha256": "e3123fdd19cc380c6165d0c84204b37bd9b78d67279289c487797327029b9a10"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/ThumbInfo.kt",
+      "bytes": 1335,
+      "sha256": "2e34f2966b5eeb2e85a0c73848a7ee1e9d1b35a861bfb5ac26aa91fd4ddd838b"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/ThumbKeys.kt",
+      "bytes": 1053,
+      "sha256": "69978ecee20a1c1fd732f05c367c4d1476e2611e6def4b18c1b13e96b0d606cf"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/VideoMeta.kt",
+      "bytes": 1400,
+      "sha256": "de2fe173ab54d63d837f43959556c6d71e6d7775fd63a53e218c9a1d7b3f476c"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/rename/ExecutionOrder.kt",
+      "bytes": 1716,
+      "sha256": "1a3fc80fd8a88f4fb22d655a36ff7a5e5702006d923424252c4d02d369ba65f4"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/rename/Manifest.kt",
+      "bytes": 8476,
+      "sha256": "ebeee8bc4b5d5494053e4aa0216432397d38bfd429c28712f41e9dbb053f37ca"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/rename/Plan.kt",
+      "bytes": 4537,
+      "sha256": "1ac08d045427a7dd24977aad8d7408a260dd152f310032c305746306c3933957"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/rename/Prefix.kt",
+      "bytes": 1874,
+      "sha256": "55b651d1abb64dab06c6557319cd8582b28fad1f871a86ab21328f95010b1d16"
+    },
+    {
+      "path": "native/vision-core/src/main/kotlin/com/visionengine/core/rename/RenameModels.kt",
+      "bytes": 2988,
+      "sha256": "b0ae10e8e319d2029e7c44a98b118f2280af3ff23cd02afcfe8f4b9b2ea69f6d"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/CacheTest.kt",
+      "bytes": 6375,
+      "sha256": "54c1b41aa95b97ffcaf25bfef752f31995273674ef80d2a98c290d51fe5bacff"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/DetailFieldsTest.kt",
+      "bytes": 9048,
+      "sha256": "1d9c87f001c53654389f0f84a8e1497ef9690b93cf1569b738d834a11aab368c"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/DimensionsTest.kt",
+      "bytes": 4051,
+      "sha256": "9e6064f88a7ac80e0a3afdf7cdbbd48d6303c050a3915f29dac108805b7ea090"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/GoldenReplayTest.kt",
+      "bytes": 4950,
+      "sha256": "4b1f00dc5dc3d25a91cbc368efc442ca17334a2202aa305872b15dc1bfbfaf3b"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/JsonParser.kt",
+      "bytes": 4590,
+      "sha256": "b68cf904b6a95ab1cb127aea5886b2871a537b7662541b9b5a696a8a93032ae9"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/LibraryTest.kt",
+      "bytes": 6589,
+      "sha256": "c10c088946d7647631a1362e41018247359a3b0eb841f2d8cf8f86bd9bda3807"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/MimeTypesTest.kt",
+      "bytes": 3583,
+      "sha256": "495e4ed59ab140c13289177198821e8bd1d02185b3a54b5a77ea0683aa32e6b2"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/ModuleBoundaryTest.kt",
+      "bytes": 2761,
+      "sha256": "8a71db09c2ae7c3367981e2d1ecc1420a2f9e4f9e10a54b1a7620127d7d83018"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/ProvenanceTest.kt",
+      "bytes": 1688,
+      "sha256": "cb8a0275434677dcf1866ba6841550f7fa350e608764df9eb63873d5436344ca"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/rename/ExecutionOrderTest.kt",
+      "bytes": 2985,
+      "sha256": "b5a8bad2afe1255f180c35ac7d920ea6726f337b996405ac9407fe7ae29d0827"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/rename/ManifestTest.kt",
+      "bytes": 6073,
+      "sha256": "8a28ec46a9c11bf8c3481655bf0b1cfb0caec6ce09874d2ea943b3e591255f17"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/rename/PlanTest.kt",
+      "bytes": 6453,
+      "sha256": "2d684698d8dc06deeb3303dc7986173057dca62921599abbeeacb2d1b80efdec"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/rename/RenameGoldenTest.kt",
+      "bytes": 4053,
+      "sha256": "b1b7a27854ea971d9531cbc759681a8ef533d7549643f4056e3d2f02f8e75c6b"
+    },
+    {
+      "path": "native/vision-core/src/test/kotlin/com/visionengine/core/rename/StripTest.kt",
+      "bytes": 2646,
+      "sha256": "9a8f40dcfc70e42c63eafce513eba6e6dce4b688d243c46ff607e7b4a0599065"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/case_gate.json",
+      "bytes": 748,
+      "sha256": "5c438372f2c99f3a53c5f3ff254207111099c86bd4ec7f2db922e4a5a4228bf2"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/collision_trio.json",
+      "bytes": 1038,
+      "sha256": "7761f6d5f436ebccd538039868f783d4adf76b9c8e625774f0a6a7f54d35f445"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/empty_skip.json",
+      "bytes": 521,
+      "sha256": "62bb743d97bde4f4fc847fc0475565c33a26d05cad20a94c714a89896649ee4d"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/leading_only.json",
+      "bytes": 916,
+      "sha256": "fc59de53a2a1659948a6671f2cb5effdd8a3eba3d9caa02d1924171d28c14a39"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/orientation_vectors.json",
+      "bytes": 2224,
+      "sha256": "d5433d6fa5097051a30f13f6cc617d8496e2058b32e7e3232b163df81e048f55"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/photo_exif.json",
+      "bytes": 721,
+      "sha256": "d57b528adadab908d464158c246a4f73fab41cc83b0c9accf927f8b4eff99122"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/recursive.json",
+      "bytes": 713,
+      "sha256": "4c7a0ae588eb01d4d7a2c873337cdb25849334297c2ea0cfcf441777ffa3052f"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/sort_determinism.json",
+      "bytes": 626,
+      "sha256": "adc54b56bce7b21382ab50cfbd9f762874d5d8cf818e13d462a2d5709d620e64"
+    },
+    {
+      "path": "native/vision-core/src/test/resources/golden/video_meta.json",
+      "bytes": 686,
+      "sha256": "a96b4da909bccb6e0095879dbb0e36916aa51104f20e909e2a6d4f4b9b8340e6"
     },
     {
       "path": "packages/media_library/analysis_options.yaml",
@@ -669,13 +1369,28 @@
     },
     {
       "path": "rename_camera_prefixes.py",
-      "bytes": 16056,
-      "sha256": "abd4097c1f959e11fdf50911f4f40b0ec3f71bd3ba00346c043bc6c0ca0344e9"
+      "bytes": 22367,
+      "sha256": "8d51420795e0a81b71f885e04c99859722b68fc280dbc2b66db7f0f7acc44a3b"
     },
     {
       "path": "rename_min.py",
-      "bytes": 1130,
-      "sha256": "42946f74eaafe942828a271924a02784cba866466abe2f8af5757555063e3dcf"
+      "bytes": 2496,
+      "sha256": "c5d5902ac011de4f945c3ca65ebc1f1c28b190156126356d8796d2043f3edfcd"
+    },
+    {
+      "path": "tests/test_rename.py",
+      "bytes": 6912,
+      "sha256": "edbf09f42910fac6d4f2521c198aaf4cbd1727a148c87567517f090b9fe3e79c"
+    },
+    {
+      "path": "tests/test_rename_safety.py",
+      "bytes": 8115,
+      "sha256": "069432c133204e568719dc72d3f989c492e5371bcde27a305bbd9a82f583efbd"
+    },
+    {
+      "path": "tools/apply_vision_engine_overlay.py",
+      "bytes": 35579,
+      "sha256": "949b699abd2dbf485b67d5bfab352677ced5a9e578c2f9a03efcedbd0180dfd3"
     },
     {
       "path": "tools/make_fixtures.py",
@@ -684,12 +1399,17 @@
     },
     {
       "path": "tools/parity_probe.py",
-      "bytes": 7444,
-      "sha256": "e9c94307db81cf666c54e82018ce6734eb1a9a616f96e025008f57b299637331"
+      "bytes": 8295,
+      "sha256": "e80bc320d09a349bce6d83ef94a3166464092a37ac7b36bb68334db93bd82276"
+    },
+    {
+      "path": "tools/verify_reference.py",
+      "bytes": 1747,
+      "sha256": "130333ee68d566a1fe74d814f646fc508e3475dd1c81d2f8f4a02d69be2a12d0"
     }
   ],
   "counts": {
-    "files": 137,
-    "bytes": 397993
+    "files": 281,
+    "bytes": 1325401
   }
 }
