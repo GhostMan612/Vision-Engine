@@ -393,6 +393,6 @@ FAILURE: Build failed with an exception.
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 9s
+BUILD FAILED in 10s
 Error: Gradle task assembleDebug failed with exit code 1
 App failed to start
