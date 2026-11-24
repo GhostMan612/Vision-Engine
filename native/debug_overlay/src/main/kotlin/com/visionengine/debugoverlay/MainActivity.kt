@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
 /** MainActivity — the reusable smoke-checklist screen. */
 class MainActivity : ComponentActivity() {
 
-    private val store = ChecklistStore(this)
+    private val store by lazy { ChecklistStore(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
