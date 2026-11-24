@@ -16,3 +16,4 @@ rootProject.name = "vision-engine-native"
 include(":vision-core")
 include(":vision-android")
 include(":vision-app")
+include(":debug_overlay")
