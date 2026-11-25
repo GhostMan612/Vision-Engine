@@ -12,6 +12,8 @@ class SettingsStore {
   static const String keyPrefixes = 'prefixes';
   static const String keyCaseSensitive = 'case_sensitive';
   static const String keyRecursive = 'recursive';
+  static const String keyEraserEndpoint = 'eraser_endpoint';
+  static const String keyEraserConsent = 'eraser_consent';
 
   static Future<SettingsStore> load() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -44,5 +46,17 @@ class SettingsStore {
 
   Future<void> setRecursive(bool value) {
     return _prefs.setBool(keyRecursive, value);
+  }
+
+  String get eraserEndpoint => _prefs.getString(keyEraserEndpoint) ?? '';
+
+  Future<void> setEraserEndpoint(String value) {
+    return _prefs.setString(keyEraserEndpoint, value);
+  }
+
+  bool get eraserConsent => _prefs.getBool(keyEraserConsent) ?? false;
+
+  Future<void> setEraserConsent(bool value) {
+    return _prefs.setBool(keyEraserConsent, value);
   }
 }

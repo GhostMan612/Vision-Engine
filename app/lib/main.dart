@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'adapters/local_rename_adapter.dart';
+import 'features/erase/erase_screen.dart';
 import 'features/manip/manip_screen.dart';
 import 'features/probe/probe_screen.dart';
 import 'features/rename/rename_screen.dart';
@@ -86,6 +87,7 @@ class _HomeShellState extends State<HomeShell> {
     }
     final List<Widget> tabs = <Widget>[
       RenameScreen(adapter: boot.adapter, settings: boot.settings),
+      EraseScreen(settings: boot.settings),
       ManipScreen(),
       ProbeScreen(baseDir: boot.docs),
       SettingsScreen(settings: boot.settings),
@@ -104,6 +106,10 @@ class _HomeShellState extends State<HomeShell> {
           NavigationDestination(
             icon: Icon(Icons.drive_file_rename_outline),
             label: 'Rename',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.auto_fix_high),
+            label: 'Erase',
           ),
           NavigationDestination(
             icon: Icon(Icons.auto_fix_high),

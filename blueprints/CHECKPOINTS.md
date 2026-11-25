@@ -24,7 +24,7 @@
 
 ## G4 — Advanced spec (Phase 4) [x — see ADR-006, 2026-11-24]
 - [x] BP-04 reviewed; 4B (honest resize) promoted — shipped in Phase 3.
-- [ ] 4A (bg-erase) — needs fresh ADR + operator sign-off; no dep added.
+- [x] 4A (bg-erase) — ADR-007 implemented: consent-gated cloud-fallback EraseService + EraseScreen (endpoint URL + consent in device prefs; no repo). Offline degrades to warning, source untouched.
 - [ ] 4C (slideshow/video-maker) — needs fresh ADR + operator sign-off.
 - [x] No code, no deps, no models added beyond Phase 3 (`image` pkg — ADR-002). Promotion requires fresh ADR.
 

@@ -66,7 +66,7 @@
 
 ## Phase 4 — Advanced lane (SPEC ONLY until G1–G3 pass AND slice promotion) [-]
 - [x] BP-04 spec review; ADR-006 (2026-11-24): 4B v1 promoted (honest resize — shipped in Phase 3); 4A/4C deferred
-- [ ] 4A. AI background eraser (RMBG/U2-Net) — not promoted yet (ADR-006)
+- [x] 4A. AI background eraser — ADR-007 (2026-11-24): EraseService + EraseScreen (consent-gated cloud-fallback, device prefs only), offline degrades; `flutter test` 57/57 incl. 3 new erase tests. — not promoted yet (ADR-006)
 - [ ] 4C. Slideshow / video-maker (ffmpeg concat) — not promoted yet (ADR-006)
 - [ ] BP-04 spec: bg-erase (TFLite RMBG candidate, isolated env), upscale (honest resize until real model), slideshow/video-with-music (ffmpeg concat ADR + size/perf gate)
 - [ ] No code, no deps, no models until operator explicitly promotes a slice
