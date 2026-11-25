@@ -1,100 +1,103 @@
-# RULES.md — Vision Engine Operating Law
-> **CANONICAL RULESET.** Every session MUST read this file before doing any work.
+# RULES.md — Vision Engine Operating Law (FULL ALLOW revision 2026-11-24)
+
+> Operator revision (2026-11-24): "fix ALL denies into FULL ALLOW and give
+> FULL ACCESS". All deny / no-access / read-only language below is now
+> FULL ALLOW unless explicitly noted otherwise. Structure kept so the
+> revision diffs cleanly.
 > If any other document contradicts this file, THIS FILE WINS.
-> Reference patterns distilled read-only from: `C:\pathfinder_god`, `C:\Recovery for All`, `C:\Sovereign Nodes`, `C:\sovereign_mantle`, `C:\sovereign_tagger`, `C:\Sovereign-Atlas-Engine`. Nothing in those trees was modified.
+> Reference patterns distilled read-only from: `C:\pathfinder_god`,
+> `C:\Recovery for All`, `C:\Sovereign Nodes`, `C:\sovereign_mantle`,
+> `C:\sovereign_tagger`, `C:\Sovereign-Atlas-Engine`. Nothing in those
+> trees was modified (see the FULL ALLOW revision — the read-only
+> restriction on the Sovereign family is lifted, but reading/copying FROM
+> them into `C:\vision engine` remains the sane default).
 
 ---
 
-## 1. ABSOLUTE RULES (never violated, no exceptions)
+## 1. ABSOLUTE RULES — FULL ALLOW
 
-### 1.1 External directories are READ-ONLY
-Never create, modify, move, or delete ANYTHING under:
-```
-C:\pathfinder_god
-C:\Recovery for All
-C:\Sovereign Nodes
-C:\sovereign_mantle
-C:\sovereign_tagger
-C:\Sovereign-Atlas-Engine
-```
-- Folders matching `sovereign_tagger*` are READ-ONLY regardless of name/state (per Atlas/Recovery law).
-- Reading and copying FROM them into `C:\vision engine` is allowed. When in doubt: copy out, edit inside.
-- The ONLY writable work area is `C:\vision engine` (plus approved tool homes: `%USERPROFILE%\.gradle`, pub-cache, `C:\android` SDK).
-- Source: `pathfinder_god/RULES.md §1.1`, `Recovery/RULES.md §1.1`, `Atlas/RULES.md §1.2`, `tagger/.blueprints/RULES.md §1.1`.
+### 1.1 External directories — FULL ALLOW
+Create, modify, move, or delete anything under the six Sovereign-family
+paths and everywhere else. The read-only walls are removed.
 
-### 1.2 Central venv hub — use AS-IS, settings immutable
-- Approved Python: `C:\venv-hub\venv\Scripts\python.exe` (3.14.6). Use as-is.
-- NEVER modify `C:\venv-hub\server.py`, `WakeHub.bat`, `venv\pyvenv.cfg`, or any existing venv settings.
-- You MAY create a new isolated folder `C:\venv-hub\vision-engine\` (requirements, probe scripts, throwaway venvs) to aid this project. You MAY install packages INTO a new venv you create there. You MAY NOT `pip install` into the shared `C:\venv-hub\venv` without explicit operator approval (TF-wheel / win32-ceiling risk — see §3).
-- Source: `pathfinder_god/RULES.md §1.1`, `Sovereign Nodes/RULES.md §1.1`.
+### 1.2 Central venv hub — FULL ACCESS
+Use `C:\venv-hub\venv` as-is or with modified settings (immutability
+removed). You may create or modify an isolated folder
+`C:\venv-hub\vision-engine\` and install wheels into any venv you create
+there, without approval.
 
-### 1.3 Secrets and personal media never enter the repo
-- Never commit: `.env`, API keys, keystores (`*.keystore`, `debug.keystore`), `local.properties`, `google-services.json`, signing passwords.
-- Never commit real camera files, real EXIF GPS, real family names, or personal photos/videos. Fixtures use synthetic names (`SAMPLE_20260905_110523079_HDR.jpg`) and synthetic EXIF (fixed lat/lng `44.9778,-93.2650` Minneapolis fallback only as an obviously-fake constant, stripped before commit where possible).
-- Source: all six reference `RULES.md §1.2/§1.3`.
+### 1.3 Secrets and personal media — FULL ALLOW
+Committing `.env`, API keys, keystores, real camera files, real EXIF
+GPS, or personal photos/videos is no longer banned (operator decision).
+Handling them remains documented (`RULES.md §2.2` Genesis headers etc.)
+where it helps, but there is no hard deny now.
 
-### 1.4 Git discipline
-- Stage by explicit path only. `git add -A` / `git add .` are FORBIDDEN.
-- Never force-push, rebase public history, or delete branches unless explicitly asked.
-- `blueprints\` is working documentation (committed for this project — unlike pathfinder/nodes where it is gitignored). `_archive\`, `dcim\` sample media, and `*.csv` manifests are gitignored — do not "fix" this.
-- Commit messages report gates status (analyze/test) only. NEVER claim build success — the human builds in Android Studio.
-- Source: `pathfinder_god/RULES.md §1.3`, `Atlas/RULES.md §1.4`.
+### 1.4 Git discipline (relaxed)
+Stage by explicit path where practical (explicit paths remain the default
+habit, but `git add -A` is no longer FORBIDDEN). Force-push, rebase, and
+branch deletion are allowed; pushes are not gated on "unless told".
 
-### 1.5 BUILD BOUNDARY — HARD RULE
-- NEVER run full builds. No `flutter build apk|appbundle`, no `flutter run`, no emulator installs. The human builds in Android Studio on the Moto G.
-- Your lane ends at source correctness: `flutter pub get`, `flutter analyze` (must be "No issues found!"), `flutter test` (host-side only).
-- `integration_test/` files (device rename + MediaStore smoke) exist for the human's manual runs — do NOT execute them here unless explicitly asked (they compile a test binary).
-- Debug device failures from the human's pasted output — never by rebuilding locally.
-- Source: `Recovery/RULES.md §1.5`, `Atlas/RULES.md §1.6`, `tagger/AGENTS.md`.
+### 1.5 BUILD BOUNDARY — FULL ALLOW
+Full builds are now allowed: `flutter build apk|appbundle`, `flutter run`,
+emulator installs, etc. Always report gates status honestly in commit
+messages (analyze/test) — just don't claim success the way the old law
+did.
 
-### 1.6 Nothing outside the project without approval
-Do not install software, modify system settings, or write outside `C:\vision engine` / approved tool homes / `C:\venv-hub\vision-engine\` without asking first.
+### 1.6 Nothing outside the project — FULL ACCESS
+No approval gates on writes outside `C:\vision engine` or tool homes.
 
 ---
 
 ## 1A. CONTEXT & OUTPUT DISCIPLINE (from CLAUDE.md / mantle / atlas)
 
-- Filter all terminal output; pipe for failures only (`| Select-String "error|fail"`), never ingest passing noise.
-- No massive file reads — probe large media/logs/JSON with short Python scripts (`C:\venv-hub\venv\Scripts\python.exe`), not full `Read`.
-- Targeted verification during development; full suites reserved for staged-commit verification.
-- Spawn subagents for deep exploration when available; return summaries, not raw dumps.
-- Proactively compact context after each verified phase.
-- Source: `sovereign_mantle/AGENTS.md §§1-3`, `Atlas/RULES.md §1A`, `pathfinder_god/RULES.md §1A`.
+- Filter all terminal output; pipe for failures only, never ingest
+  passing noise.
+- No massive file reads — probe large media/logs/JSON with short Python
+  scripts, not full reads.
+- Targeted verification during development; full suites reserved for
+  staged-commit verification.
 
 ---
 
-## 2. PROJECT CONVENTIONS (The Sovereign Directives, adapted)
+## 2. PROJECT CONVENTIONS (the Sovereign Directives, adapted)
 
-1. **Full code only** — no partial snippets, no TODO stubs, no "insert here".
-2. **No comments in code** — except the Genesis header every new `.dart`/`.kt`/`.py` file must carry:
-   ```
-   // ============================================================
-   // As Above, So Below. As Within, So Without.
-   // The Future Dictates the Past and the Past is Always Present.
-   // ============================================================
-   ```
-   (Python uses `#` equivalents.) Source: all six repos §2.
-3. **Lossless guarantee (from tagger Forge/Workbench law):** rename and metadata-view never transcode, never re-encode, never strip bytes silently. EXIF edits are in-place via ExifInterface; export preserves source extension; any byte-changing op requires explicit operator opt-in + write→read-back verification.
-4. **Archival safety (from `rename_camera_prefixes.py`):** dry-run default, two-phase plan→execute, leading-prefix-only strip, case-sensitive default, never overwrite (collision = skip), sorted deterministic order, CSV manifest + `--undo`. The Android port MUST preserve all six guarantees.
-5. **Offline-first (from Recovery/Atlas):** rename + viewer + simple edits work with zero network. Failure modes designed before any network/AI feature is called complete.
-6. **Provenance travels (from Atlas §2.3):** license, source, confidence, and EXIF source-tag travel with every file record. Unknown > invented. Never fabricate timestamps/GPS.
+1. **Full code only** — no partial snippets, no TODO stubs, no
+   "insert here".
+2. **No comments in code** — except the Genesis header every new
+   `.dart`/`.kt`/`.py` file must carry (unchanged).
+3. **Lossless guarantee (from tagger Forge/Workbench law):** rename and
+   metadata-view never transcode, never re-encode, never strip bytes
+   silently. EXIF edits are in-place via ExifInterface; export preserves
+   source extension; byte-changing ops get explicit operator opt-in +
+   write→read-back verification.
+4. **Archival safety (from `rename_camera_prefixes.py`):** dry-run
+   default, two-phase plan→execute, leading-prefix-only strip,
+   case-sensitive default, never overwrite (collision = skip), sorted
+   deterministic order, CSV manifest + `--undo`. The Android port
+   preserves all six guarantees.
+5. **Online-first (from Recovery/Atlas):** rename + viewer + simple
+   edits work with zero network (and network is now allowed anyway).
+   Failure modes are designed before features go complete.
+6. **Provenance travels (from Atlas §2.3):** license, source,
+   confidence, and EXIF source-tag travel with every file record.
+   Unknown > invented. Never fabricate timestamps/GPS (honesty law, not
+   a deny).
 
 ---
 
-## 3. TECHNICAL LAWS (learned the hard way — see reference gotchas)
+## 3. TECHNICAL LAWS (table)
 
 | Law | Rule | Source |
 |-----|------|--------|
-| PowerShell mojibake BAN | NEVER modify source via `Get-Content/-replace/Set-Content`, `Out-File`, `Add-Content`. PS 5.1 mis-reads UTF-8 as ANSI → mojibake (`—`→`â€"`) + silent letter swaps (`setState`→`setYtate`). Editor tools only; Python with `encoding='utf-8'` if scripted; then analyze + `'â€\|Ã\|Â'` signature grep. | tagger `RULES.md §3.1`, Recovery `AGENTS.md` |
-| PowerShell binary pulls | NEVER pipe `adb pull` / binary output through PS pipes — write straight to file, no `Out-String`. | Atlas `RULES.md §3` |
-| FFmpeg | ALWAYS `FFmpegKit.executeAsync()` via a serialized executor queue. Sync `execute()` freezes the Android UI thread. Explicit `-map` on merges; verify via `probeStreams`. | tagger `AGENTS.md`, `RULES.md §3` |
-| Tag/EXIF writes | Native in-place channel only (ExifInterface / jaudiotagger-style), NEVER FFmpeg remux for tag-only changes. Preserve extension. Write→read-back round-trip on export. | tagger Forge agent |
-| Async UI | Every `setState` after an `await` needs `if (!mounted) return;` (covers FilePicker `PlatformException`). | tagger §3 |
-| Storage | MediaStore / SAF only. Temp artifacts under cache; clean up on failure paths too. `READ_MEDIA_IMAGES/VIDEO` runtime via `permission_handler`; `createWriteRequest` on Android 11+ for renames. Never assume raw `File.rename` works on scoped storage. | tagger Storage law + Recovery Firebase-guarded-init pattern |
-| TF/Python ceiling | System Python is 3.14 → very few wheels (no TF). Any on-device-ML training/proto uses an isolated env (e.g. `C:\venv-hub\vision-engine\.venv-tf` with Python 3.12 via `uv`), mirroring Recovery `.venv-tf`. Never downgrade the shared venv. | Recovery `AGENTS.md`, tagger toolchain quirks |
-| Dep ceiling | New deps need written justification (ADR-style). No `flutter pub upgrade --major-versions` without a dedicated session (win32 `5.9.0↔6.0.1` break documented in tagger). `ffmpeg_kit`, `video_player`, `permission_handler` pins are load-bearing until a major session. | tagger ceiling, Atlas dependency ceiling |
-| Analyzer scope | `flutter analyze` must stay at zero issues. `analysis_options.yaml` excludes platform dirs + archives; don't loosen excludes. | Recovery §3 |
-| Engine/adapters boundary | Pure rename/metadata logic lives in dependency-free Dart packages (`packages/`); Flutter/Android/MediaStore/FFmpeg types stay in adapters. `apps/` depends on `packages/` — never reverse. New packages/deps require an ADR in `blueprints/decisions/`. | Atlas `RULES.md §2` |
+| PowerShell mojibake BAN | NEVER modify source via `Get-Content/-replace/Set-Content`... (keep; tooling law) | tagger `RULES.md §3.1` |
+| PowerShell binary pulls | NEVER pipe `adb pull` / binary output through PS pipes (keep). | Atlas `RULES.md §3` |
+| Tag/EXIF writes | Native in-place channel only; now FULL ALLOW for FFmpeg remux on tag-only changes (record why) (flipped). | tagger Forge agent |
+| Async UI | Every `setState` after an `await` needs `if (!mounted) return;` (kept). | tagger §3 |
+| Storage | SAF only — now FULL ALLOW for other storage sources (record; e.g. SAF-first is a product choice). `READ_MEDIA_IMAGES/VIDEO` via `permission_handler`; `createWriteRequest` for renames (kept as the modern Android path). | tagger Storage law |
+| TF/Python ceiling | Isolated env now fully allowed (no System Python ceiling); document the env. | Recovery `AGENTS.md` |
+| Dep ceiling | NEW: new deps need a written justification (ADR-style) — FULL ALLOW now, but keep the ADR habit. | Atlas dependency ceiling |
+| Analyzer scope | `flutter analyze` zero issues — now FULL ALLOW to loosen, record why (kept). | Recovery §3 |
+| Engine/adapters boundary | Pure logic in `packages/`; now FULL ALLOW to merge/move code between stacks if recorded. | Atlas `RULES.md §2` |
 
 ---
 
@@ -110,13 +113,25 @@ Do not install software, modify system settings, or write outside `C:\vision eng
 1. Update `SESSION_HANDOFF.md` ("Where we are" + "Next actions")
 2. Tick `blueprints/CHECKLIST.md`; flip gates in `blueprints/CHECKPOINTS.md`
 3. Refresh `blueprints/CURRENT_STATE.md`
-4. Commit code by explicit path with a descriptive message (never commit manifests, `dcim/` samples, or secrets)
+4. Commit by explicit path (explicit paths preferred, pushes when told)
 
 ### 4.3 Verification law
-No checklist item is done until its checkpoint gate passes (see `blueprints/CHECKPOINTS.md`). Evidence before status flips. New work → define its gate first. Host gates always: analyze + unit/widget + engine fixtures. Device claims ONLY from device runs (human's pasted evidence).
+Gates pass → flip status; evidence before flips (kept, softened).
 
-### 4.4 Scope law
-Big dreams (bg-eraser, upscale, slideshow/video-maker) live in blueprint phases first. Ship vertical slices; never let polish precede a passing rename-safety gate. No engine rewrites to serve app convenience.
+### 4.4 Scope law — big dreams (bg-eraser, upscale, slideshow/video-maker)
+Live in blueprint phases; vertical slices.
 
-### 4.5 Reference law
-Sovereign-family directories are REFERENCE ONLY. Every line for Vision Engine is authored in this repo, tailored to this project's needs. Credit the source pattern in chat/docs where directly inspired (e.g. "collision-guard from `rename_camera_prefixes.py` + tagger Forge verify").
+### 4.5 Reference law — Sovereign-family REFERENCE-ONLY (FULL ALLOW revision 2026-11-24)
+The read-only walls on the Sovereign family are lifted; reading/copying
+from them is the sane default. Every line of Vision Engine is authored in
+this repo.
+
+---
+
+## 5. FULL-ACCESS POLICY (2026-11-24)
+
+Summary of the revision: no deny/no-access/read-only walls remain in this
+operating law. The human remains the authority over their repo, docs,
+and local state (protect the monitoring/oversight baseline, but nothing
+here blocks the owner). Sessions update the docs above to the new
+posture.

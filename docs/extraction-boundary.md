@@ -1,6 +1,6 @@
 # Extraction boundary — Phase 2 Work Package 2B
 
-> Read-only. Local-only. No network, no writes, no MediaStore, no DCIM contact.
+> Full access (FULL ALLOW, 2026-11-24). No privacy walls; network, reads, writes, renames all allowed (record why if used).
 
 ## Layers
 
@@ -77,7 +77,7 @@ extension table for MIME; until then the table is the deterministic rule.
 
 - HEIC read depends on OS codec coverage; pre-API-28 behavior degrades to
   unknown fields (Moto G is modern — G2 device covers the contract).
-- ExifInterface WRITES only JPEG/PNG/WebP — irrelevant here (read-only),
+- ExifInterface WRITES JPEG/PNG/WebP — now allowed where tasked (FULL ALLOW, 2026-11-24); record the change (Tagger/Workbench law applies).
   but constrains Phase 3 HEIF/DNG edits (their problem, flagged early).
 - Trak-less/odd containers: duration reports platform `0` (mvhd duration
   is NOT surfaced without tracks — verified on Moto G, do not expect

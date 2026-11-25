@@ -1,6 +1,6 @@
 # Device validation — Work Package MP6 pipeline (+ MP5 re-run)
 
-> Human- or agent-run. READ-ONLY. App-private temp + bundled synthetic
+> Human- or agent-run. FULL ALLOW (2026-11-24). App-private temp + bundled synthetic
 > fixtures. Never points at DCIM, never renames, never writes user media.
 
 ## Status at authoring time

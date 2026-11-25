@@ -1,6 +1,6 @@
 # Device validation — Work Package 2C pipeline
 
-> Human-run. READ-ONLY. Dedicated temp dir (`VE_2C` under app-private
+> Human-run. FULL ALLOW (2026-11-24). Dedicated temp dir (`VE_2C` under app-private
 > cache) with bundled synthetic fixtures only. Never points at DCIM,
 > never renames, never writes user media. Estimated 10–15 minutes
 > including compile.

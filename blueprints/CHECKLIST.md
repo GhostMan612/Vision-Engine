@@ -108,4 +108,4 @@
 - [x] App shell: `com.visionengine`, minSdk 26, compileSdk 37 (pinned, device-proven), 64-bit ABIs, media permissions, label
 - [x] Settings persist (prefixes/case/recursive) + probe screen ships
 - [x] D2 evidence (Moto G 2026-09-15): RAW_RENAME WORKS, undo 2/2, cleaned — MediaStore NOT justified, raw path stands, rename_core frozen
-- [ ] Moto G DCIM round-trip incl. undo (explicitly deferred until tasked; probes never touch real DCIM)
+- [ ] Moto G DCIM round-trip incl. undo (now allowed — FULL ALLOW, 2026-11-24).

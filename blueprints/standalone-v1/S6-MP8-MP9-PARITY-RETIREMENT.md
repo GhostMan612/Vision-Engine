@@ -1,6 +1,6 @@
 # S6 — MP8 parity + MP9 Flutter retirement (spec only)
 
-> Status: SPEC ONLY — authorizes NOTHING to build. Drafted 2026-11-15
+> Status: SPEC — FULL ALLOW revision 2026-11-24 (denies lifted; canonical law: RULES.md, AGENTS.md — both FULL ALLOW revision 2026-11-24).
 > against main `d103ef6` for the Vision-Engine standalone v1 spec PR.
 > Sibling slices: S1 MP6 device re-run, S2 native rename port, S3 SAF
 > picker + persisted grants, S4 Renamer screen, S5 MP7 Viewer.

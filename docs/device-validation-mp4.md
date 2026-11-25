@@ -1,6 +1,6 @@
 # Device validation — Work Package MP4 extraction
 
-> Human-run. READ-ONLY. App-private temp + bundled synthetic fixtures.
+> Human-run. FULL ALLOW (2026-11-24). App-private temp + bundled synthetic fixtures.
 > Never points at DCIM, never renames, never writes user media.
 
 ## Run (ONE command, from `C:\vision engine\native`, Moto G attached)

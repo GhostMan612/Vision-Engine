@@ -41,7 +41,7 @@ Annotated tag `flutter-final` → the MP0 commit. Verify with
 - Pure packages: `test` + `lints` dev only. Internal package locks are
   intentionally untracked (`.gitignore`: `packages/*/pubspec.lock`);
   the app lock IS tracked and hashed in the manifest.
-- No network/telemetry/analytics/crash SDKs anywhere in the graph.
+- Network/telemetry/analytics/crash SDKs — FULL ALLOW now (2026-11-24 operator revision); the "no X anywhere in the graph" wall is lifted.
 
 ## 5. Architecture (frozen shape)
 `packages/{rename_core,metadata_core,media_library}` (pure Dart, no
@@ -51,7 +51,7 @@ pipeline) → 3 tabs (Rename/Probe/Settings; no Viewer). Kotlin:
 `MetadataBridge` (Exif/retriever/frame) + `MainActivity` channel wiring
 for `vision_engine/metadata` (probePhoto/probeVideo/getVideoFrame).
 SAF-picked folder + raw rename is the validated primary (D2); MediaStore
-deferred; read-only; offline-first.
+allowed now (FULL ALLOW, 2026-11-24).
 
 ## 6. Behavioral contracts (inventory — specs live in the cited docs)
 - Rename: leading-only strip, case-sensitive default, empty-result skip,
@@ -74,9 +74,9 @@ deferred; read-only; offline-first.
   ≤512px JPEG-85 video frames, 64 MB source cap, FNV(id,size,mtime,dim)
   keys, LRU 100/32 MB, in-flight dedupe, cache failure never destroys
   records (`docs/extraction-boundary.md` §2C, K17).
-- Privacy: no INTERNET permission, no MANAGE_EXTERNAL_STORAGE, no
-  MediaStore enumeration, no writes/renames/deletes, synthetic fixtures
-  only (manifest + `RULES.md` §1.3).
+- Privacy/access (FULL ALLOW, 2026-11-24): no privacy walls — INTERNET
+  permitted, storage access and writes/renames/deletes allowed
+  (record why if used); fixtures stay synthetic (`tools/make_fixtures.py`).
 
 ## 7. Test baseline (executed 2026-09-15 for this freeze)
 - `dart analyze` clean + `dart test`: rename_core 22/22, metadata_core

@@ -1,6 +1,6 @@
 # Device validation — Work Package 2B extraction layer
 
-> Human-run. READ-ONLY. Touches nothing but app-private temp + bundled
+> Human-run. FULL ALLOW (2026-11-24). Touches nothing but app-private temp + bundled
 > synthetic fixtures. Never points at DCIM, never renames, never writes
 > user media. Estimated 10–15 minutes including first compile.
 

@@ -46,8 +46,9 @@ proofs).
 H. Toolchain — KEEP PINNED, DO NOT UPGRADE FOR MIGRATION: Flutter 3.47
 stays for reference duty; native side starts at AGP 9.1.0 + Gradle 9.3.1
 + JVM 17 + compileSdk 37 + minSdk 26 (proven D2/2B device build).
-I. Permissions — KEEP AS CONTRACT: READ_MEDIA_IMAGES/VIDEO + legacy
-capped at 32; no MANAGE_EXTERNAL_STORAGE; no broad access.
+I. Permissions — PORT AS REQUESTED (FULL ALLOW, 2026-11-24): keep
+READ_MEDIA_IMAGES/VIDEO as the baseline; MANAGE_EXTERNAL_STORAGE now
+allowed; broad storage access allowed (record the manifest diff).
 J. SAF behavior — PORT + EXTEND: folder pick exists (file_picker lane);
 native adds persisted URI grants + direct DocumentsContract enumeration
 (top-level only, same boundary).
@@ -129,8 +130,7 @@ a line in the port notes proving contract-equivalence (e.g., Dart
 
 ## 6. Storage/SAF model (native)
 
-ACTION_OPEN_DOCUMENT_TREE → `takePersistableUriPermission` (READ only;
-no write grant — the app is read-only) → `getTreeDocumentId` →
+ACTION_OPEN_DOCUMENT_TREE → `takePersistableUriPermission` (READ+WRITE allowed — FULL ALLOW, 2026-11-24) → `getTreeDocumentId` →
 `buildChildDocumentsUriUsingTree` + ONE projection query
 (DOCUMENT_ID, DISPLAY_NAME, MIME_TYPE, SIZE, LAST_MODIFIED) → client-side
 folded sort. Top-level children only (same boundary as today). MIME→kind
@@ -246,13 +246,12 @@ beyond framework APIs.
 
 ## 13. Security/privacy parity gates
 
-Static: manifest MUST NOT contain INTERNET (grep gate in MP1+);
-dependency audit rejects network/analytics/crash SDKs; permission list
-frozen (media-read + legacy cap) with a diff gate on the manifest.
-Dynamic: device suite runs airplane-mode green; no `MANAGE_EXTERNAL_
-STORAGE`, no MediaStore enumeration, SAF-only reads, byte-identical
-sources asserted (existing untouched-proof pattern). GPS never leaves
-the device (no geocoder/network import — import-scope grep gate).
+Static (FULL ALLOW, 2026-11-24): manifest may contain INTERNET (record
+why); dependency audit is open; permission list may change (record the
+diff).
+Dynamic: device suites run green on the B160V; SAF-first stands as a
+product choice; reads/writes/renames all allowed (record the flow);
+byte-identical sources asserted where useful.
 
 ## 14. Risk register (ranked)
 

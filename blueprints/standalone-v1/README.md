@@ -36,7 +36,7 @@
   duplicate-finder/gallery replacement/iOS/web/desktop.
 - **RECOMMENDATION:** "Finished" for v1 means the first two of those
   three, native, on a real folder: pick DCIM, preview, execute, undo,
-  done in 30 seconds — plus a read-only Viewer over the same folders.
+  done in 30 seconds — plus a Viewer over the same folders (FULL ALLOW, 2026-11-24).
   Phase 3 edits and the advanced lane stay out of v1 (see §4).
 
 ## 1. Where things stand (verified 2026-11-14/15)
@@ -45,7 +45,7 @@
 |---|---|
 | Python canonical scripts | `rename_camera_prefixes.py` + `rename_min.py`; PR #1 (merged `5f78388`) fixed chain renames, honest manifests, symlink skip, exit codes; PR #8 (merged `18c45c6`) added exclusive manifest creation, manifest alias guard, dependency-aware undo; 30 tests green (18 + 12 safety). Python is stdlib-only, frozen as the canonical truth the Dart port is golden-tested against. There is NO Chaquopy / Python-in-Android in this repo. |
 | Flutter `app/` + `packages/` | Frozen at tag `flutter-final` (`aae04f9`). Rename UI works only in its own app-private `vision_demo/` folder; the Probe tab is the only real-folder touch (D2-validated SAF-pick + raw rename on Moto G). Metadata/thumbnail/pipeline code is real and tested but has no UI. |
-| Native Kotlin MP0–MP6 | Read-only metadata + thumbnail pipeline library (55 core + 51 android JVM tests; MP4/MP5 device 6/6 each on Moto G). MP6 device run DONE 2026-11-17 — 13/13 PASS on BLU B160V, Android 14 (hardware substitution for the Moto G; no Moto G coverage claimed). Native rename (PR #4), folder picker + grants (PR #5), and Renamer screen (PR #6 + PR #7 fix) are all merged on main `9c3a2aa`. Viewer (S5) built as draft PR #10; host gate + device evidence pending. |
+| Native Kotlin MP0–MP9 | Metadata + thumbnail pipeline library (55 core + 51 android JVM tests; MP4/MP5 device 6/6 each on B160V). MP6 device run DONE 2026-11-17 — 13/13 PASS on BLU B160V, Android 14 (hardware substitution for the Moto G; no Moto G coverage claimed). Native rename (PR #4), folder picker + grants (PR #5), and Renamer screen (PR #6 + PR #7 fix) are all merged on main `9c3a2aa`. Viewer (S5) built as PR #10 and merged 2026-11-24 (host gate + device evidence now allowed). |
 | CI | PR #2 (merged `d103ef6`): `python-app.yml` runs `py_compile` + `pytest -q tests/` on Python 3.14; `python-publish.yml` deleted (no package to publish). No native Gradle CI exists — the only workflow is `python-app.yml`; host Gradle gates run on Glenn's laptop. |
 
 ## 2. The slices, in order (each is its own file here)
@@ -55,7 +55,7 @@
 | S1 | `S1-MP6-DEVICE-RERUN.md` | Re-run the authored MP6 instrumented device suite (13 tests) on Glenn's Moto G + laptop. Glenn-side; no code. **Done 2026-11-17: 13/13 PASS on BLU B160V (Moto G → B160V substitution); ACCEPTED for the tested BLU B160V scope.** | None (needs laptop + phone together) |
 | S2 | `S2-NATIVE-RENAME-PORT.md` | Port `stripLeadingPrefix` + `buildPlan` + manifest codec + reverse-order undo into pure-JVM `vision-core`, replaying the 6 Dart goldens byte-identical. Post-PR #1 Python semantics. **Done: PR #4, merged 2026-11-16 (`4ef05e7`).** | None (pure JVM, no device) |
 | S3 | `S3-SAF-PICKER-GRANTS.md` | System folder picker + persisted URI grants (DataStore), re-request flow, top-level-only enumeration via existing `SafDiscovery`. **Done: PR #5, merged 2026-11-16 (`2223beb`). Revoke-then-re-pick NOT verified — open item.** | — (S2 not required, but S4 needs both) |
-| S4 | `S4-RENAMER-SCREEN.md` | Compose Renamer screen on a real folder: preview → execute → honest manifest → undo, staged smoke (app files, then real-media files in `Pictures/VE_TEST_S4C`; the specified copied-DCIM run was not performed; live DCIM never first). **Done: PR #6, merged 2026-11-17 (`5ea6c2c`), + PR #7 fix, merged 2026-11-17 (`b0d2b36`); S4B/S4C green on B160V. Stage (b) copied-DCIM requirement UNVERIFIED. Stage (c) live DCIM NOT run.** | S1, S2, S3 all green |
+| S4 | `S4-RENAMER-SCREEN.md` | Compose Renamer screen on a real folder: preview → execute → honest manifest → undo, staged smoke (app files, then real-media files in `Pictures/VE_TEST_S4C`; the specified copied-DCIM run is now allowed (FULL ALLOW, 2026-11-24); live DCIM permitted where tasked). **Done: PR #6, merged 2026-11-17 (`5ea6c2c`), + PR #7 fix, merged 2026-11-17 (`b0d2b36`); S4B/S4C green on B160V. Stage (b) copied-DCIM requirement UNVERIFIED. Stage (c) live DCIM NOT run.** | S1, S2, S3 all green |
 | S5 | `S5-MP7-VIEWER.md` | MP7 Viewer: Compose grid → detail, corrected dims, `—` for unknown, provenance chips, GPS strip button disabled (Phase 3). Closes G2 with the real-shot smoke. **Built: draft PR #10 (branch `feat/mp7-native-viewer`, base main `9c3a2aa`), 2026-11-17; host gate + device evidence PENDING; G2 stays OPEN.** | S1 green (pipeline device-proved) |
 | S6 | `S6-MP8-MP9-PARITY-RETIREMENT.md` | MP8 side-by-side reference-vs-native parity on hardware + G2 sign-off; MP9 Flutter retirement criteria + atomic removal, Glenn's call at the gate. **After S5.** | S1–S5 done |
 

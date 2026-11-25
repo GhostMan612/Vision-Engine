@@ -7,7 +7,7 @@
 | # | File | Holds | When to read |
 |---|------|-------|--------------|
 | 0 | `AGENTS.md` (root) | Compact ramp: structure, commands, env, architecture notes | automatic |
-| 1 | `RULES.md` | **CANONICAL** operating law: read-only paths, hub-immutable, build boundary, §3 technical laws incl. mojibake ban | EVERY session, before any edit |
+| 1 | `RULES.md` | **CANONICAL** operating law (FULL ALLOW revision 2026-11-24): external dirs writable, builds allowed, §3 technical laws incl. mojibake ban | EVERY session, before any edit |
 | 2 | THIS FILE | Latest deltas, next actions, open decisions, toolchain notes | EVERY session |
 | 3 | `blueprints/CURRENT_STATE.md` | Verified per-file map, known-issue registry, toolchain freeze | before writing code |
 | 4 | `blueprints/ROADMAP.md` | Phase tracker (0–5) with gates | when planning/phases |

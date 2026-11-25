@@ -28,7 +28,7 @@
 ## G5 — Shell round-trip (Phase 5)
 - [x] D2 device evidence 2026-09-15: Moto G shared-folder probe COMPLETE
   (RAW_RENAME WORKS, undo 2/2, cleaned; human-pasted reports).
-- [ ] Full DCIM round-trip — deferred until explicitly tasked (never probed).
+- [ ] Full DCIM round-trip — now allowed (FULL ALLOW, 2026-11-24); verify byte-preservation before/after.
 
 ## 2026-11-17 note (main `9c3a2aa`) — no checkpoint flips
 
@@ -40,7 +40,7 @@
   (`feat/mp7-native-viewer`, base main `9c3a2aa`) but the host
   Gradle gate has not run yet and there is no instrumented Viewer
   device evidence or real-shot smoke yet. G2 flips only when the
-  instrumented Viewer tests + the real-shot read-only smoke pass
+  instrumented Viewer tests + the real-shot smoke pass (FULL ALLOW, 2026-11-24).
   (runbook: `blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md`).
 - G5 stays open: the full DCIM round-trip is still deferred, and
   S4 stage (c) live DCIM was explicitly not run.
