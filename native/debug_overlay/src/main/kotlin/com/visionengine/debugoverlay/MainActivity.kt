@@ -27,14 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** MainActivity — the reusable smoke-checklist screen. */
 class MainActivity : ComponentActivity() {
@@ -51,16 +50,39 @@ class MainActivity : ComponentActivity() {
                     lightColorScheme()
                 },
             ) {
-                SmokeChecklistScreen(store)
+                SmokeChecklistScreen(
+                    store,
+                    onRunAutoChecks = { lifecycleScope.launch(Dispatchers.IO) { runAutoChecks() } },
+                )
+            }
+        }
+        lifecycleScope.launch { runAutoChecks() }
+    }
+
+    /** Runs the automated legs ([AutoChecks]) for all `auto` items. */
+    private suspend fun runAutoChecks() {
+        for (item in store.load().filter { it.auto }) {
+            val (status, detail) = when (item.id) {
+                "launch_offline" -> AutoChecks.launchOffline(store.context, OverlayConfig.MAIN_APP_PACKAGE)
+                "focus_offline" -> AutoChecks.focusOffline(store.context, OverlayConfig.MAIN_APP_PACKAGE)
+                else -> ItemStatus.OPEN to ""
+            }
+            val updated = item.copy(status = status)
+            store.save(updated)
+            if (detail.isNotBlank()) {
+                val appended = (updated.notes + if (updated.notes.isBlank()) "" else "; " + detail).trim()
+                store.setNotes(item.id, appended)
             }
         }
     }
 }
 
 @Composable
-fun SmokeChecklistScreen(store: ChecklistStore) {
+fun SmokeChecklistScreen(
+    store: ChecklistStore,
+    onRunAutoChecks: () -> Unit,
+) {
     var items by remember { mutableStateOf(store.load()) }
-    val scope = rememberCoroutineScope()
 
     fun save(item: ChecklistItem) {
         store.save(item)
@@ -107,32 +129,7 @@ fun SmokeChecklistScreen(store: ChecklistStore) {
             Spacer(Modifier.height(8.dp))
         }
         Button(
-            onClick = {
-                scope.launch(Dispatchers.IO) {
-                    for (item in items.filter { it.auto }) {
-                        val (status, detail) = when (item.id) {
-                            "launch_offline" -> AutoChecks.launchOffline(
-                                store.context,
-                                OverlayConfig.MAIN_APP_PACKAGE,
-                            )
-                            "focus_offline" -> AutoChecks.focusOffline(
-                                store.context,
-                                OverlayConfig.MAIN_APP_PACKAGE,
-                            )
-                            else -> ItemStatus.OPEN to ""
-                        }
-                        val updated = item.copy(status = status)
-                        store.save(updated)
-                        if (detail.isNotBlank()) {
-                            val appended = (updated.notes + if (updated.notes.isBlank()) "" else "; " + detail).trim()
-                            store.setNotes(item.id, appended)
-                        }
-                    }
-                    withContext(Dispatchers.Main.immediate) {
-                        items = store.load()
-                    }
-                }
-            },
+            onClick = onRunAutoChecks,
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         ) {
             Text("Run auto checks")
