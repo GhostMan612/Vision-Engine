@@ -19,7 +19,7 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-> ## Where we are (2026-11-24, Phase 4 partially done — 4A implemented)
+> ## Where we are (2026-11-24, Phase 4 partially done — 4A and 4C-v1 done)
 
 - **Phase 4 (ADR-006, 2026-11-24):** 4A implemented (consent-gated cloud-fallback eraser, device prefs only) — 4B (honest resize) already
   shipped in Phase 3; 4A/4C not promoted (fresh ADRs required). No new code.
