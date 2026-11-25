@@ -6,3 +6,4 @@ export 'src/manifest.dart';
 export 'src/model.dart';
 export 'src/plan.dart';
 export 'src/prefix.dart';
+export 'src/templates.dart';

@@ -22,6 +22,7 @@ RenameReport buildPlan({
   List<String> prefixes = defaultPrefixes,
   bool caseSensitive = true,
   bool recursive = false,
+  String? Function(RenameEntry entry)? nameMapper,
 }) {
   final RenameReport report = RenameReport();
   final List<RenameEntry> ordered = List<RenameEntry>.of(entries);
@@ -46,11 +47,13 @@ RenameReport buildPlan({
       report.skippedNoPrefix += 1;
       continue;
     }
-    final String? stripped = stripLeadingPrefix(
-      entry.name,
-      prefixes: prefixes,
-      caseSensitive: caseSensitive,
-    );
+    final String? stripped = nameMapper != null
+        ? nameMapper(entry)
+        : stripLeadingPrefix(
+            entry.name,
+            prefixes: prefixes,
+            caseSensitive: caseSensitive,
+          );
     if (stripped == null) {
       stayingPaths.add(entry.path);
       report.skippedNoPrefix += 1;
