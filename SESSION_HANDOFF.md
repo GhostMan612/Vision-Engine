@@ -13,12 +13,20 @@
 | 4 | `blueprints/ROADMAP.md` | Phase tracker (0–5) with gates | when planning/phases |
 | 5 | `blueprints/VISION_ENGINE_MASTER_BLUEPRINT.md` | Frozen product spec (v1.0 target) | before novel features |
 | 6 | `blueprints/ARCHITECTURE.md` | Engine/adapters split, storage flow, metadata flow | structural changes |
+| 7 | `app/lib/features/manip/manip_screen.dart` (new) | EXIF ops UI + `*_edit` policy + re-read | structural changes |
 | 7 | `blueprints/blueprint-sections/BP-*.md` | Executable task slices per phase | task work |
 | — | `rename_camera_prefixes.py`, `rename_min.py` | **Executable truth** for rename semantics — prose never overrides | any rename-semantics question |
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-## Where we are (2026-09-15, MP6 host-complete — DEVICE RUN BLOCKED, STOPPED)
+> ## Where we are (2026-11-24, Phase 3 done, host-green)
+
+- **Phase 3 implemented** (2026-11-24): rename templates v1
+  (`buildTemplates` in rename_core + additive `nameMapper` in `buildPlan`),
+  native EXIF ops (`ExifOps.kt` in vision-android, Robolectric green),
+  Flutter Manip screen + pixel ops + `vision_engine/exif_ops` channel
+  (analyze + 54 tests green).
+ — DEVICE RUN BLOCKED, STOPPED)
 
 - **MP6 implemented:** `MediaPipeline` (sequential loadPage with sort
   positions + thumbnailFor over MP4/MP5 layers; URI-less degradation;

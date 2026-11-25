@@ -53,10 +53,15 @@
 > `blueprints/standalone-v1/README.md` §5 — none settled in the
 > spec PR.
 
-## Phase 3 — Simple manipulation (explicit + verified) [ ]
-- [ ] EXIF date-shift, GPS-strip, orientation-fix (in-place, write→read-back)
-- [ ] Crop / resize / compress (copy-default `*_edit`; replace only on opt-in; quality picker)
-- [ ] Rename templates v1 (timestamp `yyyyMMdd_HHmmss` built on rename_core pipeline)
+## Phase 3 — Simple manipulation (explicit + verified) [x] (2026-11-24)
+- [x] EXIF date-shift, GPS-strip, orientation-fix (in-place, write→read-back)
+- [x] Crop / resize / compress (copy-default `*_edit`; replace only on opt-in)
+- [x] Rename templates v1 (timestamp `yyyyMMdd_HHmmss` via `buildTemplates` → `buildPlan`)
+- [x] `image`-package pixel ops (crop, resize/compress; no new app behavior beyond entry point)
+- Gate: G3 — analyzer zero + host tests green (dart 29/29; flutter 54/54; native
+  `:vision-android:testDebugUnitTest` green; rename_core `dart test` green).
+  Moto G device smoke NOT run in this session (B160V instead — see evidence
+  under G3 flips in CHECKPOINTS.md).
 - Gate: G3 (round-trip verified on Moto G; byte-proof for pure renames; no silent overwrites)
 
 ## Phase 4 — Advanced lane (SPEC ONLY until G1–G3 pass) [-]

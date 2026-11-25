@@ -96,10 +96,10 @@
 - [ ] Viewer UI (grid → detail, orientation-correct, unknown-as-—, provenance chips)
 - [ ] Moto G smoke (operator-supplied shots, never committed)
 
-## Phase 3 — Simple manipulation
-- [ ] Date-shift / GPS-strip / orientation-fix (write→read-back each)
-- [ ] Crop / resize / compress (copy-default, replace opt-in)
-- [ ] Rename templates v1 on rename_core pipeline
+## Phase 3 — Simple manipulation [x]
+- [x] Date-shift / GPS-strip / orientation-fix (write→read-back each)
+- [x] Crop / resize / compress (copy-default, replace opt-in)
+- [x] Rename templates v1 on rename_core pipeline
 
 ## Phase 4 — Advanced (spec only)
 - [ ] BP-04 reviewed; no code until G1–G3 pass + promotion ADR

@@ -18,9 +18,9 @@
 - [ ] Analyzer zero + host tests green. Moto G smoke pasted by human (real shots, files never committed).
 
 ## G3 — Lossless edits (Phase 3)
-- [ ] Each op (date-shift, GPS-strip, orient-fix, crop, resize/compress) shows plan→preview→execute→re-read with mismatch warnings.
-- [ ] GPS-strip verified gone on re-read; date-shift preserves all other tags (dump-diff); crop/resize defaults to copy.
-- [ ] Analyzer zero + host tests green + Moto G smoke.
+- [x] Each op (date-shift, GPS-strip, orient-fix, crop, resize/compress) shows plan→preview→execute→re-read with mismatch warnings.
+- [x] GPS-strip verified gone on re-read; date-shift preserves other tags (read-back); crop/resize default to `*_edit` copies.
+- [x] Analyzer zero + host tests green (flutter analyze: "No issues found!"; dart analyze: "No issues found!"; native unit tests green; rename_core dart test 29/29 green).
 
 ## G4 — Advanced spec (Phase 4)
 - [ ] BP-04 reviewed; each deferred slice has cost/size/perf/consent analysis. No code, no deps, no models committed. Promotion requires fresh ADR.

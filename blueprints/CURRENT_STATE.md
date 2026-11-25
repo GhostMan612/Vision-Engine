@@ -249,3 +249,24 @@
 - ADR-005 recorded as PROPOSED on 2026-09-15; MP0–MP6 subsequently
   progressed on the native track. Formal acceptance signature not evidenced.
   See decision record for the documented implementation-vs-approval gap.
+
+### Phase 3 (2026-11-24) — implemented, host-green
+
+- Rename templates v1: `buildTemplates` + `templateName` in
+  `packages/rename_core/lib/src/templates.dart`; `buildPlan` gained the
+  additive optional `nameMapper` param (defaulted, behavior unchanged —
+  verified by the full existing suite, 29/29 incl. golden + parity probe
+  GREEN). Tests: `packages/rename_core/test/templates_test.dart`.
+- Native EXIF ops: `ExifOps.kt` in `native/vision-android/src/main/kotlin/
+  com/visionengine/android/meta/` (shiftDateTime, stripGps, setOrientation;
+  all write→read-back verified) + `ExifOpsTest.kt` (Robolectric, green).
+- Flutter host: `app/lib/adapters/manip_adapter.dart` +
+  `app/lib/features/manip/{manip_models,pixel_ops,manip_screen}.dart` +
+  `vision_engine/exif_ops` MethodChannel in `app/android/app/src/main/
+  kotlin/com/visionengine/MainActivity.kt` + new Manip screen tab in
+  `app/lib/main.dart`. Pixel ops via new `image` dep (4.13.1 in pubspec).
+- Gates this session: `dart test` rename_core 29/29; `flutter analyze`
+  "No issues found!"; `flutter test` 54/54; native
+  `:vision-android:testDebugUnitTest` BUILD SUCCESSFUL; `tools/parity_probe.py`
+  GREEN. `tools/verify_reference.py`: pre-existing BROKEN (22 files) from
+  S5/S6 evolution; the new Phase 3 files join the frozen-manifest mismatch.
