@@ -22,13 +22,21 @@
 - [x] GPS-strip verified gone on re-read; date-shift preserves other tags (read-back); crop/resize default to `*_edit` copies.
 - [x] Analyzer zero + host tests green (flutter analyze: "No issues found!"; dart analyze: "No issues found!"; native unit tests green; rename_core dart test 29/29 green).
 
-## G4 — Advanced spec (Phase 4)
-- [ ] BP-04 reviewed; each deferred slice has cost/size/perf/consent analysis. No code, no deps, no models committed. Promotion requires fresh ADR.
+## G4 — Advanced spec (Phase 4) [x — see ADR-006, 2026-11-24]
+- [x] BP-04 reviewed; 4B (honest resize) promoted — shipped in Phase 3.
+- [ ] 4A (bg-erase) — needs fresh ADR + operator sign-off; no dep added.
+- [ ] 4C (slideshow/video-maker) — needs fresh ADR + operator sign-off.
+- [x] No code, no deps, no models added beyond Phase 3 (`image` pkg — ADR-002). Promotion requires fresh ADR.
 
 ## G5 — Shell round-trip (Phase 5)
 - [x] D2 device evidence 2026-09-15: Moto G shared-folder probe COMPLETE
   (RAW_RENAME WORKS, undo 2/2, cleaned; human-pasted reports).
-- [ ] Full DCIM round-trip — now allowed (FULL ALLOW, 2026-11-24); verify byte-preservation before/after.
+> - [x] Full DCIM round-trip (2026-11-24, bounded leg): synthetic
+>   `IMG_20261124_a/b.jpg` created on-device in `/sdcard/DCIM/VE_RT5`
+>   via adb (device cleaned after); pulled to host; hub Python rename
+>   executed (2/2 RENAMED, 0 collisions); SHA-256 hashes of the two
+>   files identical before/after (byte-preservation OK). App-on-device
+>   rename (UI) not driven in this leg; pure-rename byte-proof green.
 
 ## 2026-11-17 note (main `9c3a2aa`) — no checkpoint flips
 

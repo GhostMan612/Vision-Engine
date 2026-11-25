@@ -64,12 +64,15 @@
   under G3 flips in CHECKPOINTS.md).
 - Gate: G3 (round-trip verified on Moto G; byte-proof for pure renames; no silent overwrites)
 
-## Phase 4 — Advanced lane (SPEC ONLY until G1–G3 pass) [-]
+## Phase 4 — Advanced lane (SPEC ONLY until G1–G3 pass AND slice promotion) [-]
+- [x] BP-04 spec review; ADR-006 (2026-11-24): 4B v1 promoted (honest resize — shipped in Phase 3); 4A/4C deferred
+- [ ] 4A. AI background eraser (RMBG/U2-Net) — not promoted yet (ADR-006)
+- [ ] 4C. Slideshow / video-maker (ffmpeg concat) — not promoted yet (ADR-006)
 - [ ] BP-04 spec: bg-erase (TFLite RMBG candidate, isolated env), upscale (honest resize until real model), slideshow/video-with-music (ffmpeg concat ADR + size/perf gate)
 - [ ] No code, no deps, no models until operator explicitly promotes a slice
 - Gate: G4 (spec reviewed; promotion requires fresh ADR + device perf budget)
 
-## Phase 5 — Android shell hardening [~] (shell + D2 done; DCIM deferred until tasked)
+## Phase 5 — Android shell hardening [~] (shell + D2 done; DCIM round-trip done 2026-11-24)
 - [x] BP-05 shell: `com.visionengine`, minSdk 26, compileSdk 37 (device-proven), 64-bit ABIs, permissions, settings persist, probe screen
 - [x] D2 evidence CLOSED/PASS (Moto G 2026-09-15): raw rename via
   user-picked folder validated → SAF-pick + raw rename stays primary;

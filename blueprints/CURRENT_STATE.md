@@ -250,7 +250,20 @@
   progressed on the native track. Formal acceptance signature not evidenced.
   See decision record for the documented implementation-vs-approval gap.
 
-### Phase 3 (2026-11-24) — implemented, host-green
+### Phase 4 (2026-11-24) — ADR-006 + G4
+
+- BP-04 promoted per ADR-006: 4B (honest resize) — already shipped in Phase 3
+  (`app/lib/features/manip/pixel_ops.dart`, tests green). No new code.
+- 4A (bg-erase) and 4C (slideshow/video-maker) NOT promoted; fresh ADRs required.
+- Gates: `dart analyze` (rename_core) No issues found!; `flutter analyze` No issues
+  found!; `dart test` 29/29; `flutter test` 54/54; native Robolectric green.
+
+### Phase 5 (2026-11-24) — DCIM round-trip (bounded, byte-preservation OK)
+
+- Synthetic `IMG_20261124_a/b.jpg` created on B160V (`/sdcard/DCIM/VE_RT5`, device cleaned).
+- Hub Python rename executed on pulled copy: `RENAMED 2/2, errors=0, collisions=0`.
+- SHA-256 of both files identical before/after (pure-rename byte-proof OK).
+- App-on-device rename (UI) not driven in this leg.
 
 - Rename templates v1: `buildTemplates` + `templateName` in
   `packages/rename_core/lib/src/templates.dart`; `buildPlan` gained the

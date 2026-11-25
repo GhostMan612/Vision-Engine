@@ -19,7 +19,13 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-> ## Where we are (2026-11-24, Phase 3 done, host-green)
+> ## Where we are (2026-11-24, Phases 4–5 done, host-green)
+
+- **Phase 4 (ADR-006, 2026-11-24):** BP-04 promoted — 4B (honest resize) already
+  shipped in Phase 3; 4A/4C not promoted (fresh ADRs required). No new code.
+- **Phase 5 (2026-11-24, bounded):** DCIM round-trip leg — synthetic
+  `IMG_20261124_a/b.jpg` created on B160V `/sdcard/DCIM/VE_RT5` (cleaned),
+  hub Python rename 2/2 RENAMED, SHA-256 before==after (byte-preservation OK).
 
 - **Phase 3 implemented** (2026-11-24): rename templates v1
   (`buildTemplates` in rename_core + additive `nameMapper` in `buildPlan`),
