@@ -41,6 +41,7 @@ dependencies:
   media_library:
     path: ../packages/media_library
   path_provider: ^2.1.6
+  image: ^4.0.0
   shared_preferences: ^2.5.5
   permission_handler: ^13.0.2
   file_picker: ^12.3.0
