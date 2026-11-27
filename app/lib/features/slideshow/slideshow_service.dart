@@ -74,6 +74,7 @@ class SlideshowService {
     List<String> paths, {
     required String outPath,
     int durationMs = 3000,
+    String? musicPath,
   }) async {
     if (paths.isEmpty) {
       return const SlideshowReceipt(
@@ -109,6 +110,7 @@ class SlideshowService {
         final String command =
             '-framerate ${1000 ~/ durationMs} -i '
             '${temp.path}${Platform.pathSeparator}f%03d.jpg '
+            '${musicPath != null && musicPath.isNotEmpty ? '-i $musicPath -shortest -c:a aac' : ''} '
             '-c:v libx264 -pix_fmt yuv420p $outPath';
         final session = await FFmpegKit.execute(command);
         final rc = await session.getReturnCode();

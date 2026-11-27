@@ -254,7 +254,7 @@
 
 - BP-04 promoted per ADR-006: 4B (honest resize) — already shipped in Phase 3
   (`app/lib/features/manip/pixel_ops.dart`, tests green). No new code.
-- 4A (bg-erase) IMPLEMENTED (consent-gated cloud-fallback, ADR-007); 4C v1 GIF + v2 MP4 export (ADR-008/009, ffmpeg_kit_flutter 6.0.3; music input deferred).
+- 4A (bg-erase) IMPLEMENTED (consent-gated cloud-fallback, ADR-007); 4C v1 GIF + v2 MP4 export (ADR-008/009, ffmpeg_kit_flutter 6.0.3; music input user-supplied (2026-11-27).
 - Gates: `dart analyze` (rename_core) No issues found!; `flutter analyze` No issues
   found!; `dart test` 29/29; `flutter test` 60/60 (incl. 3 erase + 3 slideshow tests); native Robolectric green.
 

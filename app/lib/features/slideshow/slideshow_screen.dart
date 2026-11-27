@@ -21,6 +21,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
   final SlideshowService _service = const SlideshowService();
   final List<String> _photos = <String>[];
   final List<String> _log = <String>[];
+  String _musicPath = '';
   SlideshowReceipt? _receipt;
   bool _running = false;
 
@@ -76,6 +77,16 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     }
   }
 
+  Future<void> _pickMusic() async {
+    final List<PlatformFile> result = await FilePickerPlatform.instance
+        .pickFiles(type: FileType.audio);
+    if (result.isNotEmpty && result.first.path != null) {
+      setState(() {
+        _musicPath = result.first.path!;
+      });
+    }
+  }
+
   Future<void> _runMp4() async {
     if (_photos.isEmpty || _running) {
       return;
@@ -91,6 +102,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
       final SlideshowReceipt r = await _service.buildMp4(
         _photos,
         outPath: out,
+        musicPath: _musicPath.isEmpty ? null : _musicPath,
       );
       setState(() {
         _receipt = r;
@@ -134,6 +146,13 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
             onPressed: _run,
             icon: const Icon(Icons.play_circle),
             label: const Text('Build GIF (_edit copy)'),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            title: const Text('Music (optional, user-supplied)'),
+            subtitle: Text(_musicPath.isEmpty ? 'none' : _musicPath),
+            trailing: const Icon(Icons.audiotrack),
+            onTap: _pickMusic,
           ),
           const SizedBox(height: 8),
           FilledButton.icon(

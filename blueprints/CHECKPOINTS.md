@@ -25,7 +25,7 @@
 ## G4 — Advanced spec (Phase 4) [x — see ADR-006, 2026-11-24]
 - [x] BP-04 reviewed; 4B (honest resize) promoted — shipped in Phase 3.
 - [x] 4A (bg-erase) — ADR-007 implemented: consent-gated cloud-fallback EraseService + EraseScreen (endpoint URL + consent in device prefs; no repo). Offline degrades to warning, source untouched.
-- [x] 4C v1 GIF + v2 MP4 export (ADR-008/009); music input still deferred (new ADR).
+- [x] 4C v1 GIF + v2 MP4 export (ADR-008/009); music input user-supplied (ADR-009 extension, 2026-11-27).
 - [x] No code, no deps, no models added beyond Phase 3 (`image` pkg — ADR-002). Promotion requires fresh ADR.
 
 ## G5 — Shell round-trip (Phase 5)
