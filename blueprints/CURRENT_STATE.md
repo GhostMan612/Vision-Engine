@@ -254,9 +254,9 @@
 
 - BP-04 promoted per ADR-006: 4B (honest resize) — already shipped in Phase 3
   (`app/lib/features/manip/pixel_ops.dart`, tests green). No new code.
-- 4A (bg-erase) IMPLEMENTED (consent-gated cloud-fallback, ADR-007); 4C v1 IMPLEMENTED (GIF slideshow, ADR-008).
+- 4A (bg-erase) IMPLEMENTED (consent-gated cloud-fallback, ADR-007); 4C v1 GIF + v2 MP4 export (ADR-008/009, ffmpeg_kit_flutter 6.0.3; music input deferred).
 - Gates: `dart analyze` (rename_core) No issues found!; `flutter analyze` No issues
-  found!; `dart test` 29/29; `flutter test` 59/59 (incl. 3 erase + 2 slideshow tests); native Robolectric green.
+  found!; `dart test` 29/29; `flutter test` 60/60 (incl. 3 erase + 3 slideshow tests); native Robolectric green.
 
 ### Phase 5 (2026-11-24) — DCIM round-trip (bounded, byte-preservation OK)
 
@@ -279,7 +279,7 @@
   kotlin/com/visionengine/MainActivity.kt` + new Manip screen tab in
   `app/lib/main.dart`. Pixel ops via new `image` dep (4.13.1 in pubspec).
 - Gates this session: `dart test` rename_core 29/29; `flutter analyze`
-  "No issues found!"; `flutter test` 59/59 (incl. 3 erase + 2 slideshow tests); native
+  "No issues found!"; `flutter test` 60/60 (incl. 3 erase + 3 slideshow tests); native
   `:vision-android:testDebugUnitTest` BUILD SUCCESSFUL; `tools/parity_probe.py`
   GREEN. `tools/verify_reference.py`: pre-existing BROKEN (22 files) from
   S5/S6 evolution; the new Phase 3 files join the frozen-manifest mismatch.

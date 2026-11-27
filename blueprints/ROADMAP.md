@@ -67,7 +67,7 @@
 ## Phase 4 — Advanced lane (SPEC ONLY until G1–G3 pass AND slice promotion) [-]
 - [x] BP-04 spec review; ADR-006 (2026-11-24): 4B v1 promoted (honest resize — shipped in Phase 3); 4A/4C deferred
 - [x] 4A. AI background eraser — ADR-007 (2026-11-24): EraseService + EraseScreen (consent-gated cloud-fallback, device prefs only), offline degrades; `flutter test` 57/57 incl. 3 new erase tests. — not promoted yet (ADR-006)
-- [x] 4C. Slideshow / video-maker — ADR-008 v1 (2026-11-24): GIF slideshow built from picked photos (no music; MP4/music via ffmpeg_kit_flutter is a new, separate ADR + promotion). `SlideshowService` + `SlideshowScreen`; `image` dep (allowed, ADR-002). Tests green.
+- [x] 4C. Slideshow / video-maker — ADR-008 v1 (2026-11-24): GIF slideshow built from picked photos (no music; 4C MP4 export (ADR-009): `SlideshowService.buildMp4` via ffmpeg_kit_flutter 6.0.3; verified by session return code + output size; MP4 button in SlideshowScreen. Music input still deferred.. `SlideshowService` + `SlideshowScreen`; `image` dep (allowed, ADR-002). Tests green.
 - [ ] BP-04 spec: bg-erase (TFLite RMBG candidate, isolated env), upscale (honest resize until real model), slideshow/video-with-music (ffmpeg concat ADR + size/perf gate)
 - [ ] No code, no deps, no models until operator explicitly promotes a slice
 - Gate: G4 (spec reviewed; promotion requires fresh ADR + device perf budget)

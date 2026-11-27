@@ -76,6 +76,40 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     }
   }
 
+  Future<void> _runMp4() async {
+    if (_photos.isEmpty || _running) {
+      return;
+    }
+    setState(() {
+      _running = true;
+    });
+    try {
+      final int dot = _photos.first.lastIndexOf('.');
+      final String out = dot < 0
+          ? '${_photos.first}_slideshow.mp4'
+          : '${_photos.first.substring(0, dot)}_slideshow.mp4';
+      final SlideshowReceipt r = await _service.buildMp4(
+        _photos,
+        outPath: out,
+      );
+      setState(() {
+        _receipt = r;
+        _log.insert(
+          0,
+          'mp4: ${r.changed ? 'built' : 'failed'}, frames=${r.frames}, verified=${r.verified}',
+        );
+      });
+    } catch (e) {
+      setState(() {
+        _log.insert(0, 'error: $e');
+      });
+    } finally {
+      setState(() {
+        _running = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +133,13 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
           FilledButton.icon(
             onPressed: _run,
             icon: const Icon(Icons.play_circle),
-            label: const Text('Build slideshow (_edit copy)'),
+            label: const Text('Build GIF (_edit copy)'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: _runMp4,
+            icon: const Icon(Icons.movie),
+            label: const Text('Build MP4 (ffmpeg, ADR-009)'),
           ),
           const Divider(),
           if (_receipt != null)

@@ -40,4 +40,11 @@ void main() {
     expect(r.changed, isFalse);
     expect(r.warnings, isNotEmpty);
   });
+
+  test('buildMp4 empty pick is a clean no-change receipt', () async {
+    final SlideshowReceipt r = await const SlideshowService()
+        .buildMp4(<String>[], outPath: 'nope.mp4');
+    expect(r.changed, isFalse);
+    expect(r.warnings, isNotEmpty);
+  });
 }

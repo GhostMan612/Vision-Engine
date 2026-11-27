@@ -7,6 +7,7 @@ export 'slideshow_models.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:image/image.dart';
 import 'slideshow_models.dart';
 
@@ -65,6 +66,72 @@ class SlideshowService {
         changed: false,
         verified: false,
         warnings: <String>['slideshow failed: $e'],
+      );
+    }
+  }
+
+  Future<SlideshowReceipt> buildMp4(
+    List<String> paths, {
+    required String outPath,
+    int durationMs = 3000,
+  }) async {
+    if (paths.isEmpty) {
+      return const SlideshowReceipt(
+        changed: false,
+        verified: false,
+        warnings: <String>['no photos picked'],
+      );
+    }
+    try {
+      final Directory temp =
+          await Directory.systemTemp.createTemp('ve-slideshow-mp4-');
+      try {
+        int frames = 0;
+        for (int i = 0; i < paths.length; i++) {
+          final Uint8List bytes = await File(paths[i]).readAsBytes();
+          final Image? decoded = decodeJpg(bytes) ?? decodePng(bytes);
+          if (decoded == null) {
+            continue;
+          }
+          final File dst = File(
+            '${temp.path}${Platform.pathSeparator}f${(frames + 1).toString().padLeft(3, '0')}.jpg',
+          );
+          await dst.writeAsBytes(encodeJpg(decoded, quality: 85));
+          frames += 1;
+        }
+        if (frames == 0) {
+          return const SlideshowReceipt(
+            changed: false,
+            verified: false,
+            warnings: <String>['no decodable photos'],
+          );
+        }
+        final String command =
+            '-framerate ${1000 ~/ durationMs} -i '
+            '${temp.path}${Platform.pathSeparator}f%03d.jpg '
+            '-c:v libx264 -pix_fmt yuv420p $outPath';
+        final session = await FFmpegKit.execute(command);
+        final rc = await session.getReturnCode();
+        final bool ok = rc != null && rc.isValueSuccess();
+        final bool verified =
+            File(outPath).existsSync() && File(outPath).lengthSync() > 0;
+        return SlideshowReceipt(
+          changed: ok,
+          verified: ok && verified,
+          outPath: outPath,
+          frames: frames,
+          warnings: ok
+              ? const <String>[]
+              : const <String>['ffmpeg session failed (see ffmpeg logs)'],
+        );
+      } finally {
+        temp.delete(recursive: true).ignore();
+      }
+    } catch (e) {
+      return SlideshowReceipt(
+        changed: false,
+        verified: false,
+        warnings: <String>['slideshow mp4 failed: $e'],
       );
     }
   }
