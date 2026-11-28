@@ -13,6 +13,8 @@ MP4 export leg (photos -> MP4) via `ffmpeg_kit_flutter`.
 - Output default: `<first>_slideshow.mp4` beside the source.
 - License: GPL-3.0-or-later noted in pubspec `metadata` (Flutter may
   refuse to publish for GPL — deliberate; package is private, `publish_to: 'none'`).
+- 2026-11-27: plugin swapped to `ffmpeg_kit_flutter_new 5.0.0` (v2 embedding)
+  because the original 6.0.3 does not compile on Flutter 3.47; see ADR-011.
 - Music input: user-supplied audio only; `-i <music> -shortest -c:a aac` (ADR-009 extension 2026-11-27, operator "yes"). Music-license note: user-supplied audio only.
 - APK grows by ABI: needs operator sign-off (fresh ADR) — accepted here per "proceed to complete all unimplemented code work".
 

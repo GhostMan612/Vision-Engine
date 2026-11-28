@@ -46,7 +46,8 @@ dependencies:
   shared_preferences: ^2.5.5
   permission_handler: ^13.0.2
   file_picker: ^12.3.0
-  ffmpeg_kit_flutter: ^6.0.3
+  tflite_flutter: 0.12.1
+  ffmpeg_kit_flutter_new: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +75,7 @@ flutter:
 
   assets:
     - assets/fixtures/
+    - assets/models/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

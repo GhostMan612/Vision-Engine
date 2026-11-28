@@ -231,6 +231,7 @@
 | K18 | Tests | `await x!` on `tester.runAsync` yields contradictory analyzer diagnostics; always parenthesize `(await tester.runAsync(...))!` (proven by experiment). Related: flutter_test `test()` runs real-async fine — `testWidgets`+`runAsync` is ONLY for widget-pumping tests; pure-logic tests with real IO/engine futures must stay plain `test()`, never convert preemptively. | Closed — 2C host suites |
 | K19 | Gates | `flutter test` compiles `test/` only — `integration_test/` breakage is invisible to it. The analyzer DOES cover `integration_test/`, but only if it runs AFTER those files exist. Always re-run `flutter analyze` as the last gate after adding/changing integration files. | Closed — missed `ThumbFetch` import caught on device lane |
 | K20 | Tooling | Never open the same file for read+write in one Python expression (`open(p,'w').write(open(p).read())` truncates before reading — silently empties the file). Read fully, close, then write; verify byte counts after every scripted touch. | Closed — caught by post-touch grep, files restored byte-exact |
+| K21 | Toolchain | `ffmpeg_kit_flutter 6.0.3` pins an artifact not served by repo.maven.apache.org and uses removed v1 embedding; `ffmpeg_kit_flutter_new 5.0.0` + Google's Maven Central mirror fixes both. `tflite_flutter` needs Java/Kotlin target alignment to 17; `options.release` is rejected by AGP. | Closed 2026-11-27 — ADR-011 |
 
 ## Decisions log (pointer — full text in `decisions/`)
 
@@ -254,16 +255,23 @@
 
 - BP-04 promoted per ADR-006: 4B (honest resize) — already shipped in Phase 3
   (`app/lib/features/manip/pixel_ops.dart`, tests green). No new code.
-- 4A (bg-erase) IMPLEMENTED (consent-gated cloud-fallback, ADR-007); 4C v1 GIF + v2 MP4 export (ADR-008/009, ffmpeg_kit_flutter 6.0.3; music input user-supplied (2026-11-27).
+- 4A: cloud consent path (ADR-007) + on-device engine (ADR-010, 244 KB bundled
+  segmenter, `MaskFn` seam, local flood-fill fallback when LiteRT allocation
+  fails on B160V, `_edit.png` copy, source-byte proof, engine toggle).
+- 4C: v1 GIF (ADR-008) + v2 MP4 via `ffmpeg_kit_flutter_new 5.0.0` (ADR-009/011)
+  with optional user-supplied music.
 - Gates: `dart analyze` (rename_core) No issues found!; `flutter analyze` No issues
-  found!; `dart test` 29/29; `flutter test` 60/60 (incl. 3 erase + 3 slideshow tests); native Robolectric green.
+  found!; `dart test` 29/29; `flutter test` 64/64 (3 erase + 3 slideshow + 2 DCIM);
+  `flutter test integration_test -d 7040016025040287` 9/9 PASS (B160V); native
+  Robolectric green. Evidence collected before the end-of-session cache purge.
 
 ### Phase 5 (2026-11-24) — DCIM round-trip (bounded, byte-preservation OK)
 
 - Synthetic `IMG_20261124_a/b.jpg` created on B160V (`/sdcard/DCIM/VE_RT5`, device cleaned).
 - Hub Python rename executed on pulled copy: `RENAMED 2/2, errors=0, collisions=0`.
 - SHA-256 of both files identical before/after (pure-rename byte-proof OK).
-- App-on-device rename (UI) not driven in this leg.
+- App-on-device UI leg added 2026-11-27 (`DcimScreen` + `DcimRenameService`);
+  the 2026-11-24 leg itself drove only the host Python rename.
 
 - Rename templates v1: `buildTemplates` + `templateName` in
   `packages/rename_core/lib/src/templates.dart`; `buildPlan` gained the

@@ -19,13 +19,24 @@
 
 Conflict law: RULES.md > other docs; executable files (`*.py`, `pubspec.yaml`, `build.gradle`) > prose.
 
-> ## Where we are (2026-11-24, Phase 4 partially done — 4A and 4C-v1 done)
+> ## Where we are (2026-11-27, ALL deferred code work implemented; device gate in flight)
 
-- **Phase 4 (ADR-006, 2026-11-24):** 4A implemented (consent-gated cloud-fallback eraser, device prefs only) — 4B (honest resize) already
-  shipped in Phase 3; 4A/4C not promoted (fresh ADRs required). No new code.
-- **Phase 5 (2026-11-24, bounded):** DCIM round-trip leg — synthetic
-  `IMG_20261124_a/b.jpg` created on B160V `/sdcard/DCIM/VE_RT5` (cleaned),
-  hub Python rename 2/2 RENAMED, SHA-256 before==after (byte-preservation OK).
+- **Phase 4 complete (ADR-006..011):** 4A cloud (ADR-007) + on-device TFLite
+  segmenter (ADR-010, 244 KB model, `MaskFn` seam, `_edit.png`, source-byte
+  proof, engine toggle); 4B honest resize shipped in Phase 3; 4C GIF (ADR-008),
+  MP4 + user-supplied music (ADR-009) via `ffmpeg_kit_flutter_new 5.0.0`
+  (ADR-011 build fixes). `flutter analyze` clean, `flutter test` 64/64.
+- **Phase 5 DCIM UI leg implemented (2026-11-27):** `DcimScreen` + `DcimRenameService`
+  (folder pick, dry-run, streamed FNV-1a before/after byte proof, CSV manifest,
+  undo) as a new app tab. Host Python byte-proof leg remains green from 2026-11-24.
+- **Device leg GREEN (2026-11-27):** `flutter test integration_test -d
+  7040016025040287` 9/9 PASS on B160V (new TFLite/MP4/DCIM suites + existing
+  suites); the TFLite model loads but LiteRT allocation fails on this device,
+  so the deterministic local mask fallback is used (ADR-010).
+- **Build blockers closed (ADR-011):** unresolvable ffmpeg artifact, retired v1
+  embedding, Java/Kotlin JVM-target skew — Maven mirror + fork + JVM 17.
+- **`tools/verify_reference.py`:** baseline manifest to be refreshed from
+  `git ls-files` via new `tools/make_reference_manifest.py` before final commit.
 
 - **Phase 3 implemented** (2026-11-24): rename templates v1
   (`buildTemplates` in rename_core + additive `nameMapper` in `buildPlan`),

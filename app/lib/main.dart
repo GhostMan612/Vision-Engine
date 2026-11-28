@@ -12,6 +12,7 @@ import 'features/erase/erase_screen.dart';
 import 'features/manip/manip_screen.dart';
 import 'features/slideshow/slideshow_screen.dart';
 import 'features/probe/probe_screen.dart';
+import 'features/rename/dcim_screen.dart';
 import 'features/rename/rename_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'settings_store.dart';
@@ -88,6 +89,7 @@ class _HomeShellState extends State<HomeShell> {
     }
     final List<Widget> tabs = <Widget>[
       RenameScreen(adapter: boot.adapter, settings: boot.settings),
+      const DcimScreen(),
       EraseScreen(settings: boot.settings),
       ManipScreen(),
       SlideshowScreen(),
@@ -108,6 +110,10 @@ class _HomeShellState extends State<HomeShell> {
           NavigationDestination(
             icon: Icon(Icons.drive_file_rename_outline),
             label: 'Rename',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.folder_copy),
+            label: 'DCIM',
           ),
           NavigationDestination(
             icon: Icon(Icons.auto_fix_high),

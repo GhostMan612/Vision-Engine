@@ -64,17 +64,25 @@
   under G3 flips in CHECKPOINTS.md).
 - Gate: G3 (round-trip verified on Moto G; byte-proof for pure renames; no silent overwrites)
 
-## Phase 4 — Advanced lane (SPEC ONLY until G1–G3 pass AND slice promotion) [-]
-- [x] BP-04 spec review; ADR-006 (2026-11-24): 4B v1 promoted (honest resize — shipped in Phase 3); 4A/4C deferred
-- [x] 4A. AI background eraser — ADR-007 (2026-11-24): EraseService + EraseScreen (consent-gated cloud-fallback, device prefs only), offline degrades; `flutter test` 57/57 incl. 3 new erase tests. — not promoted yet (ADR-006)
-- [x] 4C. Slideshow / video-maker — ADR-008 v1 (2026-11-24): GIF slideshow built from picked photos (no music; 4C MP4 export (ADR-009): `SlideshowService.buildMp4` via ffmpeg_kit_flutter 6.0.3; verified by session return code + output size; MP4 button in SlideshowScreen. music input added 2026-11-27 (user-supplied audio only, `-shortest -c:a aac`).. `SlideshowService` + `SlideshowScreen`; `image` dep (allowed, ADR-002). Tests green.
-- [ ] BP-04 spec: bg-erase (TFLite RMBG candidate, isolated env), upscale (honest resize until real model), slideshow/video-with-music (ffmpeg concat ADR + size/perf gate)
-- [ ] No code, no deps, no models until operator explicitly promotes a slice
-- Gate: G4 (spec reviewed; promotion requires fresh ADR + device perf budget)
+## Phase 4 — Advanced lane [x] (all promoted slices implemented 2026-11-27)
+- [x] BP-04 spec review; ADR-006: 4B honest resize (already shipped in Phase 3)
+- [x] 4A eraser: ADR-007 cloud consent path + ADR-010 on-device TFLite segmenter
+  (244 KB bundled model, `MaskFn` seam, `_edit.png` copy, source-byte proof,
+  engine toggle). `flutter test` 64/64.
+- [x] 4C slideshow: ADR-008 GIF, ADR-009 MP4 + optional user-supplied music
+  (`ffmpeg_kit_flutter_new 5.0.0`, ADR-011 build fixes). `flutter test` 64/64.
+- [x] Device suites authored: `on_device_erase_device_test.dart`,
+  `mp4_device_test.dart`, `dcim_rename_device_test.dart`.
+- [~] BP-04 residual (NOT claimed): general-object RMBG/U²-Net model,
+  Real-ESRGAN-class upscale — deferred, larger models + perf gates needed.
+- Gate: G4 — ADR-006..011 on record; host gates green; B160V device suite 9/9
+  PASS (2026-11-27).
 
 ## Phase 5 — Android shell hardening [~] (shell + D2 done; DCIM round-trip done 2026-11-24)
 - [x] BP-05 shell: `com.visionengine`, minSdk 26, compileSdk 37 (device-proven), 64-bit ABIs, permissions, settings persist, probe screen
 - [x] D2 evidence CLOSED/PASS (Moto G 2026-09-15): raw rename via
   user-picked folder validated → SAF-pick + raw rename stays primary;
   MediaStore adapter NOT justified → deferred, rename_core/behavior frozen
-- [ ] DCIM round-trip only when explicitly tasked
+- [x] DCIM round-trip: Phase 5 host Python byte-proof (2026-11-24) + app-on-device
+  UI leg (2026-11-27): `DcimScreen` + `DcimRenameService` (folder pick, dry-run,
+  FNV-1a before/after proof, CSV manifest, undo), new tab in `main.dart`.

@@ -23,6 +23,7 @@ class _EraseScreenState extends State<EraseScreen> {
   final List<String> _log = <String>[];
   String _path = '';
   bool _consent = false;
+  EraseEngine _engine = EraseEngine.onDevice;
   EraseReceipt? _receipt;
   bool _running = false;
 
@@ -49,6 +50,10 @@ class _EraseScreenState extends State<EraseScreen> {
     setState(() {
       _path = result.first.path!;
     });
+    if (!mounted) {
+      return;
+    }
+    setState(() {});
   }
 
   Future<void> _run() async {
@@ -58,11 +63,20 @@ class _EraseScreenState extends State<EraseScreen> {
     setState(() {
       _running = true;
     });
-    final EraseReceipt receipt =
-        await _service.eraseBackground(_path, consent: _consent);
+    final EraseReceipt receipt = await _service.eraseBackground(
+      _path,
+      consent: _consent,
+      engine: _engine,
+    );
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _receipt = receipt;
-      _log.insert(0, 'erase: ${receipt.changed ? 'changed' : 'no change'}');
+      _log.insert(
+        0,
+        '${_engine.name}: ${receipt.changed ? 'changed' : 'no change'}',
+      );
       _running = false;
     });
   }
@@ -70,6 +84,9 @@ class _EraseScreenState extends State<EraseScreen> {
   Future<void> _saveSettings() async {
     await widget.settings.setEraserEndpoint(_endpointCtrl.text.trim());
     await widget.settings.setEraserConsent(_consent);
+    if (!mounted) {
+      return;
+    }
     setState(() {});
   }
 
@@ -93,18 +110,39 @@ class _EraseScreenState extends State<EraseScreen> {
             trailing: const Icon(Icons.folder_open),
             onTap: _pick,
           ),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'Endpoint URL (device settings only)',
-            ),
-            controller: _endpointCtrl,
-          ),
           const SizedBox(height: 8),
-          SwitchListTile(
-            title: const Text('I consent to sending this image to the endpoint'),
-            value: _consent,
-            onChanged: (bool? v) => setState(() => _consent = v ?? false),
+          DropdownButtonFormField<EraseEngine>(
+            initialValue: _engine,
+            decoration: const InputDecoration(labelText: 'Engine'),
+            items: const <DropdownMenuItem<EraseEngine>>[
+              DropdownMenuItem(
+                value: EraseEngine.onDevice,
+                child: Text('On-device (TFLite / local fallback)'),
+              ),
+              DropdownMenuItem(
+                value: EraseEngine.cloud,
+                child: Text('Cloud endpoint (requires consent)'),
+              ),
+            ],
+            onChanged: (EraseEngine? v) =>
+                setState(() => _engine = v ?? EraseEngine.onDevice),
           ),
+          if (_engine == EraseEngine.cloud) ...<Widget>[
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Endpoint URL (device settings only)',
+              ),
+              controller: _endpointCtrl,
+            ),
+            const SizedBox(height: 8),
+            SwitchListTile(
+              title: const Text(
+                'I consent to sending this image to the endpoint',
+              ),
+              value: _consent,
+              onChanged: (bool? v) => setState(() => _consent = v ?? false),
+            ),
+          ],
           FilledButton.icon(
             onPressed: _run,
             icon: const Icon(Icons.auto_fix_high),

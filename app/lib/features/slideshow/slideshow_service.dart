@@ -7,7 +7,7 @@ export 'slideshow_models.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
 import 'package:image/image.dart';
 import 'slideshow_models.dart';
 
@@ -32,7 +32,7 @@ class SlideshowService {
       int height = 0;
       for (final String path in paths) {
         final Uint8List bytes = await File(path).readAsBytes();
-        final Image? decoded = decodeJpg(bytes) ?? decodePng(bytes);
+        final Image? decoded = _decode(bytes);
         if (decoded == null) {
           continue;
         }
@@ -90,7 +90,7 @@ class SlideshowService {
         int frames = 0;
         for (int i = 0; i < paths.length; i++) {
           final Uint8List bytes = await File(paths[i]).readAsBytes();
-          final Image? decoded = decodeJpg(bytes) ?? decodePng(bytes);
+          final Image? decoded = _decode(bytes);
           if (decoded == null) {
             continue;
           }
@@ -140,3 +140,17 @@ class SlideshowService {
 }
 
 int max(int a, int b) => a > b ? a : b;
+
+Image? _decode(Uint8List bytes) {
+  try {
+    final Image? jpeg = decodeJpg(bytes);
+    if (jpeg != null) {
+      return jpeg;
+    }
+  } catch (_) {}
+  try {
+    return decodePng(bytes);
+  } catch (_) {
+    return null;
+  }
+}

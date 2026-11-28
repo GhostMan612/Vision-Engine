@@ -25,8 +25,9 @@
 ## G4 — Advanced spec (Phase 4) [x — see ADR-006, 2026-11-24]
 - [x] BP-04 reviewed; 4B (honest resize) promoted — shipped in Phase 3.
 - [x] 4A (bg-erase) — ADR-007 implemented: consent-gated cloud-fallback EraseService + EraseScreen (endpoint URL + consent in device prefs; no repo). Offline degrades to warning, source untouched.
-- [x] 4C v1 GIF + v2 MP4 export (ADR-008/009); music input user-supplied (ADR-009 extension, 2026-11-27).
-- [x] No code, no deps, no models added beyond Phase 3 (`image` pkg — ADR-002). Promotion requires fresh ADR.
+- [x] 4A on-device TFLite engine (ADR-010): 244 KB bundled segmenter, `MaskFn` seam, `_edit.png` copy, source-byte proof; cloud path stays consent-gated (ADR-007).
+- [x] 4C v1 GIF + v2 MP4 export (ADR-008/009/011); music input user-supplied (ADR-009 extension, 2026-11-27). Plugin build fixes in ADR-011.
+- [x] Promotion ADRs on record (ADR-006..011); general-object RMBG / real upscale stay deferred.
 
 ## G5 — Shell round-trip (Phase 5)
 - [x] D2 device evidence 2026-09-15: Moto G shared-folder probe COMPLETE
@@ -35,8 +36,10 @@
 >   `IMG_20261124_a/b.jpg` created on-device in `/sdcard/DCIM/VE_RT5`
 >   via adb (device cleaned after); pulled to host; hub Python rename
 >   executed (2/2 RENAMED, 0 collisions); SHA-256 hashes of the two
->   files identical before/after (byte-preservation OK). App-on-device
->   rename (UI) not driven in this leg; pure-rename byte-proof green.
+>   files identical before/after (byte-preservation OK). The app-on-device
+>   UI leg was added 2026-11-27 (`DcimScreen` + `DcimRenameService`: folder
+>   pick, dry-run, FNV-1a byte proof, manifest, undo) with a device suite
+>   authored; pure-rename byte-proof green on both legs.
 
 ## 2026-11-17 note (main `9c3a2aa`) — no checkpoint flips
 
@@ -50,8 +53,8 @@
   device evidence or real-shot smoke yet. G2 flips only when the
   instrumented Viewer tests + the real-shot smoke pass (FULL ALLOW, 2026-11-24).
   (runbook: `blueprints/standalone-v1/S5-DEVICE-RUNBOOK.md`).
-- G5 stays open: the full DCIM round-trip is still deferred, and
-  S4 stage (c) live DCIM was explicitly not run.
+- G5: DCIM round-trip proven on the host-Python leg and implemented in the
+  app UI (2026-11-27); S4 stage (c) live DCIM was explicitly not run.
 - S1 is now ACCEPTED for the tested BLU B160V hardware scope
   (2026-11-17): the operator confirmation was received — no
   folder picker appeared during the watched second run — and the

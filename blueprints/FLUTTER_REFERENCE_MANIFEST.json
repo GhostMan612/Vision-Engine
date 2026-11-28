@@ -1,6 +1,6 @@
 {
   "tag": "flutter-final-v2",
-  "scope": "all git-tracked files except this manifest (tree is curated by .gitignore; build/.dart_tool/logs/IDE state are untracked by policy)",
+  "scope": "all git-tracked files except this manifest; refreshed 2026-11-27 after Phase 3-5 + deferred work (verify_reference.py GREEN)",
   "files": [
     {
       "path": ".github/workflows/python-app.yml",
@@ -49,8 +49,8 @@
     },
     {
       "path": "AGENTS.md",
-      "bytes": 7740,
-      "sha256": "43f30ae62b9bae7d9fb249d73a7ca3ab07fe746eb5109e3f2cc103c5c7df4151"
+      "bytes": 3630,
+      "sha256": "86134ab9e1536ab4f25be9e49c4fbf7dc56dadebf16d77ab8dbc28f23ee9bab9"
     },
     {
       "path": "README.md",
@@ -59,13 +59,13 @@
     },
     {
       "path": "RULES.md",
-      "bytes": 10187,
-      "sha256": "48ccbd595414429919232e595eaec064c1b0dd27e33c106304584e6a899a3f54"
+      "bytes": 6604,
+      "sha256": "c406731978467561e07b496a5b3b964a8b207f669a6c7d6482c6018a1b064551"
     },
     {
       "path": "SESSION_HANDOFF.md",
-      "bytes": 22708,
-      "sha256": "5415b2005569b0614865d372f63102d895df34b624a3359b247d22ee405b95ae"
+      "bytes": 24433,
+      "sha256": "75312e059cd07cd43e4646bbd80f54fe6cc037b857785927e17dc35d20f1f35c"
     },
     {
       "path": "VISION_ENGINE_OVERLAY_README.md",
@@ -118,9 +118,14 @@
       "sha256": "c4051a123768facc8e26478b723b4273970c8557494cb7dd635e98b01b8ad4ca"
     },
     {
+      "path": "app/android/app/src/main/kotlin/com/visionengine/ExifOps.kt",
+      "bytes": 4832,
+      "sha256": "f3b2a2c7ba6cd410a7bbd524875abc49e40fc2fb563fb9a7db12a076a05cbb95"
+    },
+    {
       "path": "app/android/app/src/main/kotlin/com/visionengine/MainActivity.kt",
-      "bytes": 1861,
-      "sha256": "30a0daa810002cedb5ff0f2a97dbe35b813f7bfe6bae3165a9411e9f87fc2605"
+      "bytes": 3755,
+      "sha256": "dc8684871006a4b76311ae0a6fa08850b0248e85d625c5a46930a662bcb15c98"
     },
     {
       "path": "app/android/app/src/main/kotlin/com/visionengine/MetadataBridge.kt",
@@ -179,8 +184,8 @@
     },
     {
       "path": "app/android/build.gradle.kts",
-      "bytes": 561,
-      "sha256": "218f400e3fff31c9c986a2535dfb974560e1b4d33cc27b7c1fee96a2b7e44454"
+      "bytes": 2059,
+      "sha256": "95835f521c5688f23c32a854920ff25527c96db9e33cc7bb8c4d468649660fc6"
     },
     {
       "path": "app/android/gradle.properties",
@@ -218,9 +223,29 @@
       "sha256": "38902e21ce82345ea2eacb6bbd678f49a80ca3d17c7518d219d316e2f61e5223"
     },
     {
+      "path": "app/assets/models/selfie_segmenter.tflite",
+      "bytes": 249537,
+      "sha256": "191ac9529ae506ee0beefa6b2c945a172dab9d07d1e802a290a4e4038226658b"
+    },
+    {
+      "path": "app/integration_test/dcim_rename_device_test.dart",
+      "bytes": 1526,
+      "sha256": "e52a65ed9abc936b9a2136c50fd961abe9356f05a7418967da06f59da8bc3872"
+    },
+    {
       "path": "app/integration_test/extraction_device_test.dart",
       "bytes": 4708,
       "sha256": "9bc76e174055b3d91a08ea190cfd313f0ef365eecec0bd5dcd564fefb628a500"
+    },
+    {
+      "path": "app/integration_test/mp4_device_test.dart",
+      "bytes": 1805,
+      "sha256": "f61333a7d2f8b0c26af4097137f2143621c6cd31432d80d27f5a45cd6a7d99d0"
+    },
+    {
+      "path": "app/integration_test/on_device_erase_device_test.dart",
+      "bytes": 1769,
+      "sha256": "00e7a320d342755b219a8f5d15c1ce6ee17e7d75688f1ecb65fa5cb7077eafe9"
     },
     {
       "path": "app/integration_test/pipeline_device_test.dart",
@@ -233,6 +258,11 @@
       "sha256": "ad1df1189904c1d0233e2d74c40bc685961e44c5deec4bc06877a3d9dfa0437f"
     },
     {
+      "path": "app/lib/adapters/manip_adapter.dart",
+      "bytes": 3393,
+      "sha256": "6e8c20b5197bf4c295a6ea9d4dcff0bd5817295db20ee1be6b2709b8de70662c"
+    },
+    {
       "path": "app/lib/adapters/metadata_adapter.dart",
       "bytes": 11065,
       "sha256": "88b9168ab9319b8dab60860e8f485291c77e2b82744938f0f90d05ac636e0cf2"
@@ -243,9 +273,54 @@
       "sha256": "6bfa62eb2ffb94643cc799dcaed14c02290e2b78449ab3cfdad642f405ee5d8b"
     },
     {
+      "path": "app/lib/features/erase/erase_models.dart",
+      "bytes": 507,
+      "sha256": "449a43c6465237cf1ed26de1d963d24ea403f3b551cd5ec12794f4b69b288c9d"
+    },
+    {
+      "path": "app/lib/features/erase/erase_screen.dart",
+      "bytes": 5248,
+      "sha256": "db769bbfc7a367b4115bd26c778796aabac915f24870abdff4725e9b2045017d"
+    },
+    {
+      "path": "app/lib/features/erase/erase_service.dart",
+      "bytes": 7052,
+      "sha256": "177830c72cc7032eb15ed24ae5af6cb12a498e4c56a650b786ece4b833eed7e4"
+    },
+    {
+      "path": "app/lib/features/erase/tflite_mask.dart",
+      "bytes": 4141,
+      "sha256": "4500d88ea9a6966f9759bcd15d078c99c5113c1fee8323d8fd67cc5b46aca9cb"
+    },
+    {
+      "path": "app/lib/features/manip/manip_models.dart",
+      "bytes": 1482,
+      "sha256": "63b3e1d3b065efc06d5e422a9e8611bf089b0172dfc3a8e1ea5208b62dfd31d3"
+    },
+    {
+      "path": "app/lib/features/manip/manip_screen.dart",
+      "bytes": 8100,
+      "sha256": "a137d07c29d700b880298d33e04e985cd31d0e56726d210115ff269c6c4bacda"
+    },
+    {
+      "path": "app/lib/features/manip/pixel_ops.dart",
+      "bytes": 1492,
+      "sha256": "8a04548db81ca9a6595c8f4ad580fdc9b01eba60a8eb8ddad6ffe6ca0040852e"
+    },
+    {
       "path": "app/lib/features/probe/probe_screen.dart",
       "bytes": 3506,
       "sha256": "75aff7004988b6c0e6835ba62b12a09af9f5b676c589ec367bd22075b4840e44"
+    },
+    {
+      "path": "app/lib/features/rename/dcim_rename_service.dart",
+      "bytes": 4587,
+      "sha256": "00416c1bd9c6efc62d84d971996af6c65cd7f572f13fa221b8eb2317760b7ed8"
+    },
+    {
+      "path": "app/lib/features/rename/dcim_screen.dart",
+      "bytes": 4671,
+      "sha256": "51bf39e1f8505ff2dbdd41bab6c2c8b66e11422fde13bc2aab3ab296ffb309db"
     },
     {
       "path": "app/lib/features/rename/rename_screen.dart",
@@ -256,6 +331,21 @@
       "path": "app/lib/features/settings/settings_screen.dart",
       "bytes": 2657,
       "sha256": "0637f7c8cf177660f6eb534cbfcb355edba4fe27934434cb8ae13fc12983a775"
+    },
+    {
+      "path": "app/lib/features/slideshow/slideshow_models.dart",
+      "bytes": 556,
+      "sha256": "17913cfecee3cd98d09f2b0bdfe7c1d62bca02acab5a2de8a03fd38d6da1cdba"
+    },
+    {
+      "path": "app/lib/features/slideshow/slideshow_screen.dart",
+      "bytes": 5641,
+      "sha256": "66babe37159c1269c99fbaf578e5e0ddc844394ace3115bd32659e37a495043a"
+    },
+    {
+      "path": "app/lib/features/slideshow/slideshow_service.dart",
+      "bytes": 4765,
+      "sha256": "44fde8ebec9bcf98c41d4c947f3fe5bd3fa28209b999840c3e8dd8b78dfbdbc5"
     },
     {
       "path": "app/lib/library/library_pipeline.dart",
@@ -274,28 +364,43 @@
     },
     {
       "path": "app/lib/main.dart",
-      "bytes": 3082,
-      "sha256": "a49d134ce85cf5c950be5b79dacc5e87210f8a218af7196e14fe225330f3af4e"
+      "bytes": 3851,
+      "sha256": "b3b387a044ab032a3f319a298a7f9cfad5ac8e514d28a2ff11ec0ea45731e343"
     },
     {
       "path": "app/lib/settings_store.dart",
-      "bytes": 1467,
-      "sha256": "50da73dff57b286124267765b04fb8dc3202f0967b0502b60fd0490d8b300397"
+      "bytes": 1946,
+      "sha256": "63c3967ee0c6d84b17ca45976581ab854b3cc39a77bbc55d531c18b7d8154805"
     },
     {
       "path": "app/pubspec.lock",
-      "bytes": 20267,
-      "sha256": "40bb10340162b8730cbe825be38c3e73aac24cf76d8e0f29db14a83e16dab9c4"
+      "bytes": 21942,
+      "sha256": "a1f1e0b0ba3ed702dd9e649530c6ed30efeb4e71592917a7ca0e97885696b334"
     },
     {
       "path": "app/pubspec.yaml",
-      "bytes": 4340,
-      "sha256": "f681b59b334159c841993b3e139c20070b306be7fdd640b944d996dae66bd380"
+      "bytes": 4480,
+      "sha256": "13533f196f4af81b079d70e915ee267055524ca8fa53c44e4fd046ff140091ac"
+    },
+    {
+      "path": "app/test/dcim_rename_service_test.dart",
+      "bytes": 2208,
+      "sha256": "062ae1c236cde945a4deb404d18461fe26d2388b4385e25df2d446c6a7ea0994"
+    },
+    {
+      "path": "app/test/erase_service_test.dart",
+      "bytes": 5826,
+      "sha256": "28566a77de68802346cf866527c9142b20e4997d0f075c7d3cce1dc628bbc214"
     },
     {
       "path": "app/test/lister_test.dart",
       "bytes": 2415,
       "sha256": "08ab0f2a1f567479c4162a58784b63f4034aa2543d36588d3c45f1d24f90aa59"
+    },
+    {
+      "path": "app/test/manip_adapter_test.dart",
+      "bytes": 2759,
+      "sha256": "e7aaf43db129730c76ae630118bbfdece1cb298be7781bef5a3cdad00c91f933"
     },
     {
       "path": "app/test/metadata_adapter_test.dart",
@@ -308,6 +413,11 @@
       "sha256": "c94148e3511a052151cfe1e9b990579de449b32980852aebe0b093243764f3db"
     },
     {
+      "path": "app/test/pixel_ops_test.dart",
+      "bytes": 1896,
+      "sha256": "a706ec58263dbd5cc3cec1d4a24c2c3fbbba43dce50dbf0721867f26596e3940"
+    },
+    {
       "path": "app/test/probe_test.dart",
       "bytes": 1183,
       "sha256": "d7811febeda7676f5120a3ddd8940a3d6044116c7a3b079b53ab1364693b99c8"
@@ -316,6 +426,11 @@
       "path": "app/test/rename_flow_test.dart",
       "bytes": 2842,
       "sha256": "98f4df776db02c441d0f35abefd83f50e30360e90a69da380ed7fa6049579c1c"
+    },
+    {
+      "path": "app/test/slideshow_service_test.dart",
+      "bytes": 1875,
+      "sha256": "bc382d27736fc1a2969dd632c3c02855778999d8e7899643d45b078f5e167601"
     },
     {
       "path": "app/test/thumb_store_test.dart",
@@ -334,28 +449,28 @@
     },
     {
       "path": "blueprints/CHECKLIST.md",
-      "bytes": 7201,
-      "sha256": "082fde4ab18cb77ab2164eef0c61b508c2d9e3f93e7247daaf578dab377e3eac"
+      "bytes": 7170,
+      "sha256": "6b082e9f03187a0a65083c6845f389cff1ee472836156b3259331a643a6d9c54"
     },
     {
       "path": "blueprints/CHECKPOINTS.md",
-      "bytes": 3187,
-      "sha256": "606d6fcfc3193335952dedd64e634d6a914d7050f4e936732ce472d0f022dfa1"
+      "bytes": 4403,
+      "sha256": "b69483a9ae45b20c1913adc0f5d628c2d19070396dee389191f85c7924925c82"
     },
     {
       "path": "blueprints/CURRENT_STATE.md",
-      "bytes": 19137,
-      "sha256": "5b0dd1d588e68b76130426049c7295bc4324def168e199f543d4673873f5c08a"
+      "bytes": 22157,
+      "sha256": "9139b1669b7c25d154646a8d339191a1703fca0683e693a9d9197d5c0383f9e8"
     },
     {
       "path": "blueprints/FLUTTER_REFERENCE_BASELINE.md",
-      "bytes": 8083,
-      "sha256": "099bf0bcb354837ce1fd5ebc0ecfd1f8318c81ffe55220a63f37bf78f08cc764"
+      "bytes": 8195,
+      "sha256": "959ac8ae2526c219c6a2796cf316d5ba8c4940aa66d7b9dcc5b344ee1e273694"
     },
     {
       "path": "blueprints/NATIVE_ANDROID_MIGRATION_BLUEPRINT.md",
-      "bytes": 18578,
-      "sha256": "081ddb14ff05b02bf3d9df2a0c3c2dd385fec3fae6c4033263ff14a22ef481cc"
+      "bytes": 18502,
+      "sha256": "f1e3d6d68708ccdeec5e02d32ae7bdf6c171478a61e5710e8b266b658361d8bb"
     },
     {
       "path": "blueprints/PHASE_2_RESEARCH_MAP.md",
@@ -369,8 +484,8 @@
     },
     {
       "path": "blueprints/ROADMAP.md",
-      "bytes": 5399,
-      "sha256": "b5383cc036e934d51b9c55a5d780cdf83bee596062831f651b8dbb8a718cec8e"
+      "bytes": 6476,
+      "sha256": "592ed5f2d07ff7060e2ea1105d07a536b16a99b6a39031e7f8b908af833d86a4"
     },
     {
       "path": "blueprints/VISION_ENGINE_MASTER_BLUEPRINT.md",
@@ -399,8 +514,8 @@
     },
     {
       "path": "blueprints/blueprint-sections/BP-04-advanced-deferred.md",
-      "bytes": 1760,
-      "sha256": "c3cdd92a6c6d2fecd69e2fbb3f1efa113d26946974f86291d757fec43a1ba0ce"
+      "bytes": 1997,
+      "sha256": "4ed619f4520ed607d8ef7aa5bb3515f3b724f6c5206900d8252c8d7539fdea8c"
     },
     {
       "path": "blueprints/blueprint-sections/BP-05-android-shell-permissions.md",
@@ -433,14 +548,44 @@
       "sha256": "1bed68c8ce96bbaa6e325677e7a449f9a37ee9b1b7f17c7cc8b0cc63af1ad20f"
     },
     {
+      "path": "blueprints/decisions/ADR-006-phase4-promotion.md",
+      "bytes": 1680,
+      "sha256": "a17090e2bdef5a9636917d69f550d7fcaa911f9c3c9cb0328a351bf0674a05e2"
+    },
+    {
+      "path": "blueprints/decisions/ADR-007-phase4-4a-eraser.md",
+      "bytes": 1193,
+      "sha256": "f0bffd46b746f1d0d6923c1d6170da8862c52b687a699821d907faf6d1d8965e"
+    },
+    {
+      "path": "blueprints/decisions/ADR-008-phase4-4c-slideshow.md",
+      "bytes": 684,
+      "sha256": "3af1ee8aa8e2b6ca5e873a42bf1cb1290f2280a594dc344c9b0cc902ce677f56"
+    },
+    {
+      "path": "blueprints/decisions/ADR-009-phase4-4c-v2.md",
+      "bytes": 1351,
+      "sha256": "2f89e62ae995a9f50f5a83b456f1082e4e34d9d5a9a299f8d26a0b074d221801"
+    },
+    {
+      "path": "blueprints/decisions/ADR-010-phase4-4a-ondevice.md",
+      "bytes": 1868,
+      "sha256": "1c8cd6b9ba2970158a1e27175ee9e6120e01888c25756ccef9da454bcdf7f612"
+    },
+    {
+      "path": "blueprints/decisions/ADR-011-build-toolchain-fixes.md",
+      "bytes": 1823,
+      "sha256": "487e795a698b9363daa3c91f705c2121be7c18489a34ab0f5b8bd13030c551a7"
+    },
+    {
       "path": "blueprints/standalone-v1/CHECKLIST.md",
       "bytes": 7969,
       "sha256": "1ed73b5b5f282504e67d67c926fb6b3a452f40a0283b36e8015f204a4bc255ba"
     },
     {
       "path": "blueprints/standalone-v1/README.md",
-      "bytes": 13986,
-      "sha256": "dff68d34e38295f70db6859db9efee7cbd8cbaade5db83d1e61ab1070d706e2f"
+      "bytes": 14044,
+      "sha256": "2785641464e60fa54fd38554a99ed4a1f7cecb88cdd3206878b780f6dcc2c712"
     },
     {
       "path": "blueprints/standalone-v1/RECOMMENDATIONS.md",
@@ -479,8 +624,8 @@
     },
     {
       "path": "blueprints/standalone-v1/S6-MP8-MP9-PARITY-RETIREMENT.md",
-      "bytes": 22458,
-      "sha256": "e110e65ebc98a1fe683b9f0c0d5729c8f4241d30baa30956f0622940a019e0d1"
+      "bytes": 22529,
+      "sha256": "ca7fc6e6d99a34335eec74f32f616c09eefc21986020cae0d8f546afd42aa3b3"
     },
     {
       "path": "docs/android-metadata-matrix.md",
@@ -494,33 +639,38 @@
     },
     {
       "path": "docs/device-validation-2b.md",
-      "bytes": 1711,
-      "sha256": "6cef60e6327056ea28fcf6c4fb41d2f963525fa6efa47dcd970a0f571e1e0476"
+      "bytes": 1725,
+      "sha256": "2fa743262e0fec7bc80404f7920de743daee0a9fe12123bb5146f1c7523339d9"
     },
     {
       "path": "docs/device-validation-2c.md",
-      "bytes": 1624,
-      "sha256": "6cf00ee01b84046123fb91a62004aef613571d35dd5f3939fa37c24f08fea456"
+      "bytes": 1638,
+      "sha256": "b1aa5ffaa6a6cc54c045ee30b1e0fd30e7c57f0ef3273ee579e7f31feccfebed"
     },
     {
       "path": "docs/device-validation-mp4.md",
-      "bytes": 1453,
-      "sha256": "6174f196c5c67cf3c5c20fe1bb3eabfa2172c7f514e320c6aef65c300aef655a"
+      "bytes": 1467,
+      "sha256": "48316f3d7512da1c973cda0692169d9c0424daf224b6776d6ba209cd9c4a4df7"
     },
     {
       "path": "docs/device-validation-mp5.md",
-      "bytes": 1520,
-      "sha256": "d517a442d70e4423b36d2d0e6061b54ab10dc8b2eeb9d27216fab035f5d7f82f"
+      "bytes": 1534,
+      "sha256": "f096277faef5d8aaa6711cf7669cca969decb51d760f105d1c6f1095a4c77ded"
     },
     {
       "path": "docs/device-validation-mp6.md",
-      "bytes": 1933,
-      "sha256": "2ff2c7d90091559cf0499c8b0f2f0bd5fc164a85ce74b5fdacad8caedce53690"
+      "bytes": 1947,
+      "sha256": "55943776b5841e9fef38aa1887f5e579a8121fd9b13744c7f3222a9f725ff20b"
     },
     {
       "path": "docs/extraction-boundary.md",
-      "bytes": 5509,
-      "sha256": "362c0d0d7f8816366748b506e277aa04dad3844743db7f363430e9a044eda00e"
+      "bytes": 5620,
+      "sha256": "27d199cebe75d5f7c9041aead9a2dbe92a39407e9f09e94eb08124c859848bd6"
+    },
+    {
+      "path": "docs/parity-mp8.md",
+      "bytes": 9767,
+      "sha256": "8d1088fb0fffa784b3c260f848e6efae5c4b06fba47373c002d186f3162c0007"
     },
     {
       "path": "muse.md",
@@ -541,6 +691,56 @@
       "path": "native/build.gradle.kts",
       "bytes": 269,
       "sha256": "037853aae08909e0ca99d7b8df470c2506472389d5e5a9378bb25566a3dae462"
+    },
+    {
+      "path": "native/debug_overlay/README.md",
+      "bytes": 2309,
+      "sha256": "534407d3e3d65e169b0b957e4501af8767eeb4e7f23cde4434c63fadb7736c6a"
+    },
+    {
+      "path": "native/debug_overlay/build.gradle.kts",
+      "bytes": 1382,
+      "sha256": "b0441e99fa19b5cac28ffc70a697f2ebf8c81100da5e87c39c99d01695f85ef7"
+    },
+    {
+      "path": "native/debug_overlay/src/main/AndroidManifest.xml",
+      "bytes": 768,
+      "sha256": "57fe2612c08d7cea57e480b8f75c1b8e164104d8f0929615562adc879bccdf05"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/AutoChecks.kt",
+      "bytes": 3263,
+      "sha256": "b61067b3ce9acd1395d3d5e0008fc1386c8911287a3db2b403859ee86003ef02"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/ChecklistItem.kt",
+      "bytes": 823,
+      "sha256": "cd0398a20ccce06fbb17d9871982b1b9c649074da7971319228d9a244234cc3a"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/ChecklistProvider.kt",
+      "bytes": 2108,
+      "sha256": "aba0c13c7d0834eb849cc2b15b51861679ffc24feaaa8412d9c43e24c08dc700"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/ChecklistStore.kt",
+      "bytes": 1815,
+      "sha256": "b11133ac4094f45da85b9305474bdb2eb2cd645a8b178d87d40eae8fef89b3ed"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/DefaultItems.kt",
+      "bytes": 2324,
+      "sha256": "b6ac138ed1d696d9838d760a8140f59888d8829b38abd418305ba9294bf48e8c"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/MainActivity.kt",
+      "bytes": 5374,
+      "sha256": "18533a9598957472628e3111252fcb39796639c9a9839dd2d82ec4df100cfbaa"
+    },
+    {
+      "path": "native/debug_overlay/src/main/kotlin/com/visionengine/debugoverlay/OverlayConfig.kt",
+      "bytes": 588,
+      "sha256": "444aa41d3eee837379dff0111feb97738d47e9be9f3ed54722fc2b2245991fe4"
     },
     {
       "path": "native/gradle.properties",
@@ -569,8 +769,8 @@
     },
     {
       "path": "native/settings.gradle.kts",
-      "bytes": 396,
-      "sha256": "fcb0fb3a2630c50dfb047b66ed872b2d16fa9bcddba87c44ef2ad648b8fbdc89"
+      "bytes": 422,
+      "sha256": "81c61ca2b8e3a786cfbb86d119129fd9ebdd11d6108aa73c08c6363b23fbd71e"
     },
     {
       "path": "native/vision-android/README.md",
@@ -648,6 +848,11 @@
       "sha256": "418165be44194092000fcd713aae595585b6bb6a19fdbc632ea19589d906df0f"
     },
     {
+      "path": "native/vision-android/src/main/kotlin/com/visionengine/android/meta/ExifOps.kt",
+      "bytes": 4862,
+      "sha256": "fee6afe7e7fff9c16d50d0474d89799d4fb791dd2dc6206350dd776eb0dda0b9"
+    },
+    {
       "path": "native/vision-android/src/main/kotlin/com/visionengine/android/meta/ExifReader.kt",
       "bytes": 5195,
       "sha256": "b11dbfc04ea3c711dbca77cdce015d634d8141534c162b516e961bf841555aa8"
@@ -706,6 +911,11 @@
       "path": "native/vision-android/src/main/kotlin/com/visionengine/android/thumbs/VideoFrames.kt",
       "bytes": 4029,
       "sha256": "a5926b090ce7d99725522f68b04c045f4d1c2e211cdfde83ece336f64b68cec3"
+    },
+    {
+      "path": "native/vision-android/src/test/kotlin/com/visionengine/android/meta/ExifOpsTest.kt",
+      "bytes": 3267,
+      "sha256": "9c7bd27970064ff20c371da4c955ffe6ea058a17a845caad8e3e697dd5f2a85e"
     },
     {
       "path": "native/vision-android/src/test/kotlin/com/visionengine/android/meta/ExifReaderTest.kt",
@@ -1284,8 +1494,8 @@
     },
     {
       "path": "packages/rename_core/lib/rename_core.dart",
-      "bytes": 341,
-      "sha256": "1f0869c86f1b7ce7aa49d4cf8756118f4eac63bfc618eb0eb447ed1c5677a09c"
+      "bytes": 370,
+      "sha256": "8b7a4814aec8bc565bd12f290b1e1cf0d80e2c6e64a33806f84d2758df8e34e4"
     },
     {
       "path": "packages/rename_core/lib/src/manifest.dart",
@@ -1299,13 +1509,18 @@
     },
     {
       "path": "packages/rename_core/lib/src/plan.dart",
-      "bytes": 2973,
-      "sha256": "763a15bc116b175cd855edd3af497f5236535aef1a309bfaa3f2ecd665c1193c"
+      "bytes": 3105,
+      "sha256": "414e3bb939f67483e2c2c3f515a248438600ab781189af31ae498425eccf70cf"
     },
     {
       "path": "packages/rename_core/lib/src/prefix.dart",
       "bytes": 835,
       "sha256": "91cb650a070cd638b61c69c3dff367c2bb0b7c3de1d20e2189d9eb2c74c072a1"
+    },
+    {
+      "path": "packages/rename_core/lib/src/templates.dart",
+      "bytes": 1188,
+      "sha256": "6a8b83082f7246c44993a91c9d5df2a2cce22cd1b2bfc23a86beb5f0d7398b7a"
     },
     {
       "path": "packages/rename_core/pubspec.yaml",
@@ -1363,6 +1578,11 @@
       "sha256": "c998d8d65ccbf8caee84e53b76a40c375707470a505ce6c4d8e99d6c0606d350"
     },
     {
+      "path": "packages/rename_core/test/templates_test.dart",
+      "bytes": 2655,
+      "sha256": "355874416fca32703da711ff0153d4a24e0d7e0748f507108bd9d0f263315ec5"
+    },
+    {
       "path": "packages/rename_core/tool/dump_plan.dart",
       "bytes": 2719,
       "sha256": "a839fd5225745c1bacfec15cb40985bfbc08d24a890ea4cd469ee6197de3af9e"
@@ -1398,9 +1618,19 @@
       "sha256": "b67ce5874dfb70468dcc11a58e43b67d8d09c71bf4227cbc3a36f86d9c58bfef"
     },
     {
+      "path": "tools/make_reference_manifest.py",
+      "bytes": 2072,
+      "sha256": "6f1ac9e087d6837c08bef41a1b0747fcb0383a8f23e98e7f106f2aa681dfff61"
+    },
+    {
       "path": "tools/parity_probe.py",
       "bytes": 8295,
       "sha256": "e80bc320d09a349bce6d83ef94a3166464092a37ac7b36bb68334db93bd82276"
+    },
+    {
+      "path": "tools/smoke_checklist.ps1",
+      "bytes": 1265,
+      "sha256": "6cb5037fe70204a17abae7727157d0356f81aaeb624a6353b0e47904ab2785fd"
     },
     {
       "path": "tools/verify_reference.py",
@@ -1409,7 +1639,7 @@
     }
   ],
   "counts": {
-    "files": 281,
-    "bytes": 1325401
+    "files": 327,
+    "bytes": 1712037
   }
 }
